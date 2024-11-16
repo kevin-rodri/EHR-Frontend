@@ -1,24 +1,37 @@
-import logo from './logo.svg';
-import './App.css';
+import React from "react";
+import { ThemeProvider, createTheme } from "@mui/material/styles";
+import Typography from "@mui/material/Typography";
+import Button from "@mui/material/Button";
 
 function App() {
+  // creates a theme - this will have to change. (Ideally, we don't want this here.)
+  const theme = createTheme({
+    palette: {
+      primary: {
+        main: "#1976d2",
+      },
+      secondary: {
+        main: "#dc004e",
+      },
+    },
+    typography: {
+      h3: {
+        fontWeight: "bold",
+      },
+    },
+  });
+
   return (
-    <div className="App">
-      <header className="App-header">
-        <img src={logo} className="App-logo" alt="logo" />
-        <p>
-          Edit <code>src/App.js</code> and save to reload.
-        </p>
-        <a
-          className="App-link"
-          href="https://reactjs.org"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          Learn React
-        </a>
-      </header>
-    </div>
+    <ThemeProvider theme={theme}>
+      <div style={{ padding: "1.25rem", textAlign: "center" }}>
+        <Typography variant="h3" component="h1" gutterBottom>
+          Welcome to the EHR Application!
+        </Typography>
+        <Button variant="contained" color="primary">
+          Click Me
+        </Button>
+      </div>
+    </ThemeProvider>
   );
 }
 
