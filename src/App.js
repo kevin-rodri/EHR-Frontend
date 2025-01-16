@@ -1,13 +1,20 @@
 import React from "react";
-import Box from "@mui/material/Box";
-import LoginFormComponent from "./components/auth/LoginFormComponent";
+import LoginPage from "./pages/Login";
+import SignUpPage from "./pages/SignUp";
+import { Box } from "@mui/material";
+import { BrowserRouter, Routes, Route } from "react-router-dom";
 
 function App() {
   return (
-    <div>
-      <Box>primary.ma,;mfg;khf;dhxdf hg</Box>
-      <LoginFormComponent />
-    </div>
+    <Box>
+      <BrowserRouter>
+        <Routes>
+          <Route path="/" element={<LoginPage />} />
+          <Route path="/register" element={<SignUpPage />} />
+        </Routes>
+      </BrowserRouter>
+      {/* < SignUpPage /> */}
+    </Box>
   );
 }
 

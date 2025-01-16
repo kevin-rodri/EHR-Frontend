@@ -5,9 +5,14 @@ Description: This is the main css file for the app. Ideally, components should h
 and this file should be used for global styles. 
 
 Roboto Source: https://mui.com/material-ui/react-typography/ 
+Note: the background color was agreed upon with the clients in the mockup.
 */
 
 @import '@fontsource/roboto/300.css';
 @import '@fontsource/roboto/400.css';
 @import '@fontsource/roboto/500.css';
 @import '@fontsource/roboto/700.css';
+
+body {
+    background-color: #00a3ff;
+}
