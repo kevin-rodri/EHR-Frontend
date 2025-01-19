@@ -3,31 +3,46 @@ Name: Kevin Rodriugez
 Date: 1/11/25
 Remarks: AuthService that is responsible for making http requests to the backend. (For the users route)
 */
-import axios from "axios";
-import { serviceUrl, httpTokenInterceptor } from "./httpInterceptor";
+import { axiosInstance } from "./httpInterceptor";
 
-const url = `${serviceUrl()}/users`;
 const localStorageKey = "JWT_TOKEN";
 
-// Logs in a user.
-export function login(username, password) {
+export async function login(username, password) {
   try {
-    const response = axios.post(`${url}/signIn`, { username, password });
-    localStorage.setItem(localStorageKey, response);
-    return response;
+    const response = await axiosInstance().post(`users/signIn`, {
+      username,
+      password,
+    });
+    localStorage.setItem(localStorageKey, response.data.token); // We're going to change this afterwards..
+    return response.data;
   } catch (error) {
-    console.error(error);
+    throw error;
   }
 }
 
-export function registerUser(userData) {
-  return axios.post(url, userData);
+export async function registerUser(userData) {
+  try {
+    const response = await axiosInstance().post(`users/`, userData);
+    return response.data;
+  } catch (error) {
+    throw error;
+  }
 }
 
-export function updateUser(id, updatedUserInfo) {
-  return axios.put(`${url}/${id}`, updatedUserInfo);
+export async function updateUser(id, updatedUserInfo) {
+  try {
+    const response = await axiosInstance().put(`users/${id}`, updatedUserInfo);
+    return response.data;
+  } catch (error) {
+    throw error;
+  }
 }
 
-export function deleteUser(id) {
-  return axios.delete(`${url}/${id}`);
+export async function deleteUser(id) {
+  try {
+    const response = await axiosInstance().delete(`users/${id}`);
+    return response.data;
+  } catch (error) {
+    throw error;
+  }
 }

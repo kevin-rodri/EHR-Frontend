@@ -8,20 +8,38 @@ Some code was borrowed from here: https://javascript.plainenglish.io/understandi
 */
 import axios from "axios";
 
+// to be used to in each of the services
+export const serviceUrl = () => {
+  return `https://ehr-application.vercel.app`;
+};
+
 // creates interceptor that will be used as part of http requests
-export const httpTokenInterceptor = () => {
-  axios.interceptors.request.use(
-    (config) => {
-      const token = localStorage.getItem("token");
-      if (token != null) {
-        config.headers.Authorization = `Bearer ${token}`;
-      }
-      return config;
+export const axiosInstance = () => {
+  const instance = axios.create({
+    baseURL: serviceUrl(),
+    headers: {
+      "Content-Type": "application/json",
+    },
+  });
+
+  instance.interceptors.response.use(
+    (response) => {
+      return response;
     },
     (error) => {
+      const expectedError =
+        error.response &&
+        error.response.status >= 400 &&
+        error.response.status < 500;
+
+      if (!expectedError) {
+        console.error("An unexpected error occurred:", error);
+      }
+
       return Promise.reject(error);
     }
   );
+  return instance;
 };
 
 // used for handling responses from an http call
@@ -34,9 +52,4 @@ export const httpResponseInterceptor = () => {
       return Promise.reject(error);
     }
   );
-};
-
-// to be used to in each of the services
-export const serviceUrl = () => {
-  return `ehr-application.vercel.app`;
 };
