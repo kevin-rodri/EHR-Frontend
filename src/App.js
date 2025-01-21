@@ -1,37 +1,22 @@
 import React from "react";
-import { ThemeProvider, createTheme } from "@mui/material/styles";
-import Typography from "@mui/material/Typography";
-import Button from "@mui/material/Button";
+import LoginPage from "./pages/Login";
+import SignUpPage from "./pages/SignUp";
+import EmptyPage from "./pages/EmptyPage";
+import { Box } from "@mui/material";
+import { BrowserRouter, Routes, Route } from "react-router-dom";
 
 function App() {
-  // creates a theme - this will have to change. (Ideally, we don't want this here.)
-  const theme = createTheme({
-    palette: {
-      primary: {
-        main: "#1976d2",
-      },
-      secondary: {
-        main: "#dc004e",
-      },
-    },
-    typography: {
-      h3: {
-        fontWeight: "bold",
-      },
-    },
-  });
-
   return (
-    <ThemeProvider theme={theme}>
-      <div style={{ padding: "1.25rem", textAlign: "center" }}>
-        <Typography variant="h3" component="h1" gutterBottom>
-          Welcome to the EHR Application!
-        </Typography>
-        <Button variant="contained" color="primary">
-          Click Me
-        </Button>
-      </div>
-    </ThemeProvider>
+    <Box>
+      <BrowserRouter>
+        <Routes>
+          <Route path="/" element={<LoginPage />} />
+          <Route path="/to-do" element={<EmptyPage />} />
+          <Route path="/register" element={<SignUpPage />} />
+        </Routes>
+      </BrowserRouter>
+      {/* < SignUpPage /> */}
+    </Box>
   );
 }
 
