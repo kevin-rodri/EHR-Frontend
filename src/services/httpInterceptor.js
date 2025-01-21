@@ -7,13 +7,14 @@ https://medium.com/@jscodelover/understanding-request-and-response-interceptors-
 Some code was borrowed from here: https://javascript.plainenglish.io/understanding-interceptors-in-react-js-bb0a86cbc5a2
 */
 import axios from "axios";
+const localStorageKey = "JWT_TOKEN";
 
 // to be used to in each of the services
 export const serviceUrl = () => {
   return `https://ehr-application.vercel.app`;
 };
 
-// creates interceptor that will be used as part of http requests
+// Axios instance without authentication logic
 export const axiosInstance = () => {
   const instance = axios.create({
     baseURL: serviceUrl(),
@@ -27,15 +28,40 @@ export const axiosInstance = () => {
       return response;
     },
     (error) => {
-      const expectedError =
-        error.response &&
-        error.response.status >= 400 &&
-        error.response.status < 500;
+      return Promise.reject(error);
+    }
+  );
 
-      if (!expectedError) {
-        console.error("An unexpected error occurred:", error);
+  return instance;
+};
+
+// Axios instance with authentication logic
+export const axiosTokenInstance = () => {
+  const instance = axios.create({
+    baseURL: serviceUrl(),
+    headers: {
+      "Content-Type": "application/json",
+    },
+  });
+
+  instance.interceptors.request.use(
+    (config) => {
+      const token = localStorage.getItem(localStorageKey);
+      if (token != null) {
+        config.headers["Authorization"] = `Bearer ${token.token}`;
       }
+      return config;
+    },
+    (error) => {
+      return Promise.reject(error);
+    }
+  );
 
+  instance.interceptors.response.use(
+    (response) => {
+      return response;
+    },
+    (error) => {
       return Promise.reject(error);
     }
   );
