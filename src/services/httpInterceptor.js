@@ -11,7 +11,7 @@ const localStorageKey = "JWT_TOKEN";
 
 // to be used to in each of the services
 export const serviceUrl = () => {
-  return `https://ehr-application.vercel.app`;
+  return `https://ehr-application-one.vercel.app/`;
 };
 
 // Axios instance without authentication logic
