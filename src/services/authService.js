@@ -13,11 +13,11 @@ export async function login(username, password) {
       username,
       password,
     });
-    const { token, feature_flags } = response.data;
+    const { token } = response.data; 
     // https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/JSON/stringify
     localStorage.setItem(
       localStorageKey,
-      JSON.stringify({ token, feature_flags })
+      JSON.stringify({ token })
     );
     return response.data;
   } catch (error) {
