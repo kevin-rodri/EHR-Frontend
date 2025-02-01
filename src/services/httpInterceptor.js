@@ -46,9 +46,13 @@ export const axiosTokenInstance = () => {
 
   instance.interceptors.request.use(
     (config) => {
-      const token = localStorage.getItem(localStorageKey);
-      if (token != null) {
-        config.headers["Authorization"] = `Bearer ${token.token}`;
+      const storedValue = localStorage.getItem(localStorageKey);
+      if (storedValue != null) {
+        const parsed = JSON.parse(storedValue); 
+        const token = parsed.token; 
+        if (token != null) {
+          config.headers["Authorization"] = `Bearer ${token}`;
+        }
       }
       return config;
     },
