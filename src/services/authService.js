@@ -5,7 +5,8 @@ Remarks: AuthService that is responsible for making http requests to the backend
 */
 import { axiosInstance, axiosTokenInstance } from "./httpInterceptor";
 
-const localStorageKey = "JWT_TOKEN";
+const jwtLocalStorageKey = "JWT_TOKEN";
+const roleLocalStorageKey = "ROLE";
 
 export async function login(username, password) {
   try {
@@ -13,16 +14,20 @@ export async function login(username, password) {
       username,
       password,
     });
-    const { token } = response.data; 
+    const { token, role } = response.data;
     // https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/JSON/stringify
-    localStorage.setItem(
-      localStorageKey,
-      JSON.stringify({ token })
-    );
+    localStorage.setItem(jwtLocalStorageKey, JSON.stringify({ token }));
+    localStorage.setItem(roleLocalStorageKey, JSON.stringify({ role }));
     return response.data;
   } catch (error) {
     throw error;
   }
+}
+
+export async function getUserRole() {
+  const role = localStorage.getItem(roleLocalStorageKey);
+  const parsed = JSON.parse(role);
+  return parsed.role;
 }
 
 export async function registerUser(userData) {
