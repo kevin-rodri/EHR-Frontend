@@ -13,6 +13,7 @@ import {
   List,
   TableHead,
   TableCell,
+  TableBody,
 } from "@mui/material";
 import { Add } from "@mui/icons-material";
 import { useForm } from "react-hook-form";
@@ -71,12 +72,8 @@ export default function PatientHistoryComponent({ sectionId }) {
           display: "flex",
           padding: 1,
           flexDirection: "column",
+          alignItems: "flex-start",
           backgroundColor: "white",
-          /*marginBottom: 10,
-          marginLeft: 20,
-          marginRight: 30,*/
-          borderRadius: 3,
-          overflowX: "auto",
         }}
       >
         <TableHead>
@@ -87,36 +84,35 @@ export default function PatientHistoryComponent({ sectionId }) {
               </Typography>
             </TableCell>
             <TableCell>
-              <Typography sx={{ fontWeight: "bold", marginLeft: 2 }}>
+              <Typography sx={{ fontWeight: "bold", marginLeft: 5 }}>
                 History Title
               </Typography>
             </TableCell>
             <TableCell width={1500}>
-              <Typography sx={{ fontWeight: "bold", marginLeft: 2 }}>
+              <Typography sx={{ fontWeight: "bold", marginLeft: 56 }}>
                 Orders
               </Typography>
             </TableCell>
             <TableCell>
-              <TableCell>
-                {display && (
-                  <Fab aria-label="add" onClick={() => setOpenModal(true)}>
-                    <Add />
-                  </Fab>
-                )}
-              </TableCell>
+              {display && (
+                <Fab aria-label="add" onClick={() => setOpenModal(true)}>
+                  <Add />
+                </Fab>
+              )}
             </TableCell>
           </TableRow>
         </TableHead>
-        <List>
-          {histories.map((history) => (
-            <PatientHistoryRowComponent
-              key={history.id}
-              patientID={patientId}
-              history={history}
-              refreshPatientHistory={fetchPatientHistory}
-            />
-          ))}
-        </List>
+        <TableBody>
+          <List>
+            {histories.map((history) => (
+              <PatientHistoryRowComponent
+                patientID={patientId}
+                history={history}
+                refreshPatientHistory={fetchPatientHistory}
+              />
+            ))}
+          </List>
+        </TableBody>
       </Box>
     </Box>
   );
