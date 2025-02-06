@@ -44,7 +44,6 @@ import {
           <CardHeader 
             sx={{
               display: "flex",
-              padding: 16,
               alignItems: "center",
               alignSelf: "stretch"
             }}
