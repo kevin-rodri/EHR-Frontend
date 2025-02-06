@@ -24,7 +24,7 @@ export async function login(username, password) {
   }
 }
 
-export async function getUserRole() {
+export function getUserRole() {
   const role = localStorage.getItem(roleLocalStorageKey);
   const parsed = JSON.parse(role);
   return parsed.role;
