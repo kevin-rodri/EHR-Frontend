@@ -13,4 +13,13 @@ export async function getPatientById(id) {
     throw error;
   }
 }
-// add the rest here. 
+
+export async function updatePatientInfo(id, data) {
+  try {
+    const response = await axiosTokenInstance().put(`patients/${id}`, data);
+    return response.data;
+  } catch (error) {
+    throw error;
+  }
+}
+// add the rest here.
