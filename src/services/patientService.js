@@ -22,4 +22,13 @@ export async function updatePatientInfo(id, data) {
     throw error;
   }
 }
+
+export async function patchPatientInfo(id, value) {
+  try {
+    const response = await axiosTokenInstance().patch(`patients/${id}`, value);
+    return response.data;
+  } catch (error) {
+    throw error;
+  }
+}
 // add the rest here.
