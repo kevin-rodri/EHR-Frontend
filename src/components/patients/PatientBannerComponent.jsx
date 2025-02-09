@@ -2,6 +2,9 @@
 Name: Kevin Rodriguez
 Date: 2/1/25
 Remarks: Patient Banner Component to be displayed throughout the application
+CSS classes were overwritten: https://mui.com/material-ui/customization/how-to-customize/?srsltid=AfmBOorxpAY72LpcRBgqKwauvw-MzSIiJxIWPgCiU7RRokymfZq5eTJA
+Ideally, not something we want to do, but for the sake of sticking to the design, this change was needed.
+Blur changes seemed relevant for this: https://legacy.reactjs.org/docs/events.html
 */
 
 import React, { useEffect, useState } from "react";
@@ -20,22 +23,27 @@ import {
 import { getUserRole } from "../../services/authService";
 
 export default function PatientBannerComponent({ sectionId }) {
+  // used to get the patient along with checking to see if user has permission to edit information
   const [patient, setPatient] = useState(null);
   const [modify, setModify] = useState(false);
 
   useEffect(() => {
     if (sectionId == null) return;
+    // chek if user will have permission
     const role = getUserRole();
     if (role === "ADMIN" || role === "INSTRUCTOR") {
       setModify(true);
     }
 
+    // gets the patient info
     const fetchPatientInfo = async () => {
       try {
         const sectionPatient = await getSectionPatientById(sectionId);
         const patientId = sectionPatient.patient_id;
         const patientData = await getPatientById(patientId);
-        setPatient(patientData);
+        if (patientData != null) {
+          setPatient(patientData);
+        }
       } catch (err) {
         console.error(err);
       }
@@ -43,24 +51,32 @@ export default function PatientBannerComponent({ sectionId }) {
     fetchPatientInfo();
   }, [sectionId]);
 
-  if (patient == null) return null;
+  if (patient == null) return;
 
   const handleFieldChange = (field, value) => {
     setPatient((prev) => ({ ...prev, [field]: value }));
   };
 
+  // this what we send to the backend
+  // fields should match the column that needs to be updated
   const handleFieldBlur = async (field) => {
     try {
-      if (patient == null) return;
-      await patchPatientInfo(patient.id, {
-        [field]: patient[field],
-      });
-    } catch (err) {
-      console.error("Error updating patient info:", err);
+      let updatedValue = patient[field];
+    //   if (field === "has_advanced_directives" || field === "has_insurance") {
+    //     const userInput = updatedValue.toString().trim().toLowerCase();
+    //     updatedValue = userInput === "yes" ? 1 : 0;
+    //   }
+
+      await patchPatientInfo(patient.id, { [field]: updatedValue });
+      
+      setPatient((prev) => ({
+        ...prev,
+        [field]: updatedValue,
+      }));
+    } catch (error) {
+      throw error;
     }
   };
-
-  if (patient == null) return null;
 
   return (
     <FormGroup
@@ -93,9 +109,8 @@ export default function PatientBannerComponent({ sectionId }) {
               display: "none",
             },
             "& .MuiInputBase-input": {
-              padding: 0,
               width: `${
-                (patient.weight || "").toString().length * 1.25 || 1
+                (patient.weight || "").toString().length * 1.5 || 1
               }rem`,
             },
           }}
@@ -123,7 +138,6 @@ export default function PatientBannerComponent({ sectionId }) {
               display: "none",
             },
             "& .MuiInputBase-input": {
-              padding: 0,
               width: `${
                 (patient.medical_registration_number || "").toString().length -
                   1 || 1
@@ -152,7 +166,6 @@ export default function PatientBannerComponent({ sectionId }) {
               display: "none",
             },
             "& .MuiInputBase-input": {
-              padding: 0,
               width: `${
                 (patient.date_of_birth || "").toString().length || 1
               }ch`,
@@ -180,7 +193,6 @@ export default function PatientBannerComponent({ sectionId }) {
               display: "none",
             },
             "& .MuiInputBase-input": {
-              padding: 0,
               width: `${(patient.weight || "").toString().length || 1}ch`,
             },
           }}
@@ -209,7 +221,6 @@ export default function PatientBannerComponent({ sectionId }) {
               display: "none",
             },
             "& .MuiInputBase-input": {
-              padding: 0,
               width: `${(patient.height || "").toString().length || 1}ch`,
             },
           }}
@@ -251,7 +262,6 @@ export default function PatientBannerComponent({ sectionId }) {
               display: "none",
             },
             "& .MuiInputBase-input": {
-              padding: 0,
               width: `${
                 (Array.isArray(patient.allergies)
                   ? patient.allergies.length
@@ -285,7 +295,6 @@ export default function PatientBannerComponent({ sectionId }) {
               display: "none",
             },
             "& .MuiInputBase-input": {
-              padding: 0,
               width: `${
                 (patient.has_advanced_directives || "").toString().length + 5 ||
                 1
@@ -314,7 +323,6 @@ export default function PatientBannerComponent({ sectionId }) {
               display: "none",
             },
             "& .MuiInputBase-input": {
-              padding: 0,
               width: `${
                 (patient.precautions || "").toString().length + 2 || 1
               }ch`,
@@ -342,7 +350,6 @@ export default function PatientBannerComponent({ sectionId }) {
               display: "none",
             },
             "& .MuiInputBase-input": {
-              padding: 0,
               width: `${
                 (patient.code_status || "").toString().length + 2 || 1
               }ch`,
@@ -370,7 +377,6 @@ export default function PatientBannerComponent({ sectionId }) {
               display: "none",
             },
             "& .MuiInputBase-input": {
-              padding: 0,
               width: `${
                 (patient.has_insurance || "").toString().length + 5 || 1
               }ch`,
