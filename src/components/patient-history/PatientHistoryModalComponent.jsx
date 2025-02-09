@@ -10,12 +10,22 @@ import {
     TextField 
   } from "@mui/material";
   import React, { useState } from "react";
+  import { addPatientHistory } from "../../services/patientHistoryService";
+  import { useForm } from "react-hook-form";
   
   
-  export default function PatientHistoryModalComponent({ open, onClose }) {
+  export default function PatientHistoryModalComponent({ open, onClose, patientID }) {
     const [title, setTitle] = useState("");
     const [description, setDescription] = useState("");
     const [historyType, setHistoryType] = useState("");
+    const [loading, setLoading] = useState(false);
+    const [error, setError] = useState(null);
+
+    const {
+        register,
+        handleSubmit,
+        formState: { errors },
+      } = useForm();
   
     function handleTitle(event) {
       setTitle(event.target.value);
@@ -29,6 +39,24 @@ import {
       setHistoryType(event.target.value);
     }
   
+    const onSubmit = async () => {
+        setLoading(true);
+        try {
+          await new Promise((resolve) => setTimeout(resolve, 1000));
+    
+          await addPatientHistory(patientID, {
+            type: historyType,
+            title: title,
+            description: description,
+          });
+    
+        } catch (err) {
+          setError("Failed to submit patient history, please try again.");
+        } finally {
+          setLoading(false);
+        }
+      };
+
     return (
       <Modal 
         open={open} 
@@ -39,6 +67,7 @@ import {
           justifyContent: "center",
           marginTop: "50px"
         }}
+
       >
         <div style={{ background: "#fff", padding: 16 }}>
           <CardHeader 
@@ -56,6 +85,9 @@ import {
                 value={title}
                 onChange={handleTitle} 
                 fullWidth
+                {...register("title", {
+                    required: "A title is required",
+                  })}
               />
             </div>
             <div style={{ marginTop: 16 }}>
@@ -74,6 +106,9 @@ import {
                 <Select 
                   value={historyType}
                   onChange={handleHistoryType}
+                  {...register("type", {
+                    required: "History type is required",
+                  })}
                 >
                   <MenuItem value={"Primary Admitting Diagnosis"}>Primary Admitting Diagnosis</MenuItem>
                   <MenuItem value={"Family Heath History"}>Family Heath History</MenuItem>
@@ -85,7 +120,7 @@ import {
           </CardContent>
           <CardActions>
             <Button color="secondary" onClick={onClose}>Cancel</Button>
-            <Button color="primary">Save</Button>
+            <Button type="submit" color="primary" onClick={onSubmit}>Save</Button>
           </CardActions>
         </div>
       </Modal>

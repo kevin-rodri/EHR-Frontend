@@ -1,29 +1,21 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import {
   Box,
   Button,
-  Card,
-  CircularProgress,
-  FormControl,
-  FormGroup,
-  FormLabel,
-  TextField,
   Typography,
-  Snackbar,
-  Alert,
-  Paper,
   Fab,
   TableRow,
-  List,
-  ListItem,
-  ButtonGroup,
+  List
 } from "@mui/material";
-import { Delete, Edit, Add } from "@mui/icons-material";
+import { Add } from "@mui/icons-material";
 import { useForm } from "react-hook-form";
-import { useNavigate } from "react-router-dom";
 import PatientHistoryModalComponent from "./PatientHistoryModalComponent";
+import PatientHistoryRowComponent from "./PatientHistoryRowComponent";
+import { getSectionPatientById } from "../../services/sectionPatientService";
+import { getPatientHistory } from "../../services/patientHistoryService";
+import { getUserRole } from "../../services/authService";
 
-export default function PatientHistoryComponent() {
+export default function PatientHistoryComponent({sectionId}) {
   const {
     handleSubmit,
     formState: { errors },
@@ -31,40 +23,42 @@ export default function PatientHistoryComponent() {
 
   // controlling the open/close of the modal:
   const [openModal, setOpenModal] = useState(false);
+  const [histories, setHistories] = useState([]);
+  const [patientId, setPatientId] = useState("");
+  const [display, setDisplay] = useState(false);
+  const [update, setUpdate] = useState();
 
-  const patientHistories = [
-    {
-      type: "Primary Admitting Diagnosis",
-      title: "Patient's Primary Admitting Diagnosis",
-      descrption: "This is Patients Primary Admitting Diagnosis",
-    },
-    {
-      type: "Family Health History",
-      title: "Patient's Family Health History",
-      descrption: "This is Patient's Family Health History",
-    },
-    {
-      type: "Social History",
-      title: "Patient's Social History",
-      descrption: "This is Patient's Social History",
-    },
-    {
-      type: "Medical/Sugical History",
-      title: "Patient's Medical/Sugical History",
-      descrption: "This is Patient's Medical/Sugical History",
-    },
-  ];
+  useEffect(() => {
+      if (sectionId == null) return;
+      const role = getUserRole();
+      if (role === "ADMIN" || role === "INSTRUCTOR") {
+        setDisplay(true);
+      }
+      const fetchPatientHistory = async () => {
+        try {
+          const sectionPatient = await getSectionPatientById(sectionId);
+          const patientId = sectionPatient.patient_id;
+          const patientData = await getPatientHistory(patientId);
+          setHistories(patientData);
+          setPatientId(patientId)
+        } catch (err) {
+          throw err;
+        }
+      };
+      fetchPatientHistory();
+    }, [sectionId]);
 
   return (
     <Box>
       <PatientHistoryModalComponent
         open={openModal}
         onClose={() => setOpenModal(false)}
+        patientID={patientId}
       />
       <Box
         sx={{
           display: "flex",
-          padding: 5,
+          padding: 1,
           flexDirection: "column",
           alignItems: "flex-start",
           backgroundColor: "white",
@@ -75,32 +69,20 @@ export default function PatientHistoryComponent() {
         }}
       >
         <TableRow>
-          <FormLabel>History Title</FormLabel>
-          <FormLabel sx={{ marginLeft: 25 }}>Orders</FormLabel>
+          <Typography sx={{fontWeight: "bold", marginLeft: 5, marginTop: 5 }}>History Title</Typography>
+          <Typography sx={{ fontWeight: "bold", marginLeft: 25 }}>Orders</Typography>
           <Fab
             aria-label="add"
             sx={{ marginLeft: 100 }}
+            disabled={!display}
             onClick={() => setOpenModal(true)}
           >
             <Add />
           </Fab>
         </TableRow>
         <List>
-          {patientHistories.map((patientHistory, index) => (
-            <ListItem key={index}>
-              {patientHistory.type}
-              <span style={{ marginLeft: 20 }}>
-                {patientHistory.descrption}
-              </span>
-              <ButtonGroup sx={{ marginLeft: 2 }}>
-                <Fab>
-                  <Edit />
-                </Fab>
-                <Fab>
-                  <Delete />
-                </Fab>
-              </ButtonGroup>
-            </ListItem>
+          {histories.map((history) => (
+            <PatientHistoryRowComponent patientID={patientId} history={history} />
           ))}
         </List>
         <Button
@@ -110,12 +92,11 @@ export default function PatientHistoryComponent() {
             height: 49,
           }}
           variant="contained"
+          disabled={!display}
         >
           Save
         </Button>
       </Box>
-
-      {/* Pass the open and onClose props down to your modal component */}
     </Box>
   );
 }
