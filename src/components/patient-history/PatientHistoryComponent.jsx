@@ -90,7 +90,7 @@ export default function PatientHistoryComponent({sectionId}) {
           <Fab
             aria-label="add"
             sx={{ marginLeft: 95 }}
-            disabled={!display}
+            //disabled={!display}
             onClick={() => setOpenModal(true)}
           >
             <Add />

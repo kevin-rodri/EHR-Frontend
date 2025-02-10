@@ -102,7 +102,7 @@ export default function PatientHistoryRowComponent({patientID, history, ref}) {
                 <Fab onClick={() => setEdit(!edit)} /*disabled={!access}*/>
                   <Edit />
                 </Fab>
-                <Fab onClick={() => handleDelete(history.id)} disabled={!access}>
+                <Fab onClick={() => handleDelete(history.id)} /*disabled={!access}*/>
                   <Delete />
                 </Fab>
               </ButtonGroup>
