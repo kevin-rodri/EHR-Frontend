@@ -4,7 +4,7 @@ Date: 2/10/2025
 Remarks: The Patient History component for displaying patient history data.
 useImperativeHandle and useRef: https://vinodht.medium.com/call-child-component-method-from-parent-react-bb8db1112f55
 */
-import React, { useState, useEffect, useRef } from "react";
+import React, { useState, useEffect, forwardRef } from "react";
 import {
   Box,
   Button,
@@ -29,7 +29,7 @@ export default function PatientHistoryComponent({sectionId}) {
     formState: { errors },
   } = useForm();
 
-  const updateRef = useRef();
+  const updateRef = forwardRef();
 
   // controlling the open/close of the modal:
   const [openModal, setOpenModal] = useState(false);
