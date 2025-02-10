@@ -12,7 +12,7 @@ export async function getPatientHistory(patient_id) {
 export async function addPatientHistory(patient_id, history) {
     try {
         const response = await axiosTokenInstance().post(
-          `/patient/${patient_id}/history`,
+          `/patients/${patient_id}/history`,
           history
         );
         return response.data;
