@@ -5,7 +5,9 @@ import {
   Typography,
   Fab,
   TableRow,
-  List
+  List,
+  TableHead,
+  TableCell
 } from "@mui/material";
 import { Add } from "@mui/icons-material";
 import { useForm } from "react-hook-form";
@@ -68,18 +70,26 @@ export default function PatientHistoryComponent({sectionId}) {
           borderRadius: 3,
         }}
       >
+        <TableHead>
         <TableRow>
-          <Typography sx={{fontWeight: "bold", marginLeft: 5, marginTop: 5 }}>History Title</Typography>
-          <Typography sx={{ fontWeight: "bold", marginLeft: 25 }}>Orders</Typography>
+            <TableCell>
+          <Typography sx={{fontWeight: "bold", marginLeft: 2 }}>History Title</Typography>
+          </TableCell>
+          <TableCell>
+          <Typography sx={{ fontWeight: "bold", marginLeft: 2 }}>Orders</Typography>
+          </TableCell>
+          <TableCell>
           <Fab
             aria-label="add"
-            sx={{ marginLeft: 100 }}
+            sx={{ marginLeft: 95 }}
             disabled={!display}
             onClick={() => setOpenModal(true)}
           >
             <Add />
           </Fab>
+          </TableCell>
         </TableRow>
+        </TableHead>
         <List>
           {histories.map((history) => (
             <PatientHistoryRowComponent patientID={patientId} history={history} />

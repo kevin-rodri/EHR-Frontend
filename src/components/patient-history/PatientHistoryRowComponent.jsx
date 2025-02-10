@@ -4,7 +4,9 @@ import {
     TextField,
     Fab,
     Typography,
-    ButtonGroup 
+    ButtonGroup, 
+    TableCell,
+    FormControl
 } from "@mui/material";
 import { getSectionPatientById } from "../../services/sectionPatientService";
 import { getPatientHistory } from "../../services/patientHistoryService";
@@ -14,10 +16,10 @@ import { Delete, Edit } from "@mui/icons-material";
 import { getUserRole } from "../../services/authService";
 
 export default function PatientHistoryRowComponent({patientID, history}) {
-    const {
+    /*const {
         handleSubmit,
         formState: { errors },
-      } = useForm();
+      } = useForm();*/
 
       const [access, setAccess] = useState(false);
       const [edit, setEdit] = useState(false);
@@ -44,19 +46,23 @@ export default function PatientHistoryRowComponent({patientID, history}) {
 
       return (
         <TableRow>
+            <TableCell>
             <Typography textAlign={"center"} display={"flex"} width={107}>
               {history.type}
               </Typography>
-              <TextField 
+              </TableCell>
+              <TableCell width={1000}>
+              <TextField
+                fullWidth={true}
                 variant="standard"
-                value={history.descrption}
+                value={history.description}
                 disabled={!edit}
-                size="small"
+                size="medium"
                 onChange={(e) =>
                   handleEdit(e.target.value)
                 }
-                sx={{
-                  width: "auto",
+               sx={{
+                  //width: "auto",
                   "& .MuiInput-underline:before, & .MuiInput-underline:after": {
                     display: "none",
                   },
@@ -68,9 +74,11 @@ export default function PatientHistoryRowComponent({patientID, history}) {
                     }rem`,
                   },
                 }}
-              >
-                {history.descrption}
-              </TextField>
+              />
+              {  /*</TableCell>{history.descrption}
+              </TextField>*/}
+              </TableCell>
+              <TableCell>
               <ButtonGroup sx={{ marginLeft: 2 }}>
                 <Fab onClick={() => setEdit(!edit)} disabled={!access}>
                   <Edit />
@@ -79,6 +87,7 @@ export default function PatientHistoryRowComponent({patientID, history}) {
                   <Delete />
                 </Fab>
               </ButtonGroup>
+              </TableCell>
         </TableRow>
       )
       
