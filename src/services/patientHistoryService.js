@@ -1,4 +1,9 @@
-import { axiosInstance, axiosTokenInstance } from "./httpInterceptor";
+/*
+Name: Dylan Bellinger
+Date: 2/10/2025 
+Remarks: Patient history service for making calls to the backend.
+*/
+import { axiosTokenInstance } from "./httpInterceptor";
 
 export async function getPatientHistory(patient_id) {
     try {

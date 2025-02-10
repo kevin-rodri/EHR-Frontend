@@ -1,4 +1,10 @@
-import React, { useState, useEffect } from "react";
+/*
+Name: Dylan Bellinger
+Date: 2/10/2025 
+Remarks: The Patient History component for displaying patient history data.
+useImperativeHandle and useRef: https://vinodht.medium.com/call-child-component-method-from-parent-react-bb8db1112f55
+*/
+import React, { useState, useEffect, useRef } from "react";
 import {
   Box,
   Button,
@@ -23,12 +29,14 @@ export default function PatientHistoryComponent({sectionId}) {
     formState: { errors },
   } = useForm();
 
+  const updateRef = useRef();
+
   // controlling the open/close of the modal:
   const [openModal, setOpenModal] = useState(false);
   const [histories, setHistories] = useState([]);
   const [patientId, setPatientId] = useState("");
   const [display, setDisplay] = useState(false);
-  const [update, setUpdate] = useState();
+  const [update, setUpdate] = useState(false);
 
   useEffect(() => {
       if (sectionId == null) return;
@@ -92,7 +100,7 @@ export default function PatientHistoryComponent({sectionId}) {
         </TableHead>
         <List>
           {histories.map((history) => (
-            <PatientHistoryRowComponent patientID={patientId} history={history} />
+            <PatientHistoryRowComponent patientID={patientId} history={history} ref={updateRef}/>
           ))}
         </List>
         <Button
@@ -102,7 +110,10 @@ export default function PatientHistoryComponent({sectionId}) {
             height: 49,
           }}
           variant="contained"
-          disabled={!display}
+          //disabled={!display}
+          onClick={() => {
+            updateRef.current?.handleUpdate();
+          }}
         >
           Save
         </Button>

@@ -1,3 +1,8 @@
+/*
+Name: Dylan Bellinger
+Date: 2/10/2025 
+Remarks: Patient History page for viewing/editing patient history data.
+*/
 import React from "react";
 import PatientHistoryComponent from "../../components/patient-history/PatientHistoryComponent";
 import { Box, Typography } from "@mui/material";

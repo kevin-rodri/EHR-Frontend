@@ -1,3 +1,8 @@
+/*
+Name: Dylan Bellinger
+Date: 2/10/2025 
+Remarks: The Patient History modal component for making POST requests to add new history entries.
+*/
 import { 
     Button, 
     CardActions, 
@@ -85,9 +90,9 @@ import {
                 value={title}
                 onChange={handleTitle} 
                 fullWidth
-                {...register("title", {
+                /*{...register("title", {
                     required: "A title is required",
-                  })}
+                  })}*/
               />
             </div>
             <div style={{ marginTop: 16 }}>
@@ -106,9 +111,9 @@ import {
                 <Select 
                   value={historyType}
                   onChange={handleHistoryType}
-                  {...register("type", {
+                  /*{...register("type", {
                     required: "History type is required",
-                  })}
+                  })}*/
                 >
                   <MenuItem value={"Primary Admitting Diagnosis"}>Primary Admitting Diagnosis</MenuItem>
                   <MenuItem value={"Family Heath History"}>Family Heath History</MenuItem>

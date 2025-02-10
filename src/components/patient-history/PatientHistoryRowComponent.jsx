@@ -1,21 +1,25 @@
-import React, {useState, useEffect, useForm} from "react";
+/*
+Name: Dylan Bellinger
+Date: 2/10/2025 
+Remarks: The Patient History Row component for displaing each patient history, as well as editing and deleting
+each history.
+useImperativeHandle and useRef: https://vinodht.medium.com/call-child-component-method-from-parent-react-bb8db1112f55
+*/
+import React, {useState, useEffect, useImperativeHandle, forwardRef} from "react";
 import { 
     TableRow,
     TextField,
     Fab,
     Typography,
     ButtonGroup, 
-    TableCell,
-    FormControl
+    TableCell
 } from "@mui/material";
-import { getSectionPatientById } from "../../services/sectionPatientService";
-import { getPatientHistory } from "../../services/patientHistoryService";
 import { deletePatientHistory } from "../../services/patientHistoryService";
 import { updatePatientHistory } from "../../services/patientHistoryService";
 import { Delete, Edit } from "@mui/icons-material";
 import { getUserRole } from "../../services/authService";
 
-export default function PatientHistoryRowComponent({patientID, history}) {
+export default function PatientHistoryRowComponent({patientID, history, ref}) {
     /*const {
         handleSubmit,
         formState: { errors },
@@ -23,7 +27,7 @@ export default function PatientHistoryRowComponent({patientID, history}) {
 
       const [access, setAccess] = useState(false);
       const [edit, setEdit] = useState(false);
-      const [newHistory, setNewHistory] = useState(history);
+      const [newDescription, setNewDescription] = useState("");
 
       useEffect(() => {
         const role = getUserRole();
@@ -32,16 +36,36 @@ export default function PatientHistoryRowComponent({patientID, history}) {
         }
       }, []);
 
-      function handleUpdate() {
-        updatePatientHistory(patientID, history.id, newHistory);
+
+      useImperativeHandle(ref, () => {
+        return {
+            handleUpdate
+        };
+      });
+
+      async function handleUpdate() {
+        try {
+            updatePatientHistory(patientID, history.id, {
+                type: history.type,
+                title: history.title,
+                description: newDescription
+            }
+            );
+        } catch (error) {
+            throw error;
+        }
       }
 
-      function handleDelete(Id) {
+      async function handleDelete(Id) { 
+        try {
         deletePatientHistory(patientID, Id);
+        } catch (error) {
+            throw error;
+        }
       }
     
-      function handleEdit(desc) {
-        setNewHistory((prev) => ({...prev, descrption: desc}));
+      function handleEdit(event) {
+        setNewDescription(event.target.value);
       }
 
       return (
@@ -55,14 +79,11 @@ export default function PatientHistoryRowComponent({patientID, history}) {
               <TextField
                 fullWidth={true}
                 variant="standard"
-                value={history.description}
+                defaultValue={history.description}
                 disabled={!edit}
                 size="medium"
-                onChange={(e) =>
-                  handleEdit(e.target.value)
-                }
+                onChange={handleEdit}
                sx={{
-                  //width: "auto",
                   "& .MuiInput-underline:before, & .MuiInput-underline:after": {
                     display: "none",
                   },
@@ -75,12 +96,10 @@ export default function PatientHistoryRowComponent({patientID, history}) {
                   },
                 }}
               />
-              {  /*</TableCell>{history.descrption}
-              </TextField>*/}
               </TableCell>
               <TableCell>
               <ButtonGroup sx={{ marginLeft: 2 }}>
-                <Fab onClick={() => setEdit(!edit)} disabled={!access}>
+                <Fab onClick={() => setEdit(!edit)} /*disabled={!access}*/>
                   <Edit />
                 </Fab>
                 <Fab onClick={() => handleDelete(history.id)} disabled={!access}>
