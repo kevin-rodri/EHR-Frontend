@@ -10,7 +10,7 @@ import { Box, Typography } from "@mui/material";
 export default function PatientHistory() {
     return(
         
-        <Box>
+        <Box sx={{ display: "flex", flexDirection: "column"}}>
             <Typography variant="h2" fontFamily={"Roboto"} color="white" textAlign={"left"} marginBottom={5} marginTop={5} marginLeft={20}>
             Patient History
             </Typography>

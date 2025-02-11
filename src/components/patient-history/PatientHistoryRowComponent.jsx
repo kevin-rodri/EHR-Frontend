@@ -75,7 +75,7 @@ export default function PatientHistoryRowComponent({patientID, history, ref}) {
               {history.type}
               </Typography>
               </TableCell>
-              <TableCell width={1000}>
+              <TableCell width={1500}>
               <TextField
                 fullWidth={true}
                 variant="standard"
