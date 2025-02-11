@@ -5,11 +5,11 @@ Remarks: Section Row Component to be displayed throughout the section table
 */
 
 import React, { useState, useEffect } from "react";
-import { Box, MenuItem, Select, Typography } from "@mui/material"; 
+import { Box, MenuItem, Select, Typography } from "@mui/material";
 import { getAllPatients } from "../../services/patientService";
 import { getSectionsById } from "../../services/sectionService";
 import { getUserById } from "../../services/authService";
-import { addPatientToSection } from "../../services/sectionPatientService"; 
+import { addPatientToSection } from "../../services/sectionPatientService";
 
 export default function SectionRowComponent({ sectionId, onSelect }) {
   const [patients, setPatients] = useState([]);
@@ -46,14 +46,19 @@ export default function SectionRowComponent({ sectionId, onSelect }) {
   }, [sectionId]);
 
   const handleChange = (event) => {
-    // Updating selected patient and triggering callback function
-    setSelectedPatient(event.target.value);
-    };
+    // Find the full patient object from the patients list
+    const selected = patients.find(
+      (patient) => patient.id === event.target.value
+    );
+    setSelectedPatient(selected);
+  };
 
   const handleAssignPatient = async () => {
     if (selectedPatient) {
       try {
-        await addPatientToSection(sectionId, selectedPatient);
+        await addPatientToSection(sectionId, {
+          patient_id: selectedPatient.id,
+        });
         alert("Patient assigned successfully!");
       } catch (error) {
         console.error("Error assigning patient:", error);
@@ -65,7 +70,15 @@ export default function SectionRowComponent({ sectionId, onSelect }) {
   };
 
   return (
-    <Box sx={{ width: "100%", display: "flex", flexDirection: "column", alignItems: "stretch", gap: 2 }}>
+    <Box
+      sx={{
+        width: "100%",
+        display: "flex",
+        flexDirection: "column",
+        alignItems: "stretch",
+        gap: 2,
+      }}
+    >
       {/* Section title and Instructor name */}
       <div
         style={{
@@ -74,7 +87,6 @@ export default function SectionRowComponent({ sectionId, onSelect }) {
           justifyContent: "flex-start",
           alignItems: "center",
           gap: "25px",
-          
         }}
       >
         {/* Section title */}
@@ -114,15 +126,12 @@ export default function SectionRowComponent({ sectionId, onSelect }) {
           justifyContent: "flex-start",
           gap: "20px",
           marginTop: "2px",
-         
         }}
       >
         {/* Dropdown Select for choosing a patient */}
         <Select
-          value={selectedPatient}
-          onChange={(e) => {
-  handleChange(e);
-}}
+          value={selectedPatient ? selectedPatient.id : ""}
+          onChange={handleChange}
           displayEmpty
           sx={{
             backgroundColor: "white",
@@ -132,27 +141,24 @@ export default function SectionRowComponent({ sectionId, onSelect }) {
             fontFamily: "Lexend",
             fontWeight: "500",
             wordWrap: "break-word",
-            width: "350px", 
+            width: "350px",
             height: "40px",
           }}
         >
-          {/* Default menu item prompting user to choose a patient */}
-          <MenuItem value="" disabled>
-            <div
-              style={{
-                width: "100%",
-                color: "#828282",
-                fontSize: 14,
-                fontFamily: "Lexend",
-                fontWeight: "500",
-                wordWrap: "break-word",
-              }}
-            >
-              Choose Patient
-            </div>
+          <MenuItem
+            value=""
+            disabled
+            style={{
+              width: "100%",
+              color: "#828282",
+              fontSize: 14,
+              fontFamily: "Lexend",
+              fontWeight: "500",
+              wordWrap: "break-word",
+            }}
+          >
+            Choose Patient
           </MenuItem>
-
-          {/* Mapping over patients to generate dropdown items */}
           {patients.map((patient) => (
             <MenuItem key={patient.id} value={patient.id}>
               {patient.full_name}
@@ -164,8 +170,8 @@ export default function SectionRowComponent({ sectionId, onSelect }) {
         <div
           onClick={handleAssignPatient} // Adding onClick handler
           style={{
-            width: "350px", 
-            height: "30px", 
+            width: "350px",
+            height: "30px",
             paddingLeft: 24,
             paddingRight: 24,
             paddingTop: 4,
@@ -196,6 +202,6 @@ export default function SectionRowComponent({ sectionId, onSelect }) {
           </div>
         </div>
       </div>
-  </Box>
+    </Box>
   );
 }
