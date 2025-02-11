@@ -14,3 +14,11 @@ export async function getPatientById(id) {
   }
 }
 // add the rest here. 
+export async function getAllPatients() {
+  try {
+    const response = await axiosTokenInstance().get(`patients`);
+    return response.data;
+  } catch (error) {
+    throw error;
+  }
+}
