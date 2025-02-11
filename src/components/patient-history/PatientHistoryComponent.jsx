@@ -4,17 +4,15 @@ Date: 2/10/2025
 Remarks: The Patient History component for displaying patient history data.
 useImperativeHandle and useRef: https://vinodht.medium.com/call-child-component-method-from-parent-react-bb8db1112f55
 */
-import React, { useState, useEffect, forwardRef } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import {
   Box,
-  Button,
   Typography,
   Fab,
   TableRow,
   List,
   TableHead,
   TableCell,
-  Table
 } from "@mui/material";
 import { Add } from "@mui/icons-material";
 import { useForm } from "react-hook-form";
@@ -24,13 +22,13 @@ import { getSectionPatientById } from "../../services/sectionPatientService";
 import { getPatientHistory } from "../../services/patientHistoryService";
 import { getUserRole } from "../../services/authService";
 
-export default function PatientHistoryComponent({sectionId}) {
+export default function PatientHistoryComponent({ sectionId }) {
   const {
     handleSubmit,
     formState: { errors },
   } = useForm();
 
-  const updateRef = forwardRef();
+  const updateRefs = useRef({});
 
   // controlling the open/close of the modal:
   const [openModal, setOpenModal] = useState(false);
@@ -39,25 +37,26 @@ export default function PatientHistoryComponent({sectionId}) {
   const [display, setDisplay] = useState(false);
   const [update, setUpdate] = useState(false);
 
+  const fetchPatientHistory = async () => {
+    try {
+      const sectionPatient = await getSectionPatientById(sectionId);
+      const patientId = sectionPatient.patient_id;
+      const patientData = await getPatientHistory(patientId);
+      setHistories(patientData);
+      setPatientId(patientId);
+    } catch (err) {
+      throw err;
+    }
+  };
+
   useEffect(() => {
-      if (sectionId == null) return;
-      const role = getUserRole();
-      if (role === "ADMIN" || role === "INSTRUCTOR") {
-        setDisplay(true);
-      }
-      const fetchPatientHistory = async () => {
-        try {
-          const sectionPatient = await getSectionPatientById(sectionId);
-          const patientId = sectionPatient.patient_id;
-          const patientData = await getPatientHistory(patientId);
-          setHistories(patientData);
-          setPatientId(patientId)
-        } catch (err) {
-          throw err;
-        }
-      };
-      fetchPatientHistory();
-    }, [sectionId]);
+    if (sectionId == null) return;
+    const role = getUserRole();
+    if (role === "ADMIN" || role === "INSTRUCTOR") {
+      setDisplay(true);
+    }
+    fetchPatientHistory();
+  }, [sectionId]);
 
   return (
     <Box>
@@ -65,6 +64,7 @@ export default function PatientHistoryComponent({sectionId}) {
         open={openModal}
         onClose={() => setOpenModal(false)}
         patientID={patientId}
+        refreshPatientHistory={fetchPatientHistory}
       />
       <Box
         sx={{
@@ -80,44 +80,42 @@ export default function PatientHistoryComponent({sectionId}) {
         }}
       >
         <TableHead>
-        <TableRow display={"flex"}>
+          <TableRow display={"flex"}>
             <TableCell>
-          <Typography sx={{fontWeight: "bold", marginLeft: 2 }}>History Title</Typography>
-          </TableCell>
-          <TableCell width={1500}>
-          <Typography sx={{ fontWeight: "bold", marginLeft: 2 }}>Orders</Typography>
-          </TableCell>
-          <TableCell>
-          <Fab
-            aria-label="add"
-            //sx={{ marginLeft: 95 }}
-            //disabled={!display}
-            onClick={() => setOpenModal(true)}
-          >
-            <Add />
-          </Fab>
-          </TableCell>
-        </TableRow>
+              <Typography sx={{ fontWeight: "bold", marginLeft: 2 }}>
+                History Type
+              </Typography>
+            </TableCell>
+            <TableCell>
+              <Typography sx={{ fontWeight: "bold", marginLeft: 2 }}>
+                History Title
+              </Typography>
+            </TableCell>
+            <TableCell width={1500}>
+              <Typography sx={{ fontWeight: "bold", marginLeft: 2 }}>
+                Orders
+              </Typography>
+            </TableCell>
+            <TableCell>
+              <Fab
+                aria-label="add"
+                //sx={{ marginLeft: 95 }}
+                //disabled={!display}
+                onClick={() => setOpenModal(true)}
+              >
+                <Add />
+              </Fab>
+            </TableCell>
+          </TableRow>
         </TableHead>
         <List>
           {histories.map((history) => (
-            <PatientHistoryRowComponent patientID={patientId} history={history} ref={updateRef}/>
+            <PatientHistoryRowComponent
+              patientID={patientId}
+              history={history}
+            />
           ))}
         </List>
-        <Button
-          sx={{
-            display: "flex",
-            width: 143,
-            height: 49,
-          }}
-          variant="contained"
-          //disabled={!display}
-          onClick={() => {
-            updateRef.current?.handleUpdate();
-          }}
-        >
-          Save
-        </Button>
       </Box>
     </Box>
   );
