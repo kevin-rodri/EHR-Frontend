@@ -71,11 +71,11 @@ export default function PatientHistoryComponent({ sectionId }) {
           display: "flex",
           padding: 1,
           flexDirection: "column",
-          //alignItems: "flex-start",
+          alignItems: "flex-start",
           backgroundColor: "white",
-          /*marginBottom: 10,
-          marginLeft: 20,
-          marginRight: 30,*/
+          //marginBottom: 10,
+          marginLeft: 30,
+          //marginRight: 30,
           borderRadius: 3,
         }}
       >
@@ -87,24 +87,24 @@ export default function PatientHistoryComponent({ sectionId }) {
               </Typography>
             </TableCell>
             <TableCell>
-              <Typography sx={{ fontWeight: "bold", marginLeft: 2 }}>
+              <Typography sx={{ fontWeight: "bold", marginLeft: 20 }}>
                 History Title
               </Typography>
             </TableCell>
             <TableCell width={1500}>
-              <Typography sx={{ fontWeight: "bold", marginLeft: 2 }}>
+              <Typography sx={{ fontWeight: "bold", marginLeft: 40 }}>
                 Orders
               </Typography>
             </TableCell>
             <TableCell>
-              <Fab
+              { display ?? (<Fab
                 aria-label="add"
                 //sx={{ marginLeft: 95 }}
                 //disabled={!display}
                 onClick={() => setOpenModal(true)}
               >
                 <Add />
-              </Fab>
+              </Fab>)}
             </TableCell>
           </TableRow>
         </TableHead>

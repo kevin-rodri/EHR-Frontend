@@ -75,6 +75,7 @@ export default function PatientHistoryRowComponent({
         <TextField
           fullWidth={true}
           variant="outlined"
+          rows={2}
           defaultValue={history.title}
           disabled={!edit}
           onChange={(e) => setNewTitle(e.target.value)}
@@ -85,6 +86,7 @@ export default function PatientHistoryRowComponent({
         <TextField
           fullWidth={true}
           variant="outlined"
+          rows={2}
           defaultValue={history.description}
           disabled={!edit}
           onChange={(e) => setNewDescription(e.target.value)}
@@ -92,14 +94,14 @@ export default function PatientHistoryRowComponent({
         />
       </TableCell>
       <TableCell>
-        <ButtonGroup sx={{ display: "flex", gap: 2 }} hidden>
+        {access === (true) ?? (<ButtonGroup sx={{ display: "flex", gap: 2 }} hidden>
           <Fab onClick={() => setEdit(!edit)} /*disabled={!access}*/>
             <Edit />
           </Fab>
           <Fab onClick={() => handleDelete(history.id)} /*disabled={!access}*/>
             <Delete />
           </Fab>
-        </ButtonGroup>
+        </ButtonGroup>)}
       </TableCell>
     </TableRow>
   );

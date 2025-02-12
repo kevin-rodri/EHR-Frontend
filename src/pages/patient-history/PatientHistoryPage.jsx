@@ -20,6 +20,8 @@ export default function PatientHistory() {
         variant="h2"
         fontFamily={"Roboto"}
         color="white"
+        marginBottom={5}
+        marginTop={5}
       >
         Patient History
       </Typography>
