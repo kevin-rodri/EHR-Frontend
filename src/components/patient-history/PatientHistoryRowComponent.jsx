@@ -74,8 +74,9 @@ export default function PatientHistoryRowComponent({
       <TableCell width={1500}>
         <TextField
           fullWidth={true}
+          multiline
           variant="outlined"
-          rows={2}
+          rows={1}
           defaultValue={history.title}
           disabled={!edit}
           onChange={(e) => setNewTitle(e.target.value)}
@@ -85,8 +86,9 @@ export default function PatientHistoryRowComponent({
       <TableCell width={1500}>
         <TextField
           fullWidth={true}
+          multiline
           variant="outlined"
-          rows={2}
+          rows={3}
           defaultValue={history.description}
           disabled={!edit}
           onChange={(e) => setNewDescription(e.target.value)}

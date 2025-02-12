@@ -13,6 +13,7 @@ import {
   List,
   TableHead,
   TableCell,
+  TableBody
 } from "@mui/material";
 import { Add } from "@mui/icons-material";
 import { useForm } from "react-hook-form";
@@ -75,7 +76,7 @@ export default function PatientHistoryComponent({ sectionId }) {
           backgroundColor: "white",
           //marginBottom: 10,
           marginLeft: 30,
-          //marginRight: 30,
+          marginRight: 3,
           borderRadius: 3,
         }}
       >
@@ -87,12 +88,12 @@ export default function PatientHistoryComponent({ sectionId }) {
               </Typography>
             </TableCell>
             <TableCell>
-              <Typography sx={{ fontWeight: "bold", marginLeft: 20 }}>
+              <Typography sx={{ fontWeight: "bold", marginLeft: 5 }}>
                 History Title
               </Typography>
             </TableCell>
             <TableCell width={1500}>
-              <Typography sx={{ fontWeight: "bold", marginLeft: 40 }}>
+              <Typography sx={{ fontWeight: "bold", marginLeft: 56 }}>
                 Orders
               </Typography>
             </TableCell>
@@ -108,14 +109,17 @@ export default function PatientHistoryComponent({ sectionId }) {
             </TableCell>
           </TableRow>
         </TableHead>
+        <TableBody>
         <List>
           {histories.map((history) => (
             <PatientHistoryRowComponent
               patientID={patientId}
               history={history}
+              refreshPatientHistory={fetchPatientHistory}
             />
           ))}
         </List>
+        </TableBody>
       </Box>
     </Box>
   );
