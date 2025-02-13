@@ -21,6 +21,7 @@ import {
 } from "@mui/material";
 import { styled } from "@mui/system";
 
+//style for the form container
 const StyledCard = styled(Card)({
   maxWidth: "90%",
   margin: "auto",
@@ -31,6 +32,7 @@ const StyledCard = styled(Card)({
   borderRadius: "12px",
 });
 
+//styled button
 const StyledButton = styled(Button)({
   marginTop: 30,
   padding: "12px 25px",
@@ -43,6 +45,7 @@ const StyledButton = styled(Button)({
   },
 });
 
+//styled title
 const Title = styled(Typography)({
   color: "white",
   marginBottom: 20,
@@ -51,7 +54,10 @@ const Title = styled(Typography)({
 });
 
 const PatientDemographicsComponent = () => {
+//get patient id from the URL parameters
   const { id } = useParams();
+
+  //initialize form state to store patient information
   const [formData, setFormData] = useState({
     full_name: "",
     date_of_birth: "",
@@ -66,11 +72,15 @@ const PatientDemographicsComponent = () => {
     emergency_contact_full_name: "",
     emergency_contact_phone_number: "",
   });
+  //shows loading
   const [loading, setLoading] = useState(true);
   const [isNew, setIsNew] = useState(!id);
+  //role stores the user's role defaulting to student
   const [role, setRole] = useState("STUDENT");
 
+  //hook to fetch patient data (if editing)
   useEffect(() => {
+    //gets and stores user role from local storage and updates the state
     const storedRole = localStorage.getItem("ROLE");
     if (storedRole) {
       try {
@@ -81,7 +91,7 @@ const PatientDemographicsComponent = () => {
         console.error("Error parsing ROLE from localStorage:", error);
       }
     }
-
+    //if an id is provided, fetch the corresponding patient data
     if (id) {
       async function fetchPatient() {
         try {
@@ -95,12 +105,15 @@ const PatientDemographicsComponent = () => {
       }
       fetchPatient();
     } else {
+      // no ID provided so it assumes making a new patient
       setLoading(false);
     }
   }, [id]);
 
+  //check if current user is a student (they cannot modify the form)
   const isStudent = role === "STUDENT";
 
+  //text field components
   const textFieldProps = (key) => ({
     label: key.replace(/_/g, " ").replace(/\b\w/g, (char) => char.toUpperCase()),
     name: key,
@@ -109,6 +122,7 @@ const PatientDemographicsComponent = () => {
     InputLabelProps: {
       sx: { fontSize: "1.2rem", fontWeight: 600, color: "#333" },
     },
+    //if the user is a student make text fields read only
     InputProps: isStudent
       ? {
           readOnly: true,
@@ -116,6 +130,7 @@ const PatientDemographicsComponent = () => {
           sx: { color: "black", backgroundColor: "#f3f3f3", borderRadius: "4px" },
         }
       : {},
+    //only update the form data if user is nto a student
     onChange: !isStudent ? (e) => setFormData({ ...formData, [key]: e.target.value }) : undefined,
   });
 
