@@ -37,11 +37,18 @@ export function getUserRole() {
   return parsed.role;
 }
 
-export function getSectionId() {
-  const storedSection = localStorage.getItem("SECTION_ID");
-  const parsed = JSON.parse(storedSection);
-  return parsed.sectionId;
-}
+export const getSectionId = () => {
+  const storedData = localStorage.getItem("SECTION_ID");
+  if (storedData == null) return null;
+  try {
+    if (storedData != null) {
+      const parsedData = JSON.parse(storedData);
+      return parsedData.sectionId;
+    }
+  } catch (error) {
+    throw error;
+  }
+};
 
 export async function registerUser(userData) {
   try {
