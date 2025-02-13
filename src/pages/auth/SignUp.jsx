@@ -4,9 +4,9 @@ Date: 1/16/25
 Remark: Sign up to appear when you create an account
 */
 import React from "react";
-import CreateAccountComponent from "../components/auth/CreateAccountComponent";
+import CreateAccountComponent from "../../components/auth/CreateAccountComponent";
 import { Box } from "@mui/material";
-import EHRAuthBannerComponent from "../components/auth/EHRAuthBannerComponent";
+import EHRAuthBannerComponent from "../../components/auth/EHRAuthBannerComponent";
 
 export default function SignUpPage() {
   return (

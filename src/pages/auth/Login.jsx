@@ -4,8 +4,8 @@ Date: 1/16/25
 Remarks: Login page that will appear when the EHR application starts
 */
 import React from "react";
-import LoginFormComponent from "../components/auth/LoginFormComponent";
-import EHRAuthBannerComponent from "../components/auth/EHRAuthBannerComponent";
+import LoginFormComponent from "../../components/auth/LoginFormComponent";
+import EHRAuthBannerComponent from "../../components/auth/EHRAuthBannerComponent";
 import { Box } from "@mui/material";
 
 export default function LoginPage() {
