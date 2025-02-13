@@ -146,8 +146,42 @@ const PatientDemographicsComponent = () => {
             <Grid item xs={6}>
               <TextField {...textFieldProps("allergies")} />
             </Grid>
+
+            {/* Updated Code Status Dropdown */}
             <Grid item xs={6}>
-              <TextField {...textFieldProps("code_status")} />
+              <FormControl fullWidth>
+                <InputLabel sx={{ fontSize: "1.2rem", fontWeight: 500, color: "#333" }}>
+                  Code Status
+                </InputLabel>
+                <Select
+                  value={formData.code_status || ""}
+                  onChange={
+                    !isStudent
+                      ? (e) => setFormData({ ...formData, code_status: e.target.value })
+                      : undefined
+                  }
+                  disabled={isStudent}
+                  displayEmpty
+                  renderValue={(selected) => selected || "Please Choose One"}
+                  sx={{
+                    backgroundColor: isStudent ? "#f3f3f3" : "white",
+                    color: "black",
+                    "&.Mui-disabled": {
+                      color: "black",
+                    },
+                    "& .MuiSelect-select.Mui-disabled": {
+                      color: "black",
+                    },
+                  }}
+                >
+                  <MenuItem value="FULL_CODE" sx={{ color: "black" }}>
+                    FULL_CODE
+                  </MenuItem>
+                  <MenuItem value="DOES-NOT-RESUSCITATE" sx={{ color: "black" }}>
+                    DOES-NOT-RESUSCITATE
+                  </MenuItem>
+                </Select>
+              </FormControl>
             </Grid>
 
             <Grid item xs={6}>
@@ -179,19 +213,16 @@ const PatientDemographicsComponent = () => {
                   <MenuItem value="" sx={{ color: "black" }}>
                     Please Choose One
                   </MenuItem>
-                  <MenuItem value="None" sx={{ color: "black" }}>
-                    None
-                  </MenuItem>
-                  <MenuItem value="Contact" sx={{ color: "black" }}>
+                  <MenuItem value="CONTACT" sx={{ color: "black" }}>
                     Contact
                   </MenuItem>
-                  <MenuItem value="Droplet" sx={{ color: "black" }}>
+                  <MenuItem value="DROPLET" sx={{ color: "black" }}>
                     Droplet
                   </MenuItem>
-                  <MenuItem value="TB" sx={{ color: "black" }}>
+                  <MenuItem value="TUBERCULOSIS" sx={{ color: "black" }}>
                     TB
                   </MenuItem>
-                  <MenuItem value="Airborne" sx={{ color: "black" }}>
+                  <MenuItem value="AIRBORNE" sx={{ color: "black" }}>
                     Airborne
                   </MenuItem>
                 </Select>
