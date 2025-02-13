@@ -13,3 +13,12 @@ export async function getSectionPatientById(sectionId) {
     throw error;
   }
 }
+
+export async function addPatientToSection(sectionId, data) {
+  try {
+    const response = await axiosTokenInstance().post(`section-patient/${sectionId}/patient`,data);
+    return response.data;
+  } catch (error) {
+    throw error;
+  }
+}

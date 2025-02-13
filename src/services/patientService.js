@@ -14,6 +14,15 @@ export async function getPatientById(id) {
   }
 }
 
+export async function getAllPatients() {
+  try {
+    const response = await axiosTokenInstance().get(`patients`);
+    return response.data;
+  } catch (error) {
+    throw error;
+  }
+}
+
 export async function updatePatientInfo(id, data) {
   try {
     const response = await axiosTokenInstance().put(`patients/${id}`, data);
