@@ -2,6 +2,7 @@
 Name: Kevin Rodriguez
 Date: 1/16/25
 Remarks: Create account component for students to sign up and create an account. 
+https://react-hook-form.com/docs/useform/setvalue and https://react-hook-form.com/docs/useform
 */
 import React, { useState, useEffect } from "react";
 import {
@@ -26,7 +27,6 @@ import { getAllSections } from "../../services/sectionService";
 import { addUserToSectionRoster } from "../../services/sectionRosterService";
 
 export default function CreateAccountComponent() {
-  // https://react-hook-form.com/docs/useform/setvalue and https://react-hook-form.com/docs/useform
   const {
     register,
     handleSubmit,
@@ -58,10 +58,12 @@ export default function CreateAccountComponent() {
     try {
       // I hope this doesn't slow things down in the long run..
       await new Promise((resolve) => setTimeout(resolve, 1000));
+      const formUserName = formData.username.trim();
+      const formPassword = formData.password.trim();
 
       const newUser = await registerUser({
-        username: formData.username,
-        password: formData.password,
+        username: formUserName,
+        password: formPassword,
         full_name: formData.full_name,
         role: formData.role,
       });

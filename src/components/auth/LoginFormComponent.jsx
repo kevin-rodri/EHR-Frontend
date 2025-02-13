@@ -22,7 +22,10 @@ import {
 } from "@mui/material";
 import { useForm } from "react-hook-form";
 import { useNavigate } from "react-router-dom";
-import { login } from "../../services/authService";
+import { getUserRole, login } from "../../services/authService";
+import { getUserSectionRosterByID } from "../../services/sectionRosterService";
+import { getSectionPatientById } from "../../services/sectionPatientService";
+import { getSectionId } from "../../services/authService";
 
 export default function LoginFormComponent() {
   const {
@@ -39,9 +42,22 @@ export default function LoginFormComponent() {
     setLoading(true);
     try {
       await new Promise((resolve) => setTimeout(resolve, 1000));
-      const response = await login(data.username.trim(), data.password.trim());
-      if (response != null) {
-        navigate("/to-do"); // TO-DO: WHEN DASHBOARD AND ASSIGNMENT PAGE IS DONE, THIS WILL NEED TO CHANGE...
+      await login(data.username.trim(), data.password.trim());
+      const role = getUserRole();
+
+      if (role == "STUDENT") {
+        try {
+          const sectionRoster = await getUserSectionRosterByID();
+
+          const section = await getSectionPatientById(sectionRoster.section_id);
+          localStorage.setItem("SECTION_ID", JSON.stringify({ sectionId: sectionRoster.section_id }));
+          const sectionId = getSectionId();
+          navigate(`/patient-demographics/${sectionId}`);
+        } catch (error) {
+          console.error("Error retrieving section or patient data:", error);
+        }
+      } else {
+        navigate("/assign");
       }
     } catch (err) {
       setError("Login failed. Please check your credentials.");

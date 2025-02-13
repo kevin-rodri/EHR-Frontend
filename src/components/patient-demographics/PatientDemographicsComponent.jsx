@@ -1,13 +1,13 @@
 /*
 Name: Gabby Pierce
 Date: 2/12/25
-Remarks: PatientDemographicsPage
+Remarks: PatientDemographicsPage that will display the patient's information
 */
-
 import React, { useEffect, useState } from "react";
 import { useParams } from "react-router-dom";
 import { getPatientById, updatePatient } from "../../services/patientService";
 import { MenuItem, Select, FormControl, InputLabel, Box } from "@mui/material";
+import { getSectionPatientById } from "../../services/sectionPatientService";
 import {
   Card,
   CardContent,
@@ -22,7 +22,7 @@ import {
 import { styled } from "@mui/system";
 
 const StyledCard = styled(Card)({
-  maxWidth: "90%",
+  maxWidth: "70%",
   margin: "auto",
   marginTop: 20,
   padding: 40,
@@ -49,9 +49,8 @@ const Title = styled(Typography)({
   fontSize: "40px",
   textAlign: "center",
 });
-
 const PatientDemographicsComponent = () => {
-  const { id } = useParams();
+  const { sectionId } = useParams();
   const [formData, setFormData] = useState({
     full_name: "",
     date_of_birth: "",
@@ -67,7 +66,8 @@ const PatientDemographicsComponent = () => {
     emergency_contact_phone_number: "",
   });
   const [loading, setLoading] = useState(true);
-  const [isNew, setIsNew] = useState(!id);
+  const [patientId, setPatientId] = useState(null);
+  const [isNew, setIsNew] = useState(!sectionId);
   const [role, setRole] = useState("STUDENT");
 
   useEffect(() => {
@@ -82,10 +82,25 @@ const PatientDemographicsComponent = () => {
       }
     }
 
-    if (id) {
+    if (sectionId) {
+      const fetchPatientId = async () => {
+        try {
+          const sectionPatient = await getSectionPatientById(sectionId);
+          if (sectionPatient && sectionPatient.patient_id) {
+            setPatientId(sectionPatient.patient_id);
+          }
+        } catch (error) {
+          console.error("Error fetching patient from section:", error);
+        }
+      };
+
+      fetchPatientId();
+
+      if (!patientId) return;
+
       async function fetchPatient() {
         try {
-          const data = await getPatientById(id);
+          const data = await getPatientById(patientId);
           setFormData(data);
         } catch (error) {
           console.error("Error fetching patient data:", error);
@@ -93,16 +108,17 @@ const PatientDemographicsComponent = () => {
           setLoading(false);
         }
       }
+
       fetchPatient();
-    } else {
-      setLoading(false);
     }
-  }, [id]);
+  }, [sectionId, patientId]);
 
   const isStudent = role === "STUDENT";
 
   const textFieldProps = (key) => ({
-    label: key.replace(/_/g, " ").replace(/\b\w/g, (char) => char.toUpperCase()),
+    label: key
+      .replace(/_/g, " ")
+      .replace(/\b\w/g, (char) => char.toUpperCase()),
     name: key,
     value: formData[key],
     fullWidth: true,
@@ -113,17 +129,31 @@ const PatientDemographicsComponent = () => {
       ? {
           readOnly: true,
           tabIndex: -1,
-          sx: { color: "black", backgroundColor: "#f3f3f3", borderRadius: "4px" },
+          sx: {
+            color: "black",
+            backgroundColor: "#f3f3f3",
+            borderRadius: "4px",
+          },
         }
       : {},
-    onChange: !isStudent ? (e) => setFormData({ ...formData, [key]: e.target.value }) : undefined,
+    onChange: !isStudent
+      ? (e) => setFormData({ ...formData, [key]: e.target.value })
+      : undefined,
   });
 
   if (loading) return <Typography>Loading...</Typography>;
 
   return (
     <Box>
-      <Title>{isNew ? "Add New Patient" : "Patient Demographics"}</Title>
+      <Title
+        variant="h2"
+        fontFamily={"Roboto"}
+        color="white"
+        marginBottom={5}
+        marginTop={5}
+      >
+        {isNew ? "Add New Patient" : "Patient Demographics"}
+      </Title>
       <StyledCard>
         <CardContent>
           <Divider />
@@ -146,20 +176,69 @@ const PatientDemographicsComponent = () => {
             <Grid item xs={6}>
               <TextField {...textFieldProps("allergies")} />
             </Grid>
+
+            {/* Updated Code Status Dropdown */}
             <Grid item xs={6}>
-              <TextField {...textFieldProps("code_status")} />
+              <FormControl fullWidth>
+                <InputLabel
+                  sx={{ fontSize: "1.2rem", fontWeight: 500, color: "#333" }}
+                >
+                  Code Status
+                </InputLabel>
+                <Select
+                  value={formData.code_status || ""}
+                  onChange={
+                    !isStudent
+                      ? (e) =>
+                          setFormData({
+                            ...formData,
+                            code_status: e.target.value,
+                          })
+                      : undefined
+                  }
+                  disabled={isStudent}
+                  displayEmpty
+                  renderValue={(selected) => selected || "Please Choose One"}
+                  sx={{
+                    backgroundColor: isStudent ? "#f3f3f3" : "white",
+                    color: "black",
+                    "&.Mui-disabled": {
+                      color: "black",
+                    },
+                    "& .MuiSelect-select.Mui-disabled": {
+                      color: "black",
+                    },
+                  }}
+                >
+                  <MenuItem value="FULL_CODE" sx={{ color: "black" }}>
+                    FULL_CODE
+                  </MenuItem>
+                  <MenuItem
+                    value="DOES-NOT-RESUSCITATE"
+                    sx={{ color: "black" }}
+                  >
+                    DOES-NOT-RESUSCITATE
+                  </MenuItem>
+                </Select>
+              </FormControl>
             </Grid>
 
             <Grid item xs={6}>
               <FormControl fullWidth>
-                <InputLabel sx={{ fontSize: "1.2rem", fontWeight: 500, color: "#333" }}>
+                <InputLabel
+                  sx={{ fontSize: "1.2rem", fontWeight: 500, color: "#333" }}
+                >
                   Precautions
                 </InputLabel>
                 <Select
                   value={formData.precautions || ""}
                   onChange={
                     !isStudent
-                      ? (e) => setFormData({ ...formData, precautions: e.target.value })
+                      ? (e) =>
+                          setFormData({
+                            ...formData,
+                            precautions: e.target.value,
+                          })
                       : undefined
                   }
                   displayEmpty
@@ -179,19 +258,16 @@ const PatientDemographicsComponent = () => {
                   <MenuItem value="" sx={{ color: "black" }}>
                     Please Choose One
                   </MenuItem>
-                  <MenuItem value="None" sx={{ color: "black" }}>
-                    None
-                  </MenuItem>
-                  <MenuItem value="Contact" sx={{ color: "black" }}>
+                  <MenuItem value="CONTACT" sx={{ color: "black" }}>
                     Contact
                   </MenuItem>
-                  <MenuItem value="Droplet" sx={{ color: "black" }}>
+                  <MenuItem value="DROPLET" sx={{ color: "black" }}>
                     Droplet
                   </MenuItem>
-                  <MenuItem value="TB" sx={{ color: "black" }}>
+                  <MenuItem value="TUBERCULOSIS" sx={{ color: "black" }}>
                     TB
                   </MenuItem>
-                  <MenuItem value="Airborne" sx={{ color: "black" }}>
+                  <MenuItem value="AIRBORNE" sx={{ color: "black" }}>
                     Airborne
                   </MenuItem>
                 </Select>
@@ -208,13 +284,22 @@ const PatientDemographicsComponent = () => {
                     onChange={
                       !isStudent
                         ? (e) =>
-                            setFormData({ ...formData, has_advanced_directives: e.target.checked })
+                            setFormData({
+                              ...formData,
+                              has_advanced_directives: e.target.checked,
+                            })
                         : undefined
                     }
                   />
                 }
                 label={
-                  <span style={{ color: "black", fontSize: "1.1rem", fontWeight: 400 }}>
+                  <span
+                    style={{
+                      color: "black",
+                      fontSize: "1.1rem",
+                      fontWeight: 400,
+                    }}
+                  >
                     Has Advanced Directives
                   </span>
                 }
@@ -231,13 +316,22 @@ const PatientDemographicsComponent = () => {
                     onChange={
                       !isStudent
                         ? (e) =>
-                            setFormData({ ...formData, has_insurance: e.target.checked })
+                            setFormData({
+                              ...formData,
+                              has_insurance: e.target.checked,
+                            })
                         : undefined
                     }
                   />
                 }
                 label={
-                  <span style={{ color: "black", fontSize: "1.1rem", fontWeight: 400 }}>
+                  <span
+                    style={{
+                      color: "black",
+                      fontSize: "1.1rem",
+                      fontWeight: 400,
+                    }}
+                  >
                     Has Insurance
                   </span>
                 }
@@ -248,7 +342,9 @@ const PatientDemographicsComponent = () => {
               <TextField {...textFieldProps("emergency_contact_full_name")} />
             </Grid>
             <Grid item xs={6}>
-              <TextField {...textFieldProps("emergency_contact_phone_number")} />
+              <TextField
+                {...textFieldProps("emergency_contact_phone_number")}
+              />
             </Grid>
           </Grid>
 
@@ -258,8 +354,10 @@ const PatientDemographicsComponent = () => {
               variant="contained"
               onClick={async () => {
                 try {
-                  await updatePatient(id, formData);
-                  window.alert("Patient information has been successfully updated!");
+                  await updatePatient(patientId, formData);
+                  window.alert(
+                    "Patient information has been successfully updated!"
+                  );
                 } catch (error) {
                   console.error("Error updating patient:", error);
                   window.alert("Error updating patient. Please try again.");

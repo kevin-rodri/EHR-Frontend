@@ -7,7 +7,7 @@ https://www.figma.com/design/As4zc60MI5hv1g1u5DYKS0/EHR-Application?node-id=0-1&
 */
 import { Box } from "@mui/material";
 import React from "react";
-import logoImage from "../../assets/qu-son-logo.jpeg";
+import logoImage from "../../assets/ehr_logo.png";
 
 export default function EHRAuthBannerComponent() {
   return (
@@ -19,7 +19,13 @@ export default function EHRAuthBannerComponent() {
         alignItems: "center",
       }}
     >
-      <img src={logoImage} alt="Quinnipiac School of Nursing logo" />
+      <img
+        src={logoImage}
+        alt="Quinnipiac School of Nursing logo"
+        style={{
+          width: "10rem",
+        }}
+      />
     </Box>
   );
 }

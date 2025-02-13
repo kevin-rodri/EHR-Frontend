@@ -25,7 +25,19 @@ export async function getAllPatients() {
 
 export async function updatePatient(id, patientData) {
   try {
-    const response = await axiosTokenInstance().put(`patients/${id}`, patientData);
+    const response = await axiosTokenInstance().put(
+      `patients/${id}`,
+      patientData
+    );
+    return response.data;
+  } catch (error) {
+    throw error;
+  }
+}
+
+export async function patchPatientInfo(id, value) {
+  try {
+    const response = await axiosTokenInstance().patch(`patients/${id}`, value);
     return response.data;
   } catch (error) {
     throw error;
