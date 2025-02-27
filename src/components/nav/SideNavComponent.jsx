@@ -48,6 +48,10 @@ export default function NavBar() {
             <ListItem button component={Link} to={`/history/${sectionId}`}>
               <ListItemText primary="History" sx={{ fontFamily: "Roboto", color: "black" }} />
             </ListItem>
+            <ListItem button component={Link} to={`/waldo/${sectionId}`}>
+              <ListItemText primary="WALDO" sx={{ fontFamily: "Roboto", color: "black" }} />
+            </ListItem>
+            
           </>
         )}
       </List>
