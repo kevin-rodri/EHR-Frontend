@@ -24,7 +24,6 @@ import { useForm } from "react-hook-form";
 import { useNavigate } from "react-router-dom";
 import { getUserRole, login } from "../../services/authService";
 import { getUserSectionRosterByID } from "../../services/sectionRosterService";
-import { getSectionPatientById } from "../../services/sectionPatientService";
 import { getSectionId } from "../../services/authService";
 
 export default function LoginFormComponent() {
@@ -44,14 +43,15 @@ export default function LoginFormComponent() {
       await new Promise((resolve) => setTimeout(resolve, 1000));
       await login(data.username.trim(), data.password.trim());
       const role = getUserRole();
+      const sectionRoster = await getUserSectionRosterByID();
 
-      if (role == "STUDENT") {
+      localStorage.setItem(
+        "SECTION_ID",
+        JSON.stringify({ sectionId: sectionRoster.section_id })
+      );
+      const sectionId = getSectionId();
+      if (role === "STUDENT") {
         try {
-          const sectionRoster = await getUserSectionRosterByID();
-
-          const section = await getSectionPatientById(sectionRoster.section_id);
-          localStorage.setItem("SECTION_ID", JSON.stringify({ sectionId: sectionRoster.section_id }));
-          const sectionId = getSectionId();
           navigate(`/patient-demographics/${sectionId}`);
         } catch (error) {
           console.error("Error retrieving section or patient data:", error);
