@@ -4,6 +4,7 @@ import SignUpPage from "./pages/auth/SignUp";
 import PatientDemographicsPage from "./pages/patient-demographics/PatientDemographics";
 import PatientHistory from "./pages/patient-history/PatientHistoryPage";
 import PatientAssignment from "./pages/section/PatientAssignment";
+import MedicalAdministrationRecord from "./pages/MAR/MedicalAdministrationRecord";
 import { Box } from "@mui/material";
 import { BrowserRouter, Routes, Route } from "react-router-dom";
 
@@ -15,6 +16,7 @@ function App() {
           <Route path="/" element={<LoginPage />} />
           <Route path="/register" element={<SignUpPage />} />
           <Route path="/assign" element={<PatientAssignment />} />
+          <Route path="/MAR/:sectionId" element={<MedicalAdministrationRecord />} />
           <Route
             path="/patient-demographics/:sectionId"
             element={<PatientDemographicsPage />}
