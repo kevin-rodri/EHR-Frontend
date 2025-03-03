@@ -1,9 +1,10 @@
 /*
 Name: Dylan Bellinger
+Date: 3/3/2025
 Remarks: The Patient PRN component for displaying patient PRN medication.
 */
 import React, { useState, useEffect } from "react";
-import { Box, Table, TableBody, TableCell, TableHead, TableRow, TablePagination, Fab } from "@mui/material";
+import { Box, Table, TableBody, TableCell, TableHead, TableRow, TablePagination, Fab, ButtonGroup } from "@mui/material";
 import { getPatientPRNMedication } from "../../services/patientMedicationsService";
 import { getSectionPatientById } from "../../services/sectionPatientService";
 import { Add, Delete, Edit } from "@mui/icons-material";
@@ -26,7 +27,7 @@ export default function PatientPRNTableComponent({sectionId}) {
         const [medName, setMedName] = useState("");
         const [drugName, setDrugName] = useState("");
         const [deletedMed, setDeletedMed] = useState("");
-        const [editedMed, setEditedMed] = useState("");
+        const [editedMed, setEditedMed] = useState({});
         const [openDeleteModal, setOpenDeleteModal] = useState(false);
         const [openAddModal, setOpenAddModal] = useState(false);
         const [openEditModal, setOpenEditModal] = useState(false);
@@ -135,8 +136,10 @@ export default function PatientPRNTableComponent({sectionId}) {
                           <TableCell>{patientMed.genericName}</TableCell>
                           <TableCell>{patient}</TableCell>
                           <TableCell>
-                            <Fab onClick={() => handleEditButton(true, patientMed.id)}><Edit /></Fab>
+                            <ButtonGroup sx={{ display: "flex", gap: 2 }}>
+                            <Fab onClick={() => handleEditButton(true, patientMed)}><Edit /></Fab>
                             <Fab onClick={() => handleDeleteButton(true, patientMed.id)}><Delete /></Fab>
+                            </ButtonGroup>
                           </TableCell>
                         </TableRow>
                       ))

@@ -1,5 +1,6 @@
 /*
 Name: Dylan Bellinger
+Date: 3/3/2025
 Remarks: The Patient Scheduled component for displaying patient scheduled medication.
 */
 import React, { useState, useEffect } from "react";
@@ -12,6 +13,7 @@ import {
   TableRow,
   TablePagination,
   Fab,
+  ButtonGroup
 } from "@mui/material";
 import { getPatientScheduledMedication } from "../../services/patientMedicationsService";
 import { getSectionPatientById } from "../../services/sectionPatientService";
@@ -31,12 +33,8 @@ export default function PatientScheduledTableComponent({ sectionId }) {
   const [patient, setPatient] = useState("");
   const [page, setPage] = useState(0);
   const [rowsPerPage, setRowsPerPage] = useState(10);
-  const [display, setDisplay] = useState(false);
-  const [medications, setMedications] = useState([]);
-  const [medName, setMedName] = useState("");
-  const [drugName, setDrugName] = useState("");
   const [deletedMed, setDeletedMed] = useState("");
-  const [editedMed, setEditedMed] = useState("");
+  const [editedMed, setEditedMed] = useState({});
   const [openDeleteModal, setOpenDeleteModal] = useState(false);
   const [openAddModal, setOpenAddModal] = useState(false);
   const [openEditModal, setOpenEditModal] = useState(false);
@@ -148,12 +146,14 @@ export default function PatientScheduledTableComponent({ sectionId }) {
                 <TableCell>{patientMed.genericName}</TableCell>
                 <TableCell>{patient}</TableCell>
                 <TableCell>
-                  <Fab onClick={() => handleEditButton(true, patientMed.id)}>
+                <ButtonGroup sx={{ display: "flex", gap: 2 }}>
+                  <Fab onClick={() => handleEditButton(true, patientMed)}>
                     <Edit />
                   </Fab>
                   <Fab onClick={() => handleDeleteButton(true, patientMed.id)}>
                     <Delete />
                   </Fab>
+                  </ButtonGroup>
                 </TableCell>
               </TableRow>
             ))}

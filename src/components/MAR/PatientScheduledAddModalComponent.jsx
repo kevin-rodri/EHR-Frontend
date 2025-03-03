@@ -1,5 +1,6 @@
 /*
 Name: Dylan Bellinger
+Date: 3/3/2025
 Remarks: Add modal for Scheduled medication table.
 Date Picker: https://mui.com/x/react-date-pickers/date-time-picker/
 */
@@ -143,17 +144,16 @@ export default function PatientScheduledAddModalComponent({
               </Select>
             </FormControl>
           </div>
-          <div>
-            <Typography>Scheduled Time</Typography>
+          <div style={{ marginTop: 16 }}>
             <LocalizationProvider dateAdapter={AdapterDayjs}>
               <DateTimePicker
-                label="Select Date and Time"
+                label="Scheduled Time"
                 value={time}
                 onChange={handleTime}
               />
             </LocalizationProvider>
           </div>
-          <div>
+          <div style={{ marginTop: 16 }}>
             <Typography>Route</Typography>
             <Select value={route} onChange={handleRoute} fullWidth>
               <MenuItem value={"PO"}>PO</MenuItem>

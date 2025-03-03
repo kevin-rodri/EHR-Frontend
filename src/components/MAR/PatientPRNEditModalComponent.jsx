@@ -1,6 +1,7 @@
 /*
 Name: Dylan Bellinger
 Remarks: Edit modal for PRN table.
+Date: 3/3/2025
 Date Picker: https://mui.com/x/react-date-pickers/date-time-picker/
 */
 import {
@@ -28,7 +29,7 @@ export default function PatientPRNEditModalComponent({
     open,
     onClose,
     sectionPatientID,
-    editedMed,
+    patientMed,
     refreshPatientMedication,
 }) {
     const [med, setMed] = useState("");
@@ -75,8 +76,8 @@ export default function PatientPRNEditModalComponent({
         setFrequency(event.target.value);
     };
 
-    function handleTime(event) {
-        setTime(event.target.value);
+    function handleTime(newTime) {
+        setTime(newTime);
     };
 
     const onSubmit = async () => {
@@ -89,8 +90,8 @@ export default function PatientPRNEditModalComponent({
             const isoString = date.toISOString().slice(0, 19);
             console.log(isoString);
 
-            await updatePatientMedication(sectionPatientID, editedMed, {
-                medication_id: med,
+            await updatePatientMedication(sectionPatientID, patientMed.id, {
+                medication_id: patientMed.medication_id,
                 medication_type: "PRN",
                 scheduled_time: isoString,
                 dose: dose,
@@ -136,8 +137,9 @@ export default function PatientPRNEditModalComponent({
                         <Typography>Drug Name</Typography>
                         <FormControl fullWidth>
                             <Select
-                                value={med}
+                                value={patientMed}
                                 onChange={handleMed}
+                                disabled
                             >
                                 {medications.map((medication) => (
                                     <MenuItem value={medication.id}>
@@ -147,17 +149,16 @@ export default function PatientPRNEditModalComponent({
                             </Select>
                         </FormControl>
                     </div>
-                    <div>
-                        <Typography>Scheduled Time</Typography>
+                    <div style={{ marginTop: 16 }}>
                         <LocalizationProvider dateAdapter={AdapterDayjs}>
                             <DateTimePicker
-                                label="Select Date and Time"
+                                label="Scheduled Time"
                                 value={time}
                                 onChange={handleTime}
                             />
                         </LocalizationProvider>
                     </div>
-                    <div>
+                    <div style={{ marginTop: 16 }}>
                         <Typography>Route</Typography>
                         <Select
                             value={route}

@@ -1,5 +1,6 @@
 /*
 Name: Dylan Bellinger
+Date: 3/3/2025
 Remarks: Edit modal for Scheduled medication table.
 Date Picker: https://mui.com/x/react-date-pickers/date-time-picker/
 */
@@ -70,8 +71,8 @@ export default function PatientScheduledEditModalComponent({
     setFrequency(event.target.value);
   };
 
-  function handleTime(event) {
-    setTime(event.target.value);
+  function handleTime(newTime) {
+    setTime(newTime);
   };
 
   const onSubmit = async () => {
@@ -84,8 +85,8 @@ export default function PatientScheduledEditModalComponent({
       const isoString = date.toISOString().slice(0, 19);
       console.log(isoString);
 
-      await updatePatientMedication(sectionPatientID, patientMed, {
-        medication_id: med,
+      await updatePatientMedication(sectionPatientID, patientMed.id, {
+        medication_id: patientMed.medication_id,
         medication_type: "SCHEDULED",
         scheduled_time: isoString,
         dose: dose,
@@ -130,8 +131,9 @@ export default function PatientScheduledEditModalComponent({
             <Typography>Drug Name</Typography>
             <FormControl fullWidth>
               <Select
-                value={med}
+                value={patientMed}
                 onChange={handleMed}
+                disabled
               >
                 {medications.map((medication) => (
                   <MenuItem value={medication.id}>
@@ -141,17 +143,16 @@ export default function PatientScheduledEditModalComponent({
               </Select>
             </FormControl>
           </div>
-          <div>
-            <Typography>Scheduled Time</Typography>
+          <div style={{ marginTop: 16 }}>
             <LocalizationProvider dateAdapter={AdapterDayjs}>
               <DateTimePicker
-                label="Select Date and Time"
+                label="Scheduled Time"
                 value={time}
                 onChange={handleTime}
               />
             </LocalizationProvider>
           </div>
-          <div>
+          <div style={{ marginTop: 16 }}>
             <Typography>Route</Typography>
             <Select
               value={route}

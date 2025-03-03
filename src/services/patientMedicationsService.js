@@ -1,3 +1,8 @@
+/*
+Name: Dylan Bellinger
+Date: 3/3/2025
+Remarks: Patient Medications Service for patient medications API backend calls.
+*/
 import { axiosTokenInstance } from "./httpInterceptor";
 
 export async function getPatientScheduledMedication(section_patient_id) {

@@ -1,5 +1,6 @@
 /*
 Name: Dylan Bellinger
+Date: 3/3/2025
 Remarks: Add modal for PRN table.
 Date Picker: https://mui.com/x/react-date-pickers/date-time-picker/
 */
@@ -17,7 +18,7 @@ import {
   Card,
 } from "@mui/material";
 import React, { useState, useEffect } from "react";
-import { addPatientMedication, updatePatientMedication } from "../../services/patientMedicationsService";
+import { addPatientMedication } from "../../services/patientMedicationsService";
 import { getMedications } from "../../services/medicationsService";
 import { DateTimePicker } from "@mui/x-date-pickers/DateTimePicker";
 import { LocalizationProvider } from "@mui/x-date-pickers/LocalizationProvider";
@@ -144,17 +145,16 @@ export default function PatientPRNAddModalComponent({
               </Select>
             </FormControl>
           </div>
-          <div>
-            <Typography>Scheduled Time</Typography>
+          <div style={{ marginTop: 16 }}>
             <LocalizationProvider dateAdapter={AdapterDayjs}>
               <DateTimePicker
-                label="Select Date and Time"
+                label="Scheduled Time"
                 value={time}
                 onChange={handleTime} // Fix: Directly passes the date
               />
             </LocalizationProvider>
           </div>
-          <div>
+          <div style={{ marginTop: 16 }}>
             <Typography>Route</Typography>
             <Select value={route} onChange={handleRoute} fullWidth>
               <MenuItem value={"PO"}>PO</MenuItem>
