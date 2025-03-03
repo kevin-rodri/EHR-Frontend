@@ -110,7 +110,8 @@ export default function PatientPRNTableComponent({sectionId}) {
                 padding: 1,
                 flexDirection: "column",
                 alignItems: "flex-start",
-                backgroundColor: "white"
+                backgroundColor: "white",
+                marginBottom: 2
               }}>
                 <Table sx={{}}>
                     <TableHead>
