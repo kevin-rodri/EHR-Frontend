@@ -2,6 +2,7 @@
 Name: Dylan Bellinger
 Date: 3/3/2025
 Remarks: The Patient PRN component for displaying patient PRN medication.
+https://mui.com/material-ui/react-table/
 */
 import React, { useState, useEffect } from "react";
 import { Box, Table, TableBody, TableCell, TableHead, TableRow, TablePagination, Fab, ButtonGroup } from "@mui/material";
