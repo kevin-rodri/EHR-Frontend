@@ -8,6 +8,7 @@ import { Box, Typography } from "@mui/material";
 import PatientScheduledTableComponent from "../../components/MAR/PatientScheduledTableComponent";
 import PatientPRNTableComponent from "../../components/MAR/PatientPRNTableComponent";
 import NavBar from "../../components/nav/SideNavComponent";
+import { PatientBannerComponent } from "../../components/patients/PatientBannerComponent";
 
 export default function MedicalAdministrationRecord() {
     const { sectionId } = useParams();
@@ -24,6 +25,7 @@ export default function MedicalAdministrationRecord() {
                 paddingLeft: 24,
             }}
             >
+                <PatientBannerComponent sectionId={sectionId} />
                 <Typography
                     variant="h2"
                     fontFamily={"Roboto"}
