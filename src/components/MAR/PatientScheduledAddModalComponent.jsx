@@ -147,7 +147,7 @@ export default function PatientScheduledAddModalComponent({
             <Typography>Scheduled Time</Typography>
             <LocalizationProvider dateAdapter={AdapterDayjs}>
               <DateTimePicker
-                label="Controlled picker"
+                label="Select Date and Time"
                 value={time}
                 onChange={handleTime}
               />

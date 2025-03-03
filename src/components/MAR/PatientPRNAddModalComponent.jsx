@@ -17,7 +17,7 @@ import {
   Card,
 } from "@mui/material";
 import React, { useState, useEffect } from "react";
-import { addPatientMedication } from "../../services/patientMedicationsService";
+import { addPatientMedication, updatePatientMedication } from "../../services/patientMedicationsService";
 import { getMedications } from "../../services/medicationsService";
 import { DateTimePicker } from "@mui/x-date-pickers/DateTimePicker";
 import { LocalizationProvider } from "@mui/x-date-pickers/LocalizationProvider";
@@ -83,22 +83,27 @@ export default function PatientPRNAddModalComponent({
     setLoading(true);
     try {
       await new Promise((resolve) => setTimeout(resolve, 1000));
-
-      await addPatientMedication(sectionPatientID, {
-        medications_id: med,
-        medication_type: "PRN",
-        scheduled_time: time,
-        dose: dose,
-        route: route,
-        dose_frequency: frequency,
-      });
-      onClose();
-      setMed("");
-      setDose("");
-      setRoute("");
-      setFrequency("");
-      setTime(null);
-      refreshPatientMedication();
+            console.log(med);
+            console.log(time.$d);
+            const date = new Date(time.$d)
+            const isoString = date.toISOString().slice(0, 19); 
+            console.log(isoString);
+      
+            await addPatientMedication(sectionPatientID, {
+              medication_id: med,
+              medication_type: "PRN",
+              scheduled_time: isoString,
+              dose: dose,
+              route: route,
+              dose_frequency: frequency,
+            });
+            onClose();
+            setMed("");
+            setDose("");
+            setRoute("");
+            setFrequency("");
+            setTime(null);
+            refreshPatientMedication();
     } catch (err) {
       throw err;
     } finally {
@@ -143,7 +148,7 @@ export default function PatientPRNAddModalComponent({
             <Typography>Scheduled Time</Typography>
             <LocalizationProvider dateAdapter={AdapterDayjs}>
               <DateTimePicker
-                label="Controlled picker"
+                label="Select Date and Time"
                 value={time}
                 onChange={handleTime} // Fix: Directly passes the date
               />

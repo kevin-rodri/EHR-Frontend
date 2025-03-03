@@ -12,6 +12,7 @@ import PatientPRNDeleteModalComponent from "./PatientPRNDeleteModalComponent";
 import PatientPRNAddModalComponent from "./PatientPRNAddModalComponent";
 import PatientPRNEditModalComponent from "./PatientPRNEditModalComponent";
 import { getMedicationById } from "../../services/medicationsService";
+import { getPatientById } from "../../services/patientService";
 
 export default function PatientPRNTableComponent({sectionId}) {
     const [patientMeds, setPatientMeds] = useState([]);
@@ -52,27 +53,31 @@ export default function PatientPRNTableComponent({sectionId}) {
         const fetchPRNMedications = async () => {
             try {
               const sectionPatient = await getSectionPatientById(sectionId);
-              const patientId = sectionPatient.patient_id;
-              const sectionPatientId = sectionPatient.id;
-              const patientData = await getPatientPRNMedication(sectionPatientId);
-              const patientMed = await getMedicationById(patientData.medication_id);
-              setPatientMeds(patientData);
-              setMedName(patientMed.drug_name);
-              setDrugName(patientMed.generic_name);
-              setPatientId(patientId);
-              setPatient(sectionPatient.full_name);
-              setSectionPatientId(sectionPatientId);
+                    const sectionPatientId = sectionPatient.id;
+                    const patientMedData = await getPatientPRNMedication(
+                      sectionPatientId
+                    );
+                    const patientInfo = await getPatientById(sectionPatient.patient_id);
+                    const medDetails = await Promise.all(
+                      patientMedData.map(async (med) => {
+                        const medication = await getMedicationById(med.medication_id);
+                        return {
+                          ...med,
+                          drugName: medication.drug_name,
+                          genericName: medication.generic_name,
+                        };
+                      })
+                    );
+              
+                    setPatientMeds(medDetails);
+                    setPatient(patientInfo.full_name);
+                    setSectionPatientId(sectionPatientId);
             } catch (err) {
               throw err;
             }
         };
     
             useEffect(() => {
-                if (sectionId == null) return;
-                const role = getUserRole();
-                if (role === "ADMIN" || role === "INSTRUCTOR" || role === "STUDENT") {
-                  setDisplay(true);
-                }
                 fetchPRNMedications();
               }, [sectionId]);
           
@@ -104,12 +109,9 @@ export default function PatientPRNTableComponent({sectionId}) {
                 padding: 1,
                 flexDirection: "column",
                 alignItems: "flex-start",
-                backgroundColor: "white",
-                width: '75%'
+                backgroundColor: "white"
               }}>
-                <Table sx={{
-                    
-                }}>
+                <Table sx={{}}>
                     <TableHead>
                         <TableRow>
                             <TableCell>Drug Name</TableCell>
@@ -125,12 +127,12 @@ export default function PatientPRNTableComponent({sectionId}) {
                     </TableHead>
                     <TableBody>
                       {patientMeds.map((patientMed) => (
-                        <TableRow>
-                          <TableCell>{drugName}</TableCell>
+                        <TableRow key={patientMed.id}>
+                          <TableCell>{patientMed.drugName}</TableCell>
                           <TableCell>{patientMed.dose_frequency}</TableCell>
                           <TableCell>{patientMed.dose}</TableCell>
                           <TableCell>{patientMed.route}</TableCell>
-                          <TableCell>{medName}</TableCell>
+                          <TableCell>{patientMed.genericName}</TableCell>
                           <TableCell>{patient}</TableCell>
                           <TableCell>
                             <Fab onClick={() => handleEditButton(true, patientMed.id)}><Edit /></Fab>

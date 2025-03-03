@@ -119,8 +119,7 @@ export default function PatientScheduledTableComponent({ sectionId }) {
           padding: 1,
           flexDirection: "column",
           alignItems: "flex-start",
-          backgroundColor: "white",
-          width: "75%",
+          backgroundColor: "white"
         }}
       >
         <Table sx={{}}>

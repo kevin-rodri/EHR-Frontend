@@ -42,7 +42,7 @@ export default function MedicalAdministrationRecord() {
                 Scheduled Medications
                 </Typography>
                 <PatientScheduledTableComponent sectionId={sectionId}/>
-                {/* <Typography
+                <Typography
                     variant="h5"
                     fontFamily={"Roboto"}
                     color="white"
@@ -52,7 +52,7 @@ export default function MedicalAdministrationRecord() {
                 PRN Medications
                 </Typography>
                 <PatientPRNTableComponent sectionId={sectionId}/>
-                */}
+                
             </Box> 
         </Box>
     )
