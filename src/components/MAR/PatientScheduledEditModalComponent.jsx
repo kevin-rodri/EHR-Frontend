@@ -21,7 +21,7 @@ import { Modal,
  import { DateTimePicker } from '@mui/x-date-pickers/DateTimePicker';
  import { LocalizationProvider } from '@mui/x-date-pickers/LocalizationProvider';
  import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs';
- import { getMedication } from "../../services/medicationsService";
+ import { getMedications } from "../../services/medicationsService";
 
 export default function PatientScheduledEditModalComponent({
     open,
@@ -42,7 +42,7 @@ export default function PatientScheduledEditModalComponent({
 
         const fetchMedications = async () => {
                     try {
-                      const medData = await getMedication();
+                      const medData = await getMedications();
                       setMedications(medData);
                     } catch (err) {
                       throw err;

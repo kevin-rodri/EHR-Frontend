@@ -1,9 +1,9 @@
 import { axiosInstance } from "./httpInterceptor";
 
-export async function getMedication() {
+export async function getMedications() {
     try {
       const response = await axiosInstance().get(
-        `medications`
+        `medications/`
       );
       return response.data;
     } catch (error) {
@@ -25,7 +25,7 @@ export async function getMedicationById(id) {
 export async function addMedication(medication) {
   try {
     const response = await axiosInstance().post(
-      `medications`,
+      `medications/`,
       medication
     );
     return response.data;
@@ -49,7 +49,7 @@ export async function updateMedication(id, medication) {
 export async function deleteMedication(id, medication) {
   try {
     const response = await axiosInstance().delete(
-      `patient-medications/${id}`,
+      `medications/${id}`,
       medication
     );
     return response.data;

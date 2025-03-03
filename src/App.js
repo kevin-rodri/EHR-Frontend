@@ -17,7 +17,7 @@ function App() {
           <Route path="/" element={<LoginPage />} />
           <Route path="/register" element={<SignUpPage />} />
           <Route path="/assign" element={<PatientAssignment />} />
-          <Route path="/MAR/:sectionId" element={<MedicalAdministrationRecord />} />
+          <Route path="/mar/:sectionId" element={<MedicalAdministrationRecord />} />
           <Route
             path="/patient-demographics/:sectionId"
             element={<PatientDemographicsPage />}
