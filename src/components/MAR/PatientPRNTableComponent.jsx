@@ -70,7 +70,7 @@ export default function PatientPRNTableComponent({sectionId}) {
             useEffect(() => {
                 if (sectionId == null) return;
                 const role = getUserRole();
-                if (role === "ADMIN" || role === "INSTRUCTOR") {
+                if (role === "ADMIN" || role === "INSTRUCTOR" || role === "STUDENT") {
                   setDisplay(true);
                 }
                 fetchPRNMedications();

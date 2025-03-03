@@ -7,12 +7,16 @@ import { useParams } from "react-router-dom";
 import { Box, Typography } from "@mui/material";
 import PatientScheduledTableComponent from "../../components/MAR/PatientScheduledTableComponent";
 import PatientPRNTableComponent from "../../components/MAR/PatientPRNTableComponent";
+import NavBar from "../../components/nav/SideNavComponent";
 
 export default function MedicalAdministrationRecord() {
     const { sectionId } = useParams();
 
     return(
-        <Box>
+        <Box sx={{
+            display: "flex",
+          }}>
+            <NavBar />
             <Box
             sx={{
                 display: "flex",
