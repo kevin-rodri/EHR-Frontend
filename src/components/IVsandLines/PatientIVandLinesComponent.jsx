@@ -125,8 +125,8 @@ const PatientIVandLinesComponent = ({ sectionId }) => {
               <TableCell align="center">Type</TableCell>
               <TableCell align="center">Size</TableCell>
               <TableCell align="center">Location</TableCell>
-              <TableCell align="center">Fluid or Med name</TableCell>
-              <TableCell align="center">Fluid or Med and Rate</TableCell>
+              <TableCell align="center">Fluid or Med Name</TableCell>
+              <TableCell align="center">Fluid or Med Rate</TableCell>
               <TableCell align="center">Patent</TableCell>
               <TableCell align="center">CDI</TableCell>
               <TableCell align="center">Actions</TableCell>

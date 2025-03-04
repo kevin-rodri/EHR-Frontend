@@ -1,20 +1,19 @@
 /*
-Name: Charlize Aponte
-Date: 2/23/25 
-Remarks: This page displays the IVs and lines information for a patient using Material UI.
+Name: Gabby Pierce
+Date: 2/23/25
+Remark: Responsible for holding the patient ADL page
 */
 import React from "react";
 import { useParams } from "react-router-dom";
 import { Box, Typography } from "@mui/material";
-import PatientIVandLinesComponent from "../../components/IVsandLines/PatientIVandLinesComponent";
-import { isAuthenticated } from "../../services/authService";
-import { useEffect } from "react";
-import { useNavigate } from "react-router-dom";
 import NavBar from "../../components/nav/SideNavComponent";
+import PatientADLComponent from "../../components/adl/PatientADLComponent";
 import { PatientBannerComponent } from "../../components/patients/PatientBannerComponent";
+import { useNavigate } from "react-router-dom";
+import { useEffect } from "react";
+import { isAuthenticated } from "../../services/authService";
 
-
-const IVandLinesPage = () => {
+const PatientADLPage = () => {
   const { sectionId } = useParams();
   const navigate = useNavigate();
 
@@ -32,21 +31,28 @@ const IVandLinesPage = () => {
       }}
     >
       <NavBar />
-      <Box sx={{ display: "flex", flexDirection: "column", paddingLeft: 24 }}>
-      <PatientBannerComponent sectionId={sectionId} />
+      <Box
+        sx={{
+          display: "flex",
+          flexDirection: "column",
+          paddingLeft: 25,
+        }}
+      >
+        <PatientBannerComponent sectionId={sectionId} />
         <Typography
           variant="h2"
           fontFamily={"Roboto"}
           color="white"
           marginBottom={5}
           marginTop={5}
+          alignSelf="center"
         >
-          IVs and Lines
+          ADL
         </Typography>
-        <PatientIVandLinesComponent sectionId={sectionId} />
+        <PatientADLComponent sectionId={sectionId} />
       </Box>
     </Box>
   );
 };
 
-export default IVandLinesPage;
+export default PatientADLPage;

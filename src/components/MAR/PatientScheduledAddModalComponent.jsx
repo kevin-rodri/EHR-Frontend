@@ -57,7 +57,7 @@ export default function PatientScheduledAddModalComponent({
 
   useEffect(() => {
     fetchMedications();
-  }, [medications]);
+  }, []);
 
   function handleMed(event) {
     setMed(event.target.value);

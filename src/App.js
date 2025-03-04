@@ -5,6 +5,8 @@ import PatientDemographicsPage from "./pages/patient-demographics/PatientDemogra
 import PatientHistory from "./pages/patient-history/PatientHistoryPage";
 import PatientAssignment from "./pages/section/PatientAssignment";
 import PatientWaldoPage from "./pages/waldo/PatientWaldoPage";
+import PatientADLPage from "./pages/adl/PatientADLPage";
+import PatientNotesPage from "./pages/patient-notes/PatientNotesPage";
 import MedicalAdministrationRecord from "./pages/MAR/MedicalAdministrationRecord";
 import { Box } from "@mui/material";
 import { BrowserRouter, Routes, Route } from "react-router-dom";
@@ -26,6 +28,8 @@ function App() {
           <Route path="/iv-lines/:sectionId" element={<IVandLinesPage/>}/>
           <Route path="/history/:sectionId" element={<PatientHistory />} />
           <Route path="/waldo/:sectionId" element={<PatientWaldoPage />} />
+          <Route path="/adl/:sectionId" element={<PatientADLPage />} />
+          <Route path="/patient-notes/:sectionId" element={<PatientNotesPage />} />
         </Routes>
       </BrowserRouter>
     </Box>

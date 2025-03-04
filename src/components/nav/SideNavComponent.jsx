@@ -73,7 +73,12 @@ export default function NavBar() {
                 sx={{ fontFamily: "Roboto", color: "black" }}
               />
             </ListItem>
-
+            <ListItem button component={Link} to={`/mar/${sectionId}`}>
+              <ListItemText
+                primary="MAR"
+                sx={{ fontFamily: "Roboto", color: "black" }}
+              />
+            </ListItem>
             <Accordion
               expanded={expanded}
               onChange={handleAccordionChange}
@@ -102,11 +107,23 @@ export default function NavBar() {
                       sx={{ fontFamily: "Roboto", color: "black" }}
                     />
                   </ListItem>
+                  <ListItem button component={Link} to={`/adl/${sectionId}`}>
+                    <ListItemText
+                      primary="ADL"
+                      sx={{ fontFamily: "Roboto", color: "black" }}
+                    />
+                  </ListItem>
                 </List>
               </AccordionDetails>
             </Accordion>
           </>
         )}
+        <ListItem button component={Link} to={`/patient-notes/${sectionId}`}>
+          <ListItemText
+            primary="Patient Notes"
+            sx={{ fontFamily: "Roboto", color: "black" }}
+          />
+        </ListItem>
       </List>
     </Drawer>
   );

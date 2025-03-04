@@ -9,9 +9,20 @@ import PatientScheduledTableComponent from "../../components/MAR/PatientSchedule
 import PatientPRNTableComponent from "../../components/MAR/PatientPRNTableComponent";
 import NavBar from "../../components/nav/SideNavComponent";
 import { PatientBannerComponent } from "../../components/patients/PatientBannerComponent";
+import { useNavigate } from "react-router-dom";
+import { isAuthenticated } from "../../services/authService";
+import { useEffect } from "react";
 
 export default function MedicalAdministrationRecord() {
     const { sectionId } = useParams();
+    const navigate = useNavigate();
+
+    useEffect(() => {
+      async function checkAuth() {
+        const authStatus = await isAuthenticated(navigate);
+      }
+      checkAuth();
+    }, [navigate]);
 
     return(
         <Box sx={{

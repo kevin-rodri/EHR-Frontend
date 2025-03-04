@@ -58,7 +58,7 @@ export default function PatientPRNEditModalComponent({
 
     useEffect(() => {
         fetchMedications();
-    }, [medications]);
+    }, []);
 
     function handleMed(event) {
         setMed(event.target.value);
