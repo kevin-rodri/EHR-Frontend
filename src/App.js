@@ -6,6 +6,7 @@ import PatientHistory from "./pages/patient-history/PatientHistoryPage";
 import PatientAssignment from "./pages/section/PatientAssignment";
 import { Box } from "@mui/material";
 import { BrowserRouter, Routes, Route } from "react-router-dom";
+import IVandLinesPage from "./pages/IVandLines/IVandLinesPage";
 
 function App() {
   return (
@@ -19,6 +20,7 @@ function App() {
             path="/patient-demographics/:sectionId"
             element={<PatientDemographicsPage />}
           />
+          <Route path="/patient/:sectionId/iv-lines" element={<IVandLinesPage/>}/>
           <Route path="/history/:sectionId" element={<PatientHistory />} />
         </Routes>
       </BrowserRouter>

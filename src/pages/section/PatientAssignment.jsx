@@ -8,8 +8,18 @@ import React from "react";
 import { Box, Typography } from "@mui/material";
 import SectionTableComponent from "../../components/section/SectionTableComponent";
 import NavBar from "../../components/nav/SideNavComponent";
+import { isAuthenticated } from "../../services/authService";
+import {  useEffect } from "react";
+import { useNavigate } from "react-router-dom";
 
 export default function PatientAssignment() {
+  const navigate = useNavigate();
+
+  useEffect(() => { 
+      async function checkAuth() { 
+        const authStatus = await isAuthenticated(navigate);   
+      } checkAuth(); }, [navigate]);
+
   return (
     <Box
       sx={{
