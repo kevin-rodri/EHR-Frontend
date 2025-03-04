@@ -1,30 +1,26 @@
-/*
-Name: Gabby Pierce
-Date: 2/23/25
-Remark: Responsible for holding the patient ADL page
-*/
-import React from "react";
+//Gabby Pierce
 import { useParams } from "react-router-dom";
 import { Box, Typography } from "@mui/material";
 import NavBar from "../../components/nav/SideNavComponent";
-import PatientADLComponent from "../../components/adl/PatientADLComponent";
+import PatientNotesTableComponent from "../../components/patient-notes/PatientNotesTableComponent";
 import { PatientBannerComponent } from "../../components/patients/PatientBannerComponent";
 
-const PatientADLPage = () => {
+function PatientNotesPage() {
   const { sectionId } = useParams();
 
+  if (!sectionId) {
+    return <p>Error: No Section ID provided.</p>;
+  }
+
   return (
-    <Box
-      sx={{
-        display: "flex",
-      }}
-    >
+    <Box sx={{ display: "flex" }}>
       <NavBar />
       <Box
         sx={{
           display: "flex",
           flexDirection: "column",
           paddingLeft: 25,
+          width: "100%",
         }}
       >
         <PatientBannerComponent sectionId={sectionId} />
@@ -36,12 +32,12 @@ const PatientADLPage = () => {
           marginTop={5}
           alignSelf="center"
         >
-          ADL
+          Patient Notes
         </Typography>
-        <PatientADLComponent sectionId={sectionId} />
+        <PatientNotesTableComponent sectionId={sectionId} />
       </Box>
     </Box>
   );
-};
+}
 
-export default PatientADLPage;
+export default PatientNotesPage;

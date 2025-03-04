@@ -1,8 +1,4 @@
-/*
-Name: TO-DO
-Date: TO-DO
-Remark: Patient ADL Component that's responsible for adding a patient's ADL information
-*/
+//Gabby Pierce
 import React, { useEffect, useState } from "react";
 import {
   Table,
@@ -21,7 +17,7 @@ import {
   Checkbox,
   TextField,
 } from "@mui/material";
-import { Delete } from "@mui/icons-material";
+import { Delete, Add } from "@mui/icons-material";
 import {
   addADLRecord,
   getADLRecords,
@@ -38,7 +34,7 @@ const eliminationOptions = ["Urinal", "Bedpan", "Commode"];
 export default function PatientADLComponent({ sectionId }) {
   const [sectionPatientId, setSectionPatientId] = useState(null);
   const [adlRecords, setAdlRecords] = useState([]);
-  const [sceduledTimes, setScheduledTimes] = useState([]);
+  const [scheduledTimes, setScheduledTimes] = useState([]);
   const [anchorEl, setAnchorEl] = useState(null);
   const [selectedTime, setSelectedTime] = useState(null);
 
@@ -46,12 +42,7 @@ export default function PatientADLComponent({ sectionId }) {
     fetchSectionPatientId();
   }, [sectionId]);
 
-  /*
-  For educational purposes: This is the process behind getting data from our endpoints: 
-  1. We get the section id from the url. 
-  2. We set the section patient based on what we get from the backend
-  3. We call the endpoint we're interested in (i.e. ADL record) and pass in the retrieved section patient id.
-  */
+  // Fetch the patient and ADL records
   const fetchSectionPatientId = async () => {
     try {
       const sectionPatient = await getSectionPatientById(sectionId);
@@ -62,7 +53,6 @@ export default function PatientADLComponent({ sectionId }) {
         displayTime: dayjs(record.created_date).format("HH:mm:ss"),
       }));
       setScheduledTimes(times);
-      console.log(times);
       setSectionPatientId(sectionPatient.id);
     } catch (error) {
       console.error(error);
@@ -70,31 +60,38 @@ export default function PatientADLComponent({ sectionId }) {
   };
 
   const handleChange = async (time, category, value) => {
-    setAdlRecords((prevRecords) => {
-      return prevRecords.map((record) =>
-        record.created_date === time ? { ...record, [category]: value } : record
-      );
-    });
+    // Find the current record (it may be stale, so we immediately compute an updated copy)
+    const record = adlRecords.find((r) => r.created_date === time);
+    if (!record) return;
+    // Create an updated record with the new value
+    const updatedRecord = { ...record, [category]: value };
+
+    // Optimistically update the UI state using the computed updated record
+    setAdlRecords((prevRecords) =>
+      prevRecords.map((r) =>
+        r.created_date === time ? updatedRecord : r
+      )
+    );
+
+    // Prepare the formatted data for the API call using updatedRecord
+    const formattedData = {
+      has_oral_care: updatedRecord.has_oral_care ? 1 : 0,
+      has_bathed: updatedRecord.has_bathed ? 1 : 0,
+      reposition: updatedRecord.reposition || "",
+      elimination_needed: updatedRecord.elimination_needed || "",
+      is_meal_given: updatedRecord.is_meal_given ? 1 : 0,
+      amount_meal_consumed:
+        updatedRecord.amount_meal_consumed !== undefined
+          ? parseFloat(updatedRecord.amount_meal_consumed).toFixed(2)
+          : "0.00",
+    };
 
     try {
-      const record = adlRecords.find((r) => r.created_date === time);
-      if (!record) return;
-
-      const formattedData = {
-        has_oral_care: record.has_oral_care ? 1 : 0,
-        has_bathed: record.has_bathed ? 1 : 0,
-        reposition: record.reposition || "",
-        elimination_needed: record.elimination_needed || "",
-        is_meal_given: record.is_meal_given ? 1 : 0,
-        amount_meal_consumed:
-          record.amount_meal_consumed !== undefined
-            ? parseFloat(record.amount_meal_consumed).toFixed(2)
-            : "0.00",
-      };
-
-      if (record.id != null) {
-        await updateADLRecord(sectionPatientId, record.id, formattedData);
+      if (updatedRecord.id != null) {
+        // Update the record if it exists in the DB
+        await updateADLRecord(sectionPatientId, updatedRecord.id, formattedData);
       } else {
+        // If the record is new, add it and update the state with its new ID
         const response = await addADLRecord(sectionPatientId, formattedData);
         setAdlRecords((prevRecords) =>
           prevRecords.map((r) =>
@@ -107,6 +104,8 @@ export default function PatientADLComponent({ sectionId }) {
     }
   };
 
+
+  // Open the menu for delete action
   const handleMenuOpen = (event, time) => {
     setAnchorEl(event.currentTarget);
     setSelectedTime(time);
@@ -115,6 +114,50 @@ export default function PatientADLComponent({ sectionId }) {
   const handleMenuClose = () => {
     setAnchorEl(null);
     setSelectedTime(null);
+  };
+
+  // New function to delete a record
+  const handleDeleteRecord = async (time) => {
+    try {
+      const record = adlRecords.find((r) => r.created_date === time);
+      if (!record) return;
+      if (record.id != null) {
+        await deleteADLRecord(sectionPatientId, record.id);
+      }
+      // Remove the record and its corresponding scheduled time
+      setAdlRecords((prevRecords) =>
+        prevRecords.filter((r) => r.created_date !== time)
+      );
+      setScheduledTimes((prevTimes) =>
+        prevTimes.filter((t) => t.fullTimestamp !== time)
+      );
+      handleMenuClose();
+    } catch (error) {
+      console.error("Error deleting ADL record:", error);
+    }
+  };
+
+  // Function to add a new ADL record with default values
+  const handleAddRecord = () => {
+    const newRecord = {
+      created_date: dayjs().toISOString(),
+      has_oral_care: false,
+      has_bathed: false,
+      reposition: "",
+      elimination_needed: "",
+      is_meal_given: false,
+      amount_meal_consumed: "0.00",
+      id: null,
+    };
+    // Insert new record at the beginning so it appears at the top
+    setAdlRecords((prev) => [newRecord, ...prev]);
+    setScheduledTimes((prev) => [
+      {
+        fullTimestamp: newRecord.created_date,
+        displayTime: dayjs(newRecord.created_date).format("HH:mm:ss"),
+      },
+      ...prev,
+    ]);
   };
 
   return (
@@ -132,11 +175,9 @@ export default function PatientADLComponent({ sectionId }) {
           <TableHead>
             <TableRow>
               <TableCell>Patient ADL</TableCell>
-              {sceduledTimes.map((timeObj) => (
+              {scheduledTimes.map((timeObj) => (
                 <TableCell key={timeObj.fullTimestamp} align="center">
                   {timeObj.displayTime}
-
-                  {/* A change in the Figma: It probably makes sense to make the cell an update */}
                   <IconButton
                     size="small"
                     onClick={(event) =>
@@ -145,7 +186,6 @@ export default function PatientADLComponent({ sectionId }) {
                   >
                     <MoreVertIcon />
                   </IconButton>
-
                   <Menu
                     anchorEl={anchorEl}
                     open={
@@ -154,23 +194,19 @@ export default function PatientADLComponent({ sectionId }) {
                     }
                     onClose={handleMenuClose}
                   >
-                    {/* TO-DO: Add a method that should edit the specifc record*/}
-                    <MenuItem
-                      onClick={() => console.log(`Editing ${selectedTime}`)}
-                    >
-                      Edit
-                    </MenuItem>
-                    {/* TO-DO: Add a method that should remove the specifc record*/}
-                    <MenuItem
-                      onClick={() => console.log(`Deleting ${selectedTime}`)}
-                    >
+                    {/* Removed "Edit" option since inline editing is always allowed */}
+                    <MenuItem onClick={() => handleDeleteRecord(selectedTime)}>
                       Delete
                     </MenuItem>
                   </Menu>
                 </TableCell>
               ))}
-              {/* TO-DO: Let's add a plus icon that allows the user to add a new row. */}
-              <TableCell>ADD</TableCell>
+              {/* Plus button to create a new record */}
+              <TableCell align="center">
+                <IconButton onClick={handleAddRecord}>
+                  <Add />
+                </IconButton>
+              </TableCell>
             </TableRow>
           </TableHead>
 
@@ -186,12 +222,8 @@ export default function PatientADLComponent({ sectionId }) {
             ].map(({ key, label }) => (
               <TableRow key={key}>
                 <TableCell>{label}</TableCell>
-
                 {adlRecords.map((record) => (
-                  <TableCell
-                    key={`${key}-${record.created_date}`}
-                    align="center"
-                  >
+                  <TableCell key={`${key}-${record.created_date}`} align="center">
                     {key === "has_oral_care" ||
                     key === "has_bathed" ||
                     key === "is_meal_given" ? (
@@ -206,15 +238,25 @@ export default function PatientADLComponent({ sectionId }) {
                         }
                       />
                     ) : key === "reposition" || key === "elimination_needed" ? (
-                      <TextField
-                        variant="outlined"
-                        size="small"
+                      <Select
                         value={record?.[key] || ""}
                         onChange={(e) =>
                           handleChange(record.created_date, key, e.target.value)
                         }
-                        placeholder={`Enter ${label.toLowerCase()}`}
-                      />
+                        size="small"
+                      >
+                        <MenuItem value="">
+                          <em>None</em>
+                        </MenuItem>
+                        {(key === "reposition"
+                          ? repositionOptions
+                          : eliminationOptions
+                        ).map((option) => (
+                          <MenuItem key={option} value={option}>
+                            {option}
+                          </MenuItem>
+                        ))}
+                      </Select>
                     ) : key === "amount_meal_consumed" ? (
                       <TextField
                         variant="outlined"

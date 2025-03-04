@@ -1,6 +1,6 @@
 /*
-Name: TO-DO
-Date: TO-DO
+Name: Gabby Pierce
+Date: 2/25/25
 Remark: ADL Service that's responsible for making API calls to the backend
 */
 
@@ -10,7 +10,7 @@ import { axiosTokenInstance } from "./httpInterceptor";
 export async function addADLRecord(sectionPatientId, adlData) {
   try {
     const response = await axiosTokenInstance().post(
-      `/patients/${sectionPatientId}/history`,
+      `/patients/${sectionPatientId}/adl`,
       adlData
     );
     return response.data;
