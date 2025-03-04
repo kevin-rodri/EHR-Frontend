@@ -4,13 +4,21 @@ import { Box, Typography } from "@mui/material";
 import NavBar from "../../components/nav/SideNavComponent";
 import PatientNotesTableComponent from "../../components/patient-notes/PatientNotesTableComponent";
 import { PatientBannerComponent } from "../../components/patients/PatientBannerComponent";
+import { useNavigate } from "react-router-dom";
+import { isAuthenticated } from "../../services/authService";
+import { useEffect } from "react";
 
 function PatientNotesPage() {
   const { sectionId } = useParams();
+  const navigate = useNavigate();
 
-  if (!sectionId) {
-    return <p>Error: No Section ID provided.</p>;
-  }
+  useEffect(() => {
+    async function checkAuth() {
+      const authStatus = await isAuthenticated(navigate);
+    }
+    checkAuth();
+  }, [navigate]);
+
 
   return (
     <Box sx={{ display: "flex" }}>
