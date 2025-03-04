@@ -3,6 +3,7 @@ Name: Kevin Rodriugez
 Date: 1/11/25
 Remarks: AuthService that is responsible for making http requests to the backend. (For the users route)
 */
+import { useNavigate } from "react-router-dom";
 import { axiosInstance, axiosTokenInstance } from "./httpInterceptor";
 
 const jwtLocalStorageKey = "JWT_TOKEN";
@@ -85,3 +86,24 @@ export async function getUserById(id) {
     throw error;
   }
 }
+// added is user authenticated
+export async function isAuthenticated(navigate) {
+  try {
+    const response = await axiosTokenInstance().get(`/users/${getUserID()}/is-authenticated`);
+
+    return response.status === 200;
+  } catch (error) {
+    localStorage.removeItem(userLocalStorageKey);
+    localStorage.removeItem(jwtLocalStorageKey);
+    localStorage.removeItem(roleLocalStorageKey);
+    console.error(error);
+    
+    // Redirect to login page
+    if (navigate) {
+      navigate("/");
+    }
+    
+    return false;
+  }
+}
+
