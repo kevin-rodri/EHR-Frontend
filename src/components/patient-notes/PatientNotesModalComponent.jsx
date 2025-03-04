@@ -21,7 +21,6 @@ function PatientNotesModalComponent({ sectionId, open, onClose, onSave, note }) 
 
   const handleSave = async () => {
     const currentTimestamp = new Date().toISOString(); // Military time format
-    const currentUser = localStorage.getItem("username") || "Unknown"; // Retrieve from auth
 
     try {
       let savedNote;
@@ -30,7 +29,6 @@ function PatientNotesModalComponent({ sectionId, open, onClose, onSave, note }) 
           title,
           description,
           modified_date: currentTimestamp,
-          modified_by: currentUser,
         };
         savedNote = await updateNoteForPatient(sectionId, note.id, updatedNoteData);
       } else {
@@ -38,7 +36,6 @@ function PatientNotesModalComponent({ sectionId, open, onClose, onSave, note }) 
           title,
           description,
           created_date: currentTimestamp,
-          created_by: currentUser,
         };
         savedNote = await addNoteForPatient(sectionId, newNoteData);
       }
@@ -60,7 +57,7 @@ function PatientNotesModalComponent({ sectionId, open, onClose, onSave, note }) 
         borderRadius: 2,
         boxShadow: 3
       }}>
-        <Typography variant="h6" gutterBottom>
+        <Typography variant="h6" gutterBottom textAlign={'center'}>
           {note ? 'Edit Note' : 'Add a New Note'}
         </Typography>
         <TextField
@@ -79,8 +76,8 @@ function PatientNotesModalComponent({ sectionId, open, onClose, onSave, note }) 
           rows={4}
           margin="normal"
         />
-        <Box display="flex" justifyContent="flex-end" mt={2}>
-          <Button onClick={onClose} color="secondary" sx={{ marginRight: 1 }}>
+        <Box display="flex" justifyContent="center" mt={2}>
+          <Button onClick={onClose} color="error" sx={{ marginRight: 1 }}>
             Cancel
           </Button>
           <Button onClick={handleSave} color="primary">

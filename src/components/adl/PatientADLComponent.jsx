@@ -9,103 +9,161 @@ import {
   TableRow,
   Paper,
   IconButton,
-  Typography,
   Box,
-  Select,
   Menu,
   MenuItem,
   Checkbox,
   TextField,
+  Modal,
+  Button,
+  Typography,
+  InputLabel,
 } from "@mui/material";
-import { Delete, Add } from "@mui/icons-material";
+import { Add, Label } from "@mui/icons-material";
 import {
   addADLRecord,
+  deleteADLRecord,
   getADLRecords,
   updateADLRecord,
-  deleteADLRecord,
 } from "../../services/patientADLService";
 import { getSectionPatientById } from "../../services/sectionPatientService";
 import dayjs from "dayjs";
 import MoreVertIcon from "@mui/icons-material/MoreVert";
 
-const repositionOptions = ["Turn Left", "Turn Right", "Back", "Self Turn"];
-const eliminationOptions = ["Urinal", "Bedpan", "Commode"];
-
 export default function PatientADLComponent({ sectionId }) {
   const [sectionPatientId, setSectionPatientId] = useState(null);
   const [adlRecords, setAdlRecords] = useState([]);
   const [scheduledTimes, setScheduledTimes] = useState([]);
+  const [modalOpen, setModalOpen] = useState(false);
   const [anchorEl, setAnchorEl] = useState(null);
   const [selectedTime, setSelectedTime] = useState(null);
+  const [selectedRecordId, setSelectedRecordId] = useState(null);
+  const [editingRecordId, setEditingRecordId] = useState(null);
+  const [newRecord, setNewRecord] = useState({
+    has_bathed: false,
+    reposition: "",
+    elimination_needed: "",
+    is_meal_given: false,
+    amount_meal_consumed: "0.00",
+  });
 
   useEffect(() => {
     fetchSectionPatientId();
   }, [sectionId]);
 
-  // Fetch the patient and ADL records
+  /*
+  For educational purposes: This is the process behind getting data from our endpoints: 
+  1. We get the section id from the url. 
+  2. We set the section patient based on what we get from the backend
+  3. We call the endpoint we're interested in (i.e. ADL record) and pass in the retrieved section patient id.
+  */
   const fetchSectionPatientId = async () => {
     try {
       const sectionPatient = await getSectionPatientById(sectionId);
       const records = await getADLRecords(sectionPatient.id);
       setAdlRecords(records);
-      const times = records.map((record) => ({
-        fullTimestamp: record.created_date,
-        displayTime: dayjs(record.created_date).format("HH:mm:ss"),
-      }));
-      setScheduledTimes(times);
+      setScheduledTimes(
+        records.map((record) => ({
+          fullTimestamp: record.created_date,
+          displayTime: dayjs(record.created_date).format("HH:mm:ss"),
+        }))
+      );
       setSectionPatientId(sectionPatient.id);
     } catch (error) {
       console.error(error);
     }
   };
 
-  const handleChange = async (time, category, value) => {
-    // Find the current record (it may be stale, so we immediately compute an updated copy)
-    const record = adlRecords.find((r) => r.created_date === time);
-    if (!record) return;
-    // Create an updated record with the new value
-    const updatedRecord = { ...record, [category]: value };
+  // Open Add Modal
+  const handleOpenModal = () => {
+    setModalOpen(true);
+  };
 
-    // Optimistically update the UI state using the computed updated record
-    setAdlRecords((prevRecords) =>
-      prevRecords.map((r) =>
-        r.created_date === time ? updatedRecord : r
-      )
-    );
+  // Close Add Modal
+  const handleCloseModal = () => {
+    setModalOpen(false);
+    setNewRecord({
+      has_oral_care: false,
+      has_bathed: false,
+      reposition: "",
+      elimination_needed: "",
+      is_meal_given: false,
+      amount_meal_consumed: "0.00",
+    });
+  };
 
-    // Prepare the formatted data for the API call using updatedRecord
-    const formattedData = {
-      has_oral_care: updatedRecord.has_oral_care ? 1 : 0,
-      has_bathed: updatedRecord.has_bathed ? 1 : 0,
-      reposition: updatedRecord.reposition || "",
-      elimination_needed: updatedRecord.elimination_needed || "",
-      is_meal_given: updatedRecord.is_meal_given ? 1 : 0,
-      amount_meal_consumed:
-        updatedRecord.amount_meal_consumed !== undefined
-          ? parseFloat(updatedRecord.amount_meal_consumed).toFixed(2)
-          : "0.00",
-    };
-
+  // Save new ADL record
+  const handleSaveRecord = async () => {
     try {
-      if (updatedRecord.id != null) {
-        // Update the record if it exists in the DB
-        await updateADLRecord(sectionPatientId, updatedRecord.id, formattedData);
-      } else {
-        // If the record is new, add it and update the state with its new ID
-        const response = await addADLRecord(sectionPatientId, formattedData);
-        setAdlRecords((prevRecords) =>
-          prevRecords.map((r) =>
-            r.created_date === time ? { ...r, id: response.id } : r
-          )
-        );
-      }
+      const formattedData = {
+        has_oral_care: 0,
+        has_bathed: newRecord.has_bathed ? 1 : 0,
+        reposition: newRecord.reposition || "",
+        elimination_needed: newRecord.elimination_needed || "",
+        is_meal_given: newRecord.is_meal_given ? 1 : 0,
+        amount_meal_consumed: parseFloat(
+          newRecord.amount_meal_consumed
+        ).toFixed(2),
+      };
+
+      const response = await addADLRecord(sectionPatientId, formattedData);
+
+      setAdlRecords((prevRecords) => [
+        ...prevRecords,
+        {
+          ...formattedData,
+          created_date: dayjs().toISOString(),
+          id: response.id,
+        },
+      ]);
+
+      setScheduledTimes((prevTimes) => [
+        ...prevTimes,
+        {
+          fullTimestamp: dayjs().toISOString(),
+          displayTime: dayjs().format("HH:mm:ss"),
+        },
+      ]);
+
+      handleCloseModal();
     } catch (error) {
-      console.error("Error updating ADL record:", error);
+      console.error("Error adding ADL record:", error);
     }
   };
 
+  const handleDeleteADLRecord = async (id) => {
+    try {
+      await deleteADLRecord(sectionPatientId, id);
 
-  // Open the menu for delete action
+      // Update UI state by filtering out the deleted record
+      setAdlRecords((prevRecords) => prevRecords.filter((r) => r.id !== id));
+
+      // Also update scheduled times to remove the deleted record
+      setScheduledTimes((prevTimes) =>
+        prevTimes.filter(
+          (t) =>
+            !adlRecords.some(
+              (r) => r.id === id && r.created_date === t.fullTimestamp
+            )
+        )
+      );
+    } catch (error) {
+      console.error(error);
+    }
+  };
+
+  const handleUpdateADLRecord = async (id, data) => {
+    try {
+      const response = await updateADLRecord(sectionPatientId, id, data);
+      // update the adl records we display
+      setAdlRecords((prevRecords) =>
+        prevRecords.map((r) => (r.id === id ? { ...r, ...response } : r))
+      );
+    } catch (error) {
+      console.error(error);
+    }
+  };
+
   const handleMenuOpen = (event, time) => {
     setAnchorEl(event.currentTarget);
     setSelectedTime(time);
@@ -114,50 +172,6 @@ export default function PatientADLComponent({ sectionId }) {
   const handleMenuClose = () => {
     setAnchorEl(null);
     setSelectedTime(null);
-  };
-
-  // New function to delete a record
-  const handleDeleteRecord = async (time) => {
-    try {
-      const record = adlRecords.find((r) => r.created_date === time);
-      if (!record) return;
-      if (record.id != null) {
-        await deleteADLRecord(sectionPatientId, record.id);
-      }
-      // Remove the record and its corresponding scheduled time
-      setAdlRecords((prevRecords) =>
-        prevRecords.filter((r) => r.created_date !== time)
-      );
-      setScheduledTimes((prevTimes) =>
-        prevTimes.filter((t) => t.fullTimestamp !== time)
-      );
-      handleMenuClose();
-    } catch (error) {
-      console.error("Error deleting ADL record:", error);
-    }
-  };
-
-  // Function to add a new ADL record with default values
-  const handleAddRecord = () => {
-    const newRecord = {
-      created_date: dayjs().toISOString(),
-      has_oral_care: false,
-      has_bathed: false,
-      reposition: "",
-      elimination_needed: "",
-      is_meal_given: false,
-      amount_meal_consumed: "0.00",
-      id: null,
-    };
-    // Insert new record at the beginning so it appears at the top
-    setAdlRecords((prev) => [newRecord, ...prev]);
-    setScheduledTimes((prev) => [
-      {
-        fullTimestamp: newRecord.created_date,
-        displayTime: dayjs(newRecord.created_date).format("HH:mm:ss"),
-      },
-      ...prev,
-    ]);
   };
 
   return (
@@ -171,13 +185,13 @@ export default function PatientADLComponent({ sectionId }) {
     >
       <TableContainer component={Paper} sx={{ borderRadius: 2 }}>
         <Table>
-          {/* ==== Table Headers ==== */}
           <TableHead>
             <TableRow>
               <TableCell>Patient ADL</TableCell>
               {scheduledTimes.map((timeObj) => (
                 <TableCell key={timeObj.fullTimestamp} align="center">
                   {timeObj.displayTime}
+                  {/* A change in the Figma: It probably makes sense to make the cell an update */}
                   <IconButton
                     size="small"
                     onClick={(event) =>
@@ -186,35 +200,41 @@ export default function PatientADLComponent({ sectionId }) {
                   >
                     <MoreVertIcon />
                   </IconButton>
+
                   <Menu
                     anchorEl={anchorEl}
-                    open={
-                      Boolean(anchorEl) &&
-                      selectedTime === timeObj.fullTimestamp
-                    }
+                    open={Boolean(anchorEl) && selectedTime !== null}
                     onClose={handleMenuClose}
                   >
-                    {/* Removed "Edit" option since inline editing is always allowed */}
-                    <MenuItem onClick={() => handleDeleteRecord(selectedTime)}>
+                    {/* Delete Method */}
+                    <MenuItem
+                      onClick={() => {
+                        const recordToDelete = adlRecords.find(
+                          (record) => record.created_date === selectedTime
+                        );
+                        if (recordToDelete) {
+                          handleDeleteADLRecord(recordToDelete.id);
+                        }
+                        handleMenuClose();
+                      }}
+                    >
                       Delete
                     </MenuItem>
                   </Menu>
                 </TableCell>
               ))}
-              {/* Plus button to create a new record */}
               <TableCell align="center">
-                <IconButton onClick={handleAddRecord}>
+                <IconButton onClick={handleOpenModal}>
                   <Add />
                 </IconButton>
               </TableCell>
             </TableRow>
           </TableHead>
 
-          {/* ==== Table Body ==== */}
           <TableBody>
             {[
               { key: "has_bathed", label: "Bathing" },
-              { key: "has_oral_care", label: "Oral Care" },
+              { key: "reposition", label: "Reposition" },
               { key: "reposition", label: "Reposition" },
               { key: "elimination_needed", label: "Elimination Need" },
               { key: "is_meal_given", label: "Meal Given" },
@@ -223,53 +243,40 @@ export default function PatientADLComponent({ sectionId }) {
               <TableRow key={key}>
                 <TableCell>{label}</TableCell>
                 {adlRecords.map((record) => (
-                  <TableCell key={`${key}-${record.created_date}`} align="center">
-                    {key === "has_oral_care" ||
-                    key === "has_bathed" ||
-                    key === "is_meal_given" ? (
+                  <TableCell
+                    key={`${key}-${record.created_date}`}
+                    align="center"
+                  >
+                    {key === "has_bathed" || key === "is_meal_given" ? (
                       <Checkbox
                         checked={record?.[key] || false}
                         onChange={(e) =>
-                          handleChange(
-                            record.created_date,
-                            key,
-                            e.target.checked
-                          )
+                          handleUpdateADLRecord(record.id, {
+                            [key]: e.target.checked,
+                          })
                         }
                       />
-                    ) : key === "reposition" || key === "elimination_needed" ? (
-                      <Select
-                        value={record?.[key] || ""}
-                        onChange={(e) =>
-                          handleChange(record.created_date, key, e.target.value)
-                        }
-                        size="small"
-                      >
-                        <MenuItem value="">
-                          <em>None</em>
-                        </MenuItem>
-                        {(key === "reposition"
-                          ? repositionOptions
-                          : eliminationOptions
-                        ).map((option) => (
-                          <MenuItem key={option} value={option}>
-                            {option}
-                          </MenuItem>
-                        ))}
-                      </Select>
-                    ) : key === "amount_meal_consumed" ? (
+                    ) : (
                       <TextField
                         variant="outlined"
                         size="small"
-                        type="text"
-                        placeholder="%"
-                        sx={{ width: 60 }}
-                        value={record?.amount_meal_consumed || ""}
+                        value={record?.[key] || ""}
                         onChange={(e) =>
-                          handleChange(record.created_date, key, e.target.value)
+                          setAdlRecords((prevRecords) =>
+                            prevRecords.map((r) =>
+                              r.id === record.id
+                                ? { ...r, [key]: e.target.value }
+                                : r
+                            )
+                          )
+                        }
+                        onBlur={() =>
+                          handleUpdateADLRecord(record.id, {
+                            [key]: record[key],
+                          })
                         }
                       />
-                    ) : null}
+                    )}
                   </TableCell>
                 ))}
               </TableRow>
@@ -277,6 +284,99 @@ export default function PatientADLComponent({ sectionId }) {
           </TableBody>
         </Table>
       </TableContainer>
+
+      {/* Modal for Adding New Record */}
+      <Modal open={modalOpen} onClose={handleCloseModal}>
+        <Box
+          sx={{
+            width: 400,
+            padding: 3,
+            backgroundColor: "white",
+            margin: "auto",
+            marginTop: "10%",
+            borderRadius: 2,
+            boxShadow: 3,
+          }}
+        >
+          <Typography variant="h6" gutterBottom textAlign="center">
+            Add New ADL Record
+          </Typography>
+          <Box
+            sx={{
+              display: "flex",
+              alignItems: "center",
+              gap: 1,
+            }}
+          >
+            <Checkbox
+              checked={newRecord.has_bathed}
+              onChange={(e) =>
+                setNewRecord({ ...newRecord, has_bathed: e.target.checked })
+              }
+            />
+            <Typography variant="body1">Has Bathed</Typography>
+          </Box>
+
+          <TextField
+            label="Reposition"
+            fullWidth
+            margin="normal"
+            value={newRecord.reposition}
+            onChange={(e) =>
+              setNewRecord({ ...newRecord, reposition: e.target.value })
+            }
+          />
+          <TextField
+            label="Elimination Need"
+            fullWidth
+            margin="normal"
+            value={newRecord.elimination_needed}
+            onChange={(e) =>
+              setNewRecord({ ...newRecord, elimination_needed: e.target.value })
+            }
+          />
+          <Box
+            sx={{
+              display: "flex",
+              alignItems: "center",
+              gap: 1,
+            }}
+          >
+            <Checkbox
+              checked={newRecord.is_meal_given}
+              onChange={(e) =>
+                setNewRecord({ ...newRecord, is_meal_given: e.target.checked })
+              }
+            />
+            <Typography variant="body1">Meal Given</Typography>
+          </Box>
+
+          <TextField
+            label="% of Meal Consumed"
+            fullWidth
+            margin="normal"
+            value={newRecord.amount_meal_consumed}
+            onChange={(e) =>
+              setNewRecord({
+                ...newRecord,
+                amount_meal_consumed: e.target.value,
+              })
+            }
+          />
+          <Box display="flex" justifyContent="center" mt={2}>
+            <Button
+              onClick={handleCloseModal}
+              color="error"
+              sx={{ marginRight: 1 }}
+            >
+              Cancel
+            </Button>
+            <Button onClick={handleSaveRecord} color="primary">
+              Save
+            </Button>
+          </Box>
+        </Box>
+      </Modal>
     </Box>
   );
 }
