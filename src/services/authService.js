@@ -89,7 +89,7 @@ export async function getUserById(id) {
 // added is user authenticated
 export async function isAuthenticated(navigate) {
   try {
-    const response = await axiosTokenInstance().get(`/user/${getUserID()}/is-authenticated`);
+    const response = await axiosTokenInstance().get(`/users/${getUserID()}/is-authenticated`);
 
     return response.status === 200;
   } catch (error) {

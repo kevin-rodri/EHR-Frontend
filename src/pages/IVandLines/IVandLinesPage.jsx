@@ -10,29 +10,42 @@ import PatientIVandLinesComponent from "../../components/IVsandLines/PatientIVan
 import { isAuthenticated } from "../../services/authService";
 import { useEffect } from "react";
 import { useNavigate } from "react-router-dom";
+import NavBar from "../../components/nav/SideNavComponent";
+import { PatientBannerComponent } from "../../components/patients/PatientBannerComponent";
 
-const IVandLinesPage = () => { 
+
+const IVandLinesPage = () => {
   const { sectionId } = useParams();
   console.log("here is section patient id", sectionId);
   const navigate = useNavigate();
 
-  useEffect(() => { 
-    async function checkAuth() { 
-      const authStatus = await isAuthenticated(navigate);   
-    } checkAuth(); }, [navigate]);
+  useEffect(() => {
+    async function checkAuth() {
+      const authStatus = await isAuthenticated(navigate);
+    }
+    checkAuth();
+  }, [navigate]);
 
   return (
-    <Box sx={{ display: "flex", flexDirection: "column", paddingLeft: 24 }}>
-      <Typography
-        variant="h2"
-        fontFamily={"Roboto"}
-        color="white"
-        marginBottom={5}
-        marginTop={5}
-      >
-        IVs and Lines
-      </Typography>
-      <PatientIVandLinesComponent sectionId={sectionId} />  
+    <Box
+      sx={{
+        display: "flex",
+      }}
+    >
+      <NavBar />
+      <Box sx={{ display: "flex", flexDirection: "column", paddingLeft: 24 }}>
+      <PatientBannerComponent sectionId={sectionId} />
+        <Typography
+          variant="h2"
+          fontFamily={"Roboto"}
+          color="white"
+          marginBottom={5}
+          marginTop={5}
+        >
+          IVs and Lines
+        </Typography>
+        <PatientIVandLinesComponent sectionId={sectionId} />
+      </Box>
     </Box>
   );
 };

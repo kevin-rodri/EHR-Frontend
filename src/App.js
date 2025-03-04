@@ -21,7 +21,7 @@ function App() {
             path="/patient-demographics/:sectionId"
             element={<PatientDemographicsPage />}
           />
-          <Route path="/patient/:sectionId/iv-lines" element={<IVandLinesPage/>}/>
+          <Route path="/iv-lines/:sectionId" element={<IVandLinesPage/>}/>
           <Route path="/history/:sectionId" element={<PatientHistory />} />
           <Route path="/waldo/:sectionId" element={<PatientWaldoPage />} />
         </Routes>

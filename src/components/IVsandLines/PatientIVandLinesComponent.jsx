@@ -105,6 +105,7 @@ const PatientIVandLinesComponent = ({ sectionId }) => {
         iv_type: "",
         size: "",
         location: "",
+        fluid_or_med_name: "",
         fluid_or_med_rate: "",
         patent: false,
         is_clinical_documentation_improvement: false,
