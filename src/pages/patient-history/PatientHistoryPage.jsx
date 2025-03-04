@@ -4,10 +4,19 @@ import PatientHistoryComponent from "../../components/patient-history/PatientHis
 import { Box, Typography } from "@mui/material";
 import { PatientBannerComponent } from "../../components/patients/PatientBannerComponent";
 import NavBar from "../../components/nav/SideNavComponent";
+import { isAuthenticated } from "../../services/authService";
+import {  useEffect } from "react";
+import { useNavigate } from "react-router-dom";
 
 const PatientHistory = () => {
   const { sectionId } = useParams();
+  const navigate = useNavigate();
 
+  useEffect(() => { 
+      async function checkAuth() { 
+        const authStatus = await isAuthenticated(navigate);   
+      } checkAuth(); }, [navigate]);
+      
   return (
     <Box
       sx={{
