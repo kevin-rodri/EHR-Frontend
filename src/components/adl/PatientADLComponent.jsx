@@ -235,7 +235,6 @@ export default function PatientADLComponent({ sectionId }) {
             {[
               { key: "has_bathed", label: "Bathing" },
               { key: "reposition", label: "Reposition" },
-              { key: "reposition", label: "Reposition" },
               { key: "elimination_needed", label: "Elimination Need" },
               { key: "is_meal_given", label: "Meal Given" },
               { key: "amount_meal_consumed", label: "% of Meal Consumed" },
