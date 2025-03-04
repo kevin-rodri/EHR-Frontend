@@ -131,9 +131,8 @@ export default function PatientScheduledEditModalComponent({
             <Typography>Drug Name</Typography>
             <FormControl fullWidth>
               <Select
-                value={patientMed}
+                value={med}
                 onChange={handleMed}
-                disabled
               >
                 {medications.map((medication) => (
                   <MenuItem value={medication.id}>
