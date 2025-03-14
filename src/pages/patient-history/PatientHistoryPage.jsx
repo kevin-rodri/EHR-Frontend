@@ -28,7 +28,7 @@ const PatientHistory = () => {
         sx={{
           display: "flex",
           flexDirection: "column",
-          paddingLeft: 24,
+          paddingLeft: 50,
         }}
       >
         <PatientBannerComponent sectionId={sectionId} />

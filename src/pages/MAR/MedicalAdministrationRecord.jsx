@@ -12,10 +12,15 @@ import { PatientBannerComponent } from "../../components/patients/PatientBannerC
 import { useNavigate } from "react-router-dom";
 import { isAuthenticated } from "../../services/authService";
 import { useEffect } from "react";
+import { useTheme } from "@mui/material/styles";
+import useMediaQuery from '@mui/material/useMediaQuery';
+
 
 export default function MedicalAdministrationRecord() {
     const { sectionId } = useParams();
     const navigate = useNavigate();
+    const theme = useTheme();
+    const isMobile = useMediaQuery(theme.breakpoints.down("md"));
 
     useEffect(() => {
       async function checkAuth() {
@@ -24,49 +29,30 @@ export default function MedicalAdministrationRecord() {
       checkAuth();
     }, [navigate]);
 
-    return(
-        <Box sx={{
-            display: "flex",
-          }}>
+    return (
+        <Box sx={{ display: "flex", flexDirection: isMobile ? "column" : "row" }}>
             <NavBar />
             <Box
-            sx={{
-                display: "flex",
-                flexDirection: "column",
-                paddingLeft: 24,
-            }}
+                sx={{
+                    display: "flex",
+                    flexDirection: "column",
+                    paddingLeft: isMobile ? 2 : 24,
+                    paddingTop: isMobile ? 8 : 0,
+                }}
             >
                 <PatientBannerComponent sectionId={sectionId} />
-                <Typography
-                    variant="h2"
-                    fontFamily={"Roboto"}
-                    color="white"
-                    marginBottom={5}
-                    marginTop={5}
-                >
-                Medical Administration Record
+                <Typography variant="h2" fontFamily={"Roboto"} color="white" marginBottom={5} marginTop={5}>
+                    Medical Administration Record
                 </Typography>
-                <Typography
-                    variant="h5"
-                    fontFamily={"Roboto"}
-                    color="white"
-                    marginBottom={1}
-                >
-                Scheduled Medications
+                <Typography variant="h5" fontFamily={"Roboto"} color="white" marginBottom={1}>
+                    Scheduled Medications
                 </Typography>
                 <PatientScheduledTableComponent sectionId={sectionId}/>
-                <Typography
-                    variant="h5"
-                    fontFamily={"Roboto"}
-                    color="white"
-                    marginTop={4}
-                    marginBottom={1}
-                >
-                PRN Medications
+                <Typography variant="h5" fontFamily={"Roboto"} color="white" marginTop={4} marginBottom={1}>
+                    PRN Medications
                 </Typography>
                 <PatientPRNTableComponent sectionId={sectionId}/>
-                
             </Box> 
         </Box>
-    )
+    );
 }

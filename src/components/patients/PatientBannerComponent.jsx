@@ -14,6 +14,9 @@ import {
   FormLabel,
   TextField,
   Typography,
+  Select,
+  MenuItem,
+  Checkbox,
 } from "@mui/material";
 import { getSectionPatientById } from "../../services/sectionPatientService";
 import {
@@ -21,6 +24,10 @@ import {
   patchPatientInfo,
 } from "../../services/patientService";
 import { getUserRole } from "../../services/authService";
+import { DatePicker } from "@mui/x-date-pickers/DatePicker";
+import { LocalizationProvider } from "@mui/x-date-pickers/LocalizationProvider";
+import { AdapterDayjs } from "@mui/x-date-pickers/AdapterDayjs";
+import dayjs from "dayjs";
 
 export function PatientBannerComponent({ sectionId }) {
   // used to get the patient along with checking to see if user has permission to edit information
@@ -59,7 +66,6 @@ export function PatientBannerComponent({ sectionId }) {
 
   // this what we send to the backend
   // fields should match the column that needs to be updated
-  // 
   const handleFieldBlur = async (field) => {
     try {
       let updatedValue = patient[field];
@@ -82,7 +88,7 @@ export function PatientBannerComponent({ sectionId }) {
         display: "flex",
         flexDirection: "row",
         flexWrap: "wrap",
-        justifyContent: "space-evenly",
+        gap: 1,
         padding: 1,
         borderRadius: 1,
       }}
@@ -94,23 +100,12 @@ export function PatientBannerComponent({ sectionId }) {
           Patient Name:
         </FormLabel>
         <TextField
-          variant="standard"
+          variant="outlined"
           value={patient.full_name || "NONE"}
           disabled={!modify}
           size="small"
           onChange={(e) => handleFieldChange("full_name", e.target.value)}
           onBlur={() => handleFieldBlur("full_name")}
-          sx={{
-            width: "auto",
-            "& .MuiInput-underline:before, & .MuiInput-underline:after": {
-              display: "none",
-            },
-            "& .MuiInputBase-input": {
-              width: `${
-                (patient.weight || "").toString().length * 1.5 || 1
-              }rem`,
-            },
-          }}
         />
       </FormControl>
 
@@ -121,7 +116,7 @@ export function PatientBannerComponent({ sectionId }) {
           MRN:
         </FormLabel>
         <TextField
-          variant="standard"
+          variant="outlined"
           value={patient.medical_registration_number || "N/A"}
           disabled={!modify}
           size="small"
@@ -129,18 +124,6 @@ export function PatientBannerComponent({ sectionId }) {
             handleFieldChange("medical_registration_number", e.target.value)
           }
           onBlur={() => handleFieldBlur("medical_registration_number")}
-          sx={{
-            width: "auto",
-            "& .MuiInput-underline:before, & .MuiInput-underline:after": {
-              display: "none",
-            },
-            "& .MuiInputBase-input": {
-              width: `${
-                (patient.medical_registration_number || "").toString().length -
-                  1 || 1
-              }rem`,
-            },
-          }}
         />
       </FormControl>
 
@@ -148,27 +131,23 @@ export function PatientBannerComponent({ sectionId }) {
         sx={{ display: "flex", flexDirection: "row", alignItems: "center" }}
       >
         <FormLabel sx={{ fontWeight: "bold", marginRight: 1, color: "black" }}>
-          DOB:
+          Date of Birth:
         </FormLabel>
-        <TextField
-          variant="standard"
-          value={patient.date_of_birth || "N/A"}
-          disabled={!modify}
-          size="small"
-          onChange={(e) => handleFieldChange("date_of_birth", e.target.value)}
-          onBlur={() => handleFieldBlur("date_of_birth")}
-          sx={{
-            width: "auto",
-            "& .MuiInput-underline:before, & .MuiInput-underline:after": {
-              display: "none",
-            },
-            "& .MuiInputBase-input": {
-              width: `${
-                (patient.date_of_birth || "").toString().length || 1
-              }ch`,
-            },
-          }}
-        />
+        <LocalizationProvider dateAdapter={AdapterDayjs}>
+          <DatePicker
+            label="Date of Birth"
+            value={patient.date_of_birth ? dayjs(patient.date_of_birth) : null}
+            onChange={(newDate) =>
+              handleFieldChange(
+                "date_of_birth",
+                newDate ? newDate.format("YYYY-MM-DD") : ""
+              )
+            }
+            disabled={!modify}
+            renderInput={(params) => <TextField {...params} size="small" />}
+            onClose={() => handleFieldBlur("date_of_birth")}
+          />
+        </LocalizationProvider>
       </FormControl>
 
       <FormControl
@@ -178,21 +157,13 @@ export function PatientBannerComponent({ sectionId }) {
           Weight:
         </FormLabel>
         <TextField
-          variant="standard"
+          variant="outlined"
+           type="number"
           value={patient.weight ? `${patient.weight}` : "N/A"}
           disabled={!modify}
           size="small"
           onChange={(e) => handleFieldChange("weight", e.target.value)}
           onBlur={() => handleFieldBlur("weight")}
-          sx={{
-            width: "auto",
-            "& .MuiInput-underline:before, & .MuiInput-underline:after": {
-              display: "none",
-            },
-            "& .MuiInputBase-input": {
-              width: `${(patient.weight || "").toString().length || 1}ch`,
-            },
-          }}
         />
         <Typography variant="body2" sx={{ ml: 1 }}>
           lbs
@@ -206,21 +177,13 @@ export function PatientBannerComponent({ sectionId }) {
           Height:
         </FormLabel>
         <TextField
-          variant="standard"
+          variant="outlined"
+          type="number"
           value={patient.height || "N/A"}
           disabled={!modify}
           size="small"
           onChange={(e) => handleFieldChange("height", e.target.value)}
           onBlur={() => handleFieldBlur("height")}
-          sx={{
-            width: "auto",
-            "& .MuiInput-underline:before, & .MuiInput-underline:after": {
-              display: "none",
-            },
-            "& .MuiInputBase-input": {
-              width: `${(patient.height || "").toString().length || 1}ch`,
-            },
-          }}
         />
         <Typography variant="body2" sx={{ ml: 1 }}>
           cm
@@ -233,9 +196,8 @@ export function PatientBannerComponent({ sectionId }) {
         <FormLabel sx={{ fontWeight: "bold", marginRight: 1, color: "black" }}>
           Allergies:
         </FormLabel>
-
         <TextField
-          variant="standard"
+          variant="outlined"
           value={
             Array.isArray(patient.allergies)
               ? patient.allergies.length
@@ -253,51 +215,21 @@ export function PatientBannerComponent({ sectionId }) {
             handleFieldChange("allergies", array);
           }}
           onBlur={() => handleFieldBlur("allergies")}
-          sx={{
-            width: "auto",
-            "& .MuiInput-underline:before, & .MuiInput-underline:after": {
-              display: "none",
-            },
-            "& .MuiInputBase-input": {
-              width: `${
-                (Array.isArray(patient.allergies)
-                  ? patient.allergies.length
-                    ? patient.allergies.join(", ")
-                    : "NONE"
-                  : "NONE"
-                ).length || 1
-              }ch`,
-            },
-          }}
         />
       </FormControl>
       <FormControl
         sx={{ display: "flex", flexDirection: "row", alignItems: "center" }}
       >
         <FormLabel sx={{ fontWeight: "bold", marginRight: 1, color: "black" }}>
-          Advanced Directives:
+          Has Advanced Directives:
         </FormLabel>
-        <TextField
-          variant="standard"
-          value={patient.has_advanced_directives ? "Yes" : "No"}
-          disabled={!modify}
-          size="small"
+        <Checkbox
+          checked={patient.has_advanced_directives || false}
           onChange={(e) =>
-            handleFieldChange("has_advanced_directives", e.target.value)
+            handleFieldChange("has_advanced_directives", e.target.checked)
           }
           onBlur={() => handleFieldBlur("has_advanced_directives")}
-          sx={{
-            width: "auto",
-            "& .MuiInput-underline:before, & .MuiInput-underline:after": {
-              display: "none",
-            },
-            "& .MuiInputBase-input": {
-              width: `${
-                (patient.has_advanced_directives || "").toString().length + 5 ||
-                1
-              }ch`,
-            },
-          }}
+          disabled={!modify}
         />
       </FormControl>
 
@@ -307,25 +239,19 @@ export function PatientBannerComponent({ sectionId }) {
         <FormLabel sx={{ fontWeight: "bold", marginRight: 1, color: "black" }}>
           Precautions:
         </FormLabel>
-        <TextField
-          variant="standard"
-          value={patient.precautions || "N/A"}
-          disabled={!modify}
-          size="small"
+        <Select
+          value={patient.precautions}
           onChange={(e) => handleFieldChange("precautions", e.target.value)}
           onBlur={() => handleFieldBlur("precautions")}
-          sx={{
-            width: "auto",
-            "& .MuiInput-underline:before, & .MuiInput-underline:after": {
-              display: "none",
-            },
-            "& .MuiInputBase-input": {
-              width: `${
-                (patient.precautions || "").toString().length + 2 || 1
-              }ch`,
-            },
-          }}
-        />
+          disabled={!modify}
+          fullWidth
+        >
+          <MenuItem value="PRECAUTIONS">Precautions</MenuItem>
+          <MenuItem value="CONTACT">Contact</MenuItem>
+          <MenuItem value="DROPLET">Droplet</MenuItem>
+          <MenuItem value="TUBERCULOSIS">Tuberculosis</MenuItem>
+          <MenuItem value="AIRBORNE">Airborne</MenuItem>
+        </Select>
       </FormControl>
 
       <FormControl
@@ -334,51 +260,28 @@ export function PatientBannerComponent({ sectionId }) {
         <FormLabel sx={{ fontWeight: "bold", marginRight: 1, color: "black" }}>
           Code Status:
         </FormLabel>
-        <TextField
-          variant="standard"
-          value={patient.code_status || "N/A"}
-          disabled={!modify}
-          size="small"
+        <Select
+          value={patient.code_status}
           onChange={(e) => handleFieldChange("code_status", e.target.value)}
           onBlur={() => handleFieldBlur("code_status")}
-          sx={{
-            width: "auto",
-            "& .MuiInput-underline:before, & .MuiInput-underline:after": {
-              display: "none",
-            },
-            "& .MuiInputBase-input": {
-              width: `${
-                (patient.code_status || "").toString().length + 2 || 1
-              }ch`,
-            },
-          }}
-        />
+          disabled={!modify}
+        >
+          <MenuItem value="FULL_CODE">Full Code</MenuItem>
+          <MenuItem value="DOES-NOT-RESUSCITATE">Does Not Resuscitate</MenuItem>
+        </Select>
       </FormControl>
 
       <FormControl
         sx={{ display: "flex", flexDirection: "row", alignItems: "center" }}
       >
         <FormLabel sx={{ fontWeight: "bold", marginRight: 1, color: "black" }}>
-          Insurance:
+          Has Insurance:
         </FormLabel>
-        <TextField
-          variant="standard"
-          value={patient.has_insurance ? "Yes" : "No"}
-          disabled={!modify}
-          size="small"
-          onChange={(e) => handleFieldChange("has_insurance", e.target.value)}
+        <Checkbox
+          checked={patient.has_insurance || false}
+          onChange={(e) => handleFieldChange("has_insurance", e.target.checked)}
           onBlur={() => handleFieldBlur("has_insurance")}
-          sx={{
-            fontSize: "inherit",
-            "& .MuiInput-underline:before, & .MuiInput-underline:after": {
-              display: "none",
-            },
-            "& .MuiInputBase-input": {
-              width: `${
-                (patient.has_insurance || "").toString().length + 5 || 1
-              }ch`,
-            },
-          }}
+          disabled={!modify}
         />
       </FormControl>
     </FormGroup>
