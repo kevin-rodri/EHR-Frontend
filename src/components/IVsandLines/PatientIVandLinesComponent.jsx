@@ -20,6 +20,8 @@ import {
   Button,
   Checkbox,
   Typography,
+  Select,
+  MenuItem,
 } from "@mui/material";
 import EditIcon from "@mui/icons-material/Edit";
 import DeleteIcon from "@mui/icons-material/Delete";
@@ -31,6 +33,7 @@ import {
   updatePatientIVLine,
   deletePatientIVLine,
 } from "../../services/IVandLinesService";
+import DeleteConfirmationModal from "../utils/DeleteModalComponent";
 
 const PatientIVandLinesComponent = ({ sectionId }) => {
   const [openModal, setOpenModal] = useState(false);
@@ -243,16 +246,33 @@ const PatientIVandLinesComponent = ({ sectionId }) => {
           {editingRow ? "Edit IV and Line" : "Add IV and Line"}
         </DialogTitle>
         <DialogContent>
-          <TextField
-            label="IV Type"
+          <Select
+            displayEmpty
             value={newIVLine.iv_type}
-            onChange={(e) =>
-              setNewIVLine({ ...newIVLine, iv_type: e.target.value })
-            }
             fullWidth
             margin="dense"
-          />
-
+            onChange={(e) =>
+              setNewIVLine({
+                ...newIVLine,
+                iv_type: e.target.value,
+              })
+            }
+            renderValue={(selected) =>
+              selected ? (
+                selected
+              ) : (
+                <span style={{ color: "#757575" }}>Select IV and Line Type </span>
+              )
+            }
+          >
+            <MenuItem value="Peripheral">Peripheral</MenuItem>
+            <MenuItem value="Central-line">Central Line</MenuItem>
+            <MenuItem value="I/O">I/O</MenuItem>
+            <MenuItem value="Permacath">Permacath</MenuItem>
+            <MenuItem value="Midline">Midline</MenuItem>
+            <MenuItem value="PICC">PICC</MenuItem>
+            <MenuItem value="Hickman">Hickman</MenuItem>
+          </Select>
           <TextField
             label="Size"
             value={newIVLine.size}
@@ -336,24 +356,11 @@ const PatientIVandLinesComponent = ({ sectionId }) => {
       </Dialog>
 
       {/* Delete Confirmation Modal */}
-      <Dialog open={openDeleteModal} onClose={() => setOpenDeleteModal(false)}>
-        <DialogTitle align="center">
-          Are you sure you want to delete this item? This action cannot be
-          undone.
-        </DialogTitle>
-        <DialogActions sx={{ display: "flex", justifyContent: "center" }}>
-          <Button
-            onClick={() => setOpenDeleteModal(false)}
-            color="error"
-            variant="contained"
-          >
-            Cancel
-          </Button>
-          <Button onClick={handleDelete} color="primary" variant="contained">
-            Submit
-          </Button>
-        </DialogActions>
-      </Dialog>
+      <DeleteConfirmationModal
+        open={openDeleteModal}
+        onClose={() => setOpenDeleteModal(false)}
+        onConfirm={handleDelete}
+      />
     </Box>
   );
 };

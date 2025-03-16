@@ -31,6 +31,8 @@ import {
 import EditIcon from "@mui/icons-material/Edit";
 import DeleteIcon from "@mui/icons-material/Delete";
 import { getSectionPatientById } from "../../services/sectionPatientService";
+import DeleteConfirmationModal from "../utils/DeleteModalComponent";
+
 export default function WaldoDiagramComponent({ sectionId }) {
   const [openModal, setOpenModal] = useState(false);
   const [checkedBoxes, setCheckedBoxes] = useState({});
@@ -483,24 +485,11 @@ export default function WaldoDiagramComponent({ sectionId }) {
       </Dialog>
 
       {/* Delete Confirmation Modal */}
-      <Dialog open={openDeleteModal} onClose={() => setOpenDeleteModal(false)}>
-        <DialogTitle align="center">
-          Are you sure you want to delete this item? This action cannot be
-          undone.
-        </DialogTitle>
-        <DialogActions sx={{ display: "flex", justifyContent: "center" }}>
-          <Button
-            onClick={() => setOpenDeleteModal(false)}
-            color="error"
-            variant="contained"
-          >
-            Cancel
-          </Button>
-          <Button onClick={handleDelete} color="primary" variant="contained">
-            Submit
-          </Button>
-        </DialogActions>
-      </Dialog>
+      <DeleteConfirmationModal
+        open={openDeleteModal}
+        onClose={() => setOpenDeleteModal(false)}
+        onConfirm={handleDelete}
+      />
     </Box>
   );
 }

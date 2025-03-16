@@ -53,6 +53,20 @@ export const getSectionId = () => {
   }
 };
 
+export async function getAllFacultyUsers() {
+  try {
+    const response = await axiosTokenInstance().get(`users/`);
+    const users = response.data;
+    const adminAndInstructors = users.filter(
+      (user) => user.role === "ADMIN" || user.role === "INSTRUCTOR"
+    );
+
+    return adminAndInstructors;
+  } catch (error) {
+    console.error(error);
+  }
+}
+
 export async function registerUser(userData) {
   try {
     const response = await axiosInstance().post(`users/`, userData);

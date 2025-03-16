@@ -33,6 +33,7 @@ import {
   deletePatientHistory,
 } from "../../services/patientHistoryService";
 import { getUserRole } from "../../services/authService";
+import DeleteConfirmationModal from "../utils/DeleteModalComponent";
 
 export default function PatientHistoryComponent({ sectionId }) {
   const [openModal, setOpenModal] = useState(false);
@@ -60,7 +61,7 @@ export default function PatientHistoryComponent({ sectionId }) {
             {
               accessorKey: "actions",
               header: "Actions",
-              size: 150,
+              maxSize: 50, 
               enableSorting: false,
               Cell: ({ row }) => (
                 <Box>
@@ -271,24 +272,11 @@ export default function PatientHistoryComponent({ sectionId }) {
       </Dialog>
 
       {/* Delete Confirmation Modal */}
-      <Dialog open={openDeleteModal} onClose={() => setOpenDeleteModal(false)}>
-        <DialogTitle align="center">
-          Are you sure you want to delete this item? This action cannot be
-          undone.
-        </DialogTitle>
-        <DialogActions sx={{ display: "flex", justifyContent: "center" }}>
-          <Button
-            onClick={() => setOpenDeleteModal(false)}
-            color="error"
-            variant="contained"
-          >
-            Cancel
-          </Button>
-          <Button onClick={handleDelete} color="primary" variant="contained">
-            Submit
-          </Button>
-        </DialogActions>
-      </Dialog>
+      <DeleteConfirmationModal
+        open={openDeleteModal}
+        onClose={() => setOpenDeleteModal(false)}
+        onConfirm={handleDelete}
+      />
     </Box>
   );
 }

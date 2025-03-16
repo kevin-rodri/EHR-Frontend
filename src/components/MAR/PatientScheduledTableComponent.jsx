@@ -44,6 +44,7 @@ import { AdapterDayjs } from "@mui/x-date-pickers/AdapterDayjs";
 import dayjs from "dayjs";
 import utc from "dayjs/plugin/utc";
 import { formatDateTime } from "../../utils/date-time-formatter";
+import DeleteConfirmationModal from "../utils/DeleteModalComponent";
 // This is so that we are properly passing the day and time correctly.
 // We want FE to display the date and time properly but pass it to the BE correctly.
 dayjs.extend(utc);
@@ -93,7 +94,7 @@ export default function PatientScheduledTableComponent({ sectionId }) {
             {
               accessorKey: "actions",
               header: "Actions",
-              size: 150,
+              maxSize: 75, 
               enableSorting: false,
               Cell: ({ row }) => (
                 <Box>
@@ -429,24 +430,12 @@ export default function PatientScheduledTableComponent({ sectionId }) {
       </Dialog>
 
       {/* Delete Confirmation Modal */}
-      <Dialog open={openDeleteModal} onClose={() => setOpenDeleteModal(false)}>
-        <DialogTitle align="center">
-          Are you sure you want to delete this item? This action cannot be
-          undone.
-        </DialogTitle>
-        <DialogActions sx={{ display: "flex", justifyContent: "center" }}>
-          <Button
-            onClick={() => setOpenDeleteModal(false)}
-            color="error"
-            variant="contained"
-          >
-            Cancel
-          </Button>
-          <Button onClick={handleDelete} color="primary" variant="contained">
-            Submit
-          </Button>
-        </DialogActions>
-      </Dialog>
+      <DeleteConfirmationModal
+        open={openDeleteModal}
+        onClose={() => setOpenDeleteModal(false)}
+        onConfirm={handleDelete}
+      />
+
     </Box>
   );
 }
