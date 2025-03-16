@@ -50,8 +50,8 @@ function PatientNotesTableComponent({ sectionId }) {
   });
 
   const columns = useMemo(() => [
-    { accessorKey: "title", header: "Title", size: 150 },
-    { accessorKey: "description", header: "Description", size: 200 },
+    { accessorKey: "title", header: "Title"},
+    { accessorKey: "description", header: "Description" },
     {
       accessorKey: "modified_date",
       header: "Timestamp",
@@ -61,7 +61,7 @@ function PatientNotesTableComponent({ sectionId }) {
     {
       accessorKey: "actions",
       header: "Actions",
-      size: 150,
+      maxSize: 50, 
       enableSorting: false,
       Cell: ({ row }) => (
         <Box>

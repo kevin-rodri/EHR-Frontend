@@ -7,35 +7,25 @@ Mobile friendly material ui: https://stackoverflow.com/questions/77716384/how-to
 import React from "react";
 import { Box, Typography } from "@mui/material";
 import SectionTableComponent from "../../components/section/SectionTableComponent";
-import NavBar from "../../components/nav/SideNavComponent";
 import { isAuthenticated } from "../../services/authService";
-import {  useEffect } from "react";
+import { useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 
 export default function PatientAssignment() {
   const navigate = useNavigate();
 
-  useEffect(() => { 
-      async function checkAuth() { 
-        const authStatus = await isAuthenticated(navigate);   
-      } checkAuth(); }, [navigate]);
+  useEffect(() => {
+    async function checkAuth() {
+      const authStatus = await isAuthenticated(navigate);
+    }
+    checkAuth();
+  }, [navigate]);
 
   return (
-    <Box
-      sx={{
-        display: "flex",
-        flexDirection: "column",
-        alignContent: "space-between"
-      }}
-    >
-      <NavBar />
       <Box
         sx={{
           display: "flex",
           flexDirection: "column",
-          justifyContent: "center",
-          alignItems: "center",
-          marginTop: 15
         }}
       >
         <Typography
@@ -49,6 +39,6 @@ export default function PatientAssignment() {
         </Typography>
         <SectionTableComponent />
       </Box>
-    </Box>
   );
 }
+

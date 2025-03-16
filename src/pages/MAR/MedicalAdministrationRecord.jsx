@@ -7,52 +7,55 @@ import { useParams } from "react-router-dom";
 import { Box, Typography } from "@mui/material";
 import PatientScheduledTableComponent from "../../components/MAR/PatientScheduledTableComponent";
 import PatientPRNTableComponent from "../../components/MAR/PatientPRNTableComponent";
-import NavBar from "../../components/nav/SideNavComponent";
-import { PatientBannerComponent } from "../../components/patients/PatientBannerComponent";
 import { useNavigate } from "react-router-dom";
 import { isAuthenticated } from "../../services/authService";
 import { useEffect } from "react";
 import { useTheme } from "@mui/material/styles";
-import useMediaQuery from '@mui/material/useMediaQuery';
-
+import useMediaQuery from "@mui/material/useMediaQuery";
 
 export default function MedicalAdministrationRecord() {
-    const { sectionId } = useParams();
-    const navigate = useNavigate();
-    const theme = useTheme();
-    const isMobile = useMediaQuery(theme.breakpoints.down("md"));
+  const { sectionId } = useParams();
+  const navigate = useNavigate();
+  const theme = useTheme();
+  const isMobile = useMediaQuery(theme.breakpoints.down("md"));
 
-    useEffect(() => {
-      async function checkAuth() {
-        const authStatus = await isAuthenticated(navigate);
-      }
-      checkAuth();
-    }, [navigate]);
+  useEffect(() => {
+    async function checkAuth() {
+      const authStatus = await isAuthenticated(navigate);
+    }
+    checkAuth();
+  }, [navigate]);
 
-    return (
-        <Box sx={{ display: "flex", flexDirection: isMobile ? "column" : "row" }}>
-            <NavBar />
-            <Box
-                sx={{
-                    display: "flex",
-                    flexDirection: "column",
-                    paddingLeft: isMobile ? 2 : 24,
-                    paddingTop: isMobile ? 8 : 0,
-                }}
-            >
-                <PatientBannerComponent sectionId={sectionId} />
-                <Typography variant="h2" fontFamily={"Roboto"} color="white" marginBottom={5} marginTop={5}>
-                    Medical Administration Record
-                </Typography>
-                <Typography variant="h5" fontFamily={"Roboto"} color="white" marginBottom={1}>
-                    Scheduled Medications
-                </Typography>
-                <PatientScheduledTableComponent sectionId={sectionId}/>
-                <Typography variant="h5" fontFamily={"Roboto"} color="white" marginTop={4} marginBottom={1}>
-                    PRN Medications
-                </Typography>
-                <PatientPRNTableComponent sectionId={sectionId}/>
-            </Box> 
-        </Box>
-    );
+  return (
+    <Box sx={{ display: "flex", flexDirection: "column" }}>
+      <Typography
+        variant="h2"
+        fontFamily={"Roboto"}
+        color="white"
+        marginBottom={5}
+        marginTop={5}
+      >
+        Medical Administration Record
+      </Typography>
+      <Typography
+        variant="h5"
+        fontFamily={"Roboto"}
+        color="white"
+        marginBottom={1}
+      >
+        Scheduled Medications
+      </Typography>
+      <PatientScheduledTableComponent sectionId={sectionId} />
+      <Typography
+        variant="h5"
+        fontFamily={"Roboto"}
+        color="white"
+        marginTop={4}
+        marginBottom={1}
+      >
+        PRN Medications
+      </Typography>
+      <PatientPRNTableComponent sectionId={sectionId} />
+    </Box>
+  );
 }

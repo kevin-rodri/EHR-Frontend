@@ -90,6 +90,7 @@ export function PatientBannerComponent({ sectionId }) {
         flexWrap: "wrap",
         gap: 1,
         padding: 1,
+        paddingTop: 2,
         borderRadius: 1,
       }}
     >

@@ -1,14 +1,16 @@
+/* eslint-disable react-hooks/rules-of-hooks */
 /*
 Name: Kevin Rodriugez
 Date: 1/11/25
 Remarks: AuthService that is responsible for making http requests to the backend. (For the users route)
 */
-import { useNavigate } from "react-router-dom";
+
 import { axiosInstance, axiosTokenInstance } from "./httpInterceptor";
 
 const jwtLocalStorageKey = "JWT_TOKEN";
 const roleLocalStorageKey = "ROLE";
 const userLocalStorageKey = "USER_ID";
+const sectionIdStorageKey = "SECTION_ID";
 
 export async function login(username, password) {
   try {
@@ -39,7 +41,7 @@ export function getUserRole() {
 }
 
 export const getSectionId = () => {
-  const storedData = localStorage.getItem("SECTION_ID");
+  const storedData = localStorage.getItem(sectionIdStorageKey);
   if (storedData == null) return null;
   try {
     if (storedData != null) {
@@ -86,24 +88,27 @@ export async function getUserById(id) {
     throw error;
   }
 }
+
 // added is user authenticated
 export async function isAuthenticated(navigate) {
   try {
-    const response = await axiosTokenInstance().get(`/users/${getUserID()}/is-authenticated`);
-
+    const userID = getUserID();
+    if (userID == null) {
+      throw new Error("User ID not found");
+    }
+    const response = await axiosTokenInstance().get(
+      `/users/${userID}/is-authenticated`
+    );
     return response.status === 200;
   } catch (error) {
-    localStorage.removeItem(userLocalStorageKey);
-    localStorage.removeItem(jwtLocalStorageKey);
-    localStorage.removeItem(roleLocalStorageKey);
-    console.error(error);
-    
-    // Redirect to login page
-    if (navigate) {
+    if (error.response && [401, 403].includes(error.response.status)) {
+      localStorage.clear();
       navigate("/");
     }
-    
     return false;
   }
 }
 
+export function logout() {
+  localStorage.clear();
+}

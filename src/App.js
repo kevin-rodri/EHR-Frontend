@@ -8,31 +8,47 @@ import PatientWaldoPage from "./pages/waldo/PatientWaldoPage";
 import PatientADLPage from "./pages/adl/PatientADLPage";
 import PatientNotesPage from "./pages/patient-notes/PatientNotesPage";
 import MedicalAdministrationRecord from "./pages/MAR/MedicalAdministrationRecord";
-import { Box } from "@mui/material";
 import { BrowserRouter, Routes, Route } from "react-router-dom";
 import IVandLinesPage from "./pages/IVandLines/IVandLinesPage";
+import Layout from "./components/layouts/Layout";
 
 function App() {
   return (
-    <Box>
-      <BrowserRouter>
-        <Routes>
-          <Route path="/" element={<LoginPage />} />
-          <Route path="/register" element={<SignUpPage />} />
-          <Route path="/assign" element={<PatientAssignment />} />
-          <Route path="/mar/:sectionId" element={<MedicalAdministrationRecord />} />
-          <Route
-            path="/patient-demographics/:sectionId"
-            element={<PatientDemographicsPage />}
-          />
-          <Route path="/iv-lines/:sectionId" element={<IVandLinesPage/>}/>
-          <Route path="/history/:sectionId" element={<PatientHistory />} />
-          <Route path="/waldo/:sectionId" element={<PatientWaldoPage />} />
-          <Route path="/adl/:sectionId" element={<PatientADLPage />} />
-          <Route path="/patient-notes/:sectionId" element={<PatientNotesPage />} />
-        </Routes>
-      </BrowserRouter>
-    </Box>
+    <BrowserRouter>
+      <Routes>
+        {/* Routes without Layout */}
+        <Route path="/" element={<LoginPage />} />
+        <Route path="/register" element={<SignUpPage />} />
+
+        {/* Routes with Layout */}
+        <Route
+          path="/*"
+          element={
+            <Layout>
+              <Routes>
+                <Route path="/assign" element={<PatientAssignment />} />
+                <Route
+                  path="/mar/:sectionId"
+                  element={<MedicalAdministrationRecord />}
+                />
+                <Route
+                  path="/patient-demographics/:sectionId"
+                  element={<PatientDemographicsPage />}
+                />
+                <Route path="/iv-lines/:sectionId" element={<IVandLinesPage />} />
+                <Route path="/history/:sectionId" element={<PatientHistory />} />
+                <Route path="/waldo/:sectionId" element={<PatientWaldoPage />} />
+                <Route path="/adl/:sectionId" element={<PatientADLPage />} />
+                <Route
+                  path="/patient-notes/:sectionId"
+                  element={<PatientNotesPage />}
+                />
+              </Routes>
+            </Layout>
+          }
+        />
+      </Routes>
+    </BrowserRouter>
   );
 }
 

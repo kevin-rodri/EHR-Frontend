@@ -15,7 +15,7 @@ import {
   updateSectionPatient,
 } from "../../services/sectionPatientService";
 
-export default function SectionRowComponent({ sectionId, onSelect }) {
+export default function SectionRowComponent({ sectionId }) {
   const [patients, setPatients] = useState([]);
   const [selectedPatient, setSelectedPatient] = useState(null);
   const [assignedPatient, setAssignedPatient] = useState(null);
@@ -64,11 +64,6 @@ export default function SectionRowComponent({ sectionId, onSelect }) {
   };
 
   const handleAssignPatient = async () => {
-    if (selectedPatient == null) {
-      alert("Please select a patient first.");
-      return;
-    }
-
     try {
       if (
         assignedPatient != null &&
@@ -109,19 +104,12 @@ export default function SectionRowComponent({ sectionId, onSelect }) {
       <Box
         sx={{
           display: "flex",
-          justifyContent: "space-between",
-          alignItems: "center",
-          flexWrap: "wrap",
-          marginLeft: 3,
-          gap: 1,
+          flexDirection: "column",
+          alignItems: "start"
         }}
       >
         <Typography sx={{ fontSize: 16, fontWeight: 600, color: "#1E1E1E" }}>
-          {sectionName}
-        </Typography>
-
-        <Typography sx={{ fontSize: 16, fontWeight: 600, color: "#1E1E1E" }}>
-          Instructor: {instructorName}
+          {sectionName} Instructor: {instructorName}
         </Typography>
       </Box>
 

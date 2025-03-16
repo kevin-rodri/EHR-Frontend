@@ -8,8 +8,6 @@ import { useEffect } from "react";
 import { useParams } from "react-router-dom";
 import { Box, Typography } from "@mui/material";
 import WaldoDiagramComponent from "../../components/waldo/WaldoDiagramComponent";
-import NavBar from "../../components/nav/SideNavComponent";
-import { PatientBannerComponent } from "../../components/patients/PatientBannerComponent";
 import { useNavigate } from "react-router-dom";
 import { isAuthenticated } from "../../services/authService";
 
@@ -25,30 +23,23 @@ const PatientWaldoPage = () => {
   }, [navigate]);
 
   return (
-    <Box
-      sx={{
-        display: "flex",
-        flexDirection: "column",
-        alignItems: "center",
-        justifyContent: "center",
-        textAlign: "center",
-        paddingLeft: 24,
-        minHeight: "100vh",
-      }}
-    >
-      <NavBar />
-      <PatientBannerComponent sectionId={sectionId} />
-      <Typography
-        variant="h2"
-        fontFamily={"Roboto"}
-        color="white"
-        marginBottom={5}
-        marginTop={5}
+      <Box
+        sx={{
+          display: "flex",
+          flexDirection: "column",
+        }}
       >
-        Patient Wounds and Drains
-      </Typography>
-      <WaldoDiagramComponent sectionId={sectionId} />
-    </Box>
+        <Typography
+          variant="h2"
+          fontFamily={"Roboto"}
+          color="white"
+          marginBottom={5}
+          marginTop={5}
+        >
+          Patient Wounds and Drains
+        </Typography>
+        <WaldoDiagramComponent sectionId={sectionId} />
+      </Box>
   );
 };
 export default PatientWaldoPage;

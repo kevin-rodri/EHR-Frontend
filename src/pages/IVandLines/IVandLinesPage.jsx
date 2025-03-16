@@ -10,8 +10,6 @@ import PatientIVandLinesComponent from "../../components/IVsandLines/PatientIVan
 import { isAuthenticated } from "../../services/authService";
 import { useEffect } from "react";
 import { useNavigate } from "react-router-dom";
-import NavBar from "../../components/nav/SideNavComponent";
-import { PatientBannerComponent } from "../../components/patients/PatientBannerComponent";
 
 
 const IVandLinesPage = () => {
@@ -26,14 +24,7 @@ const IVandLinesPage = () => {
   }, [navigate]);
 
   return (
-    <Box
-      sx={{
-        display: "flex",
-      }}
-    >
-      <NavBar />
-      <Box sx={{ display: "flex", flexDirection: "column", paddingLeft: 24 }}>
-      <PatientBannerComponent sectionId={sectionId} />
+      <Box sx={{ display: "flex", flexDirection: "column"}}>
         <Typography
           variant="h2"
           fontFamily={"Roboto"}
@@ -45,7 +36,6 @@ const IVandLinesPage = () => {
         </Typography>
         <PatientIVandLinesComponent sectionId={sectionId} />
       </Box>
-    </Box>
   );
 };
 
