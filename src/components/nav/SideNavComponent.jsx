@@ -116,6 +116,27 @@ export default function NavBar() {
                 </List>
               </AccordionDetails>
             </Accordion>
+            <Accordion
+              expanded={expanded}
+              onChange={handleAccordionChange}
+              sx={{ width: "100%", boxShadow: "none" }}
+            >
+              <AccordionSummary expandIcon={<ExpandMoreIcon />}>
+                <Typography sx={{ fontFamily: "Roboto" }}>
+                  Head to Toe Assessment
+                </Typography>
+              </AccordionSummary>
+              <AccordionDetails>
+                <List>
+                  <ListItem button component={Link} to={`/musculoskeletal/${sectionId}`}>
+                    <ListItemText
+                      primary="Musculoskeletal"
+                      sx={{ fontFamily: "Roboto", color: "black" }}
+                    />
+                  </ListItem>
+                </List>
+              </AccordionDetails>
+            </Accordion>
           </>
         )}
         <ListItem button component={Link} to={`/patient-notes/${sectionId}`}>
