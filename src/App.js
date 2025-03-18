@@ -11,6 +11,7 @@ import MedicalAdministrationRecord from "./pages/MAR/MedicalAdministrationRecord
 import { Box } from "@mui/material";
 import { BrowserRouter, Routes, Route } from "react-router-dom";
 import IVandLinesPage from "./pages/IVandLines/IVandLinesPage";
+import PatientOrdersPage from "./pages/patient-orders/PatientOrdersPage";
 
 function App() {
   return (
@@ -30,6 +31,7 @@ function App() {
           <Route path="/waldo/:sectionId" element={<PatientWaldoPage />} />
           <Route path="/adl/:sectionId" element={<PatientADLPage />} />
           <Route path="/patient-notes/:sectionId" element={<PatientNotesPage />} />
+          <Route path="/patient-orders/:sectionId" element={<PatientOrdersPage />} />
         </Routes>
       </BrowserRouter>
     </Box>

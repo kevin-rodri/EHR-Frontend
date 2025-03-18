@@ -124,6 +124,12 @@ export default function NavBar() {
             sx={{ fontFamily: "Roboto", color: "black" }}
           />
         </ListItem>
+        <ListItem button component={Link} to={`/patient-orders/${sectionId}`}>
+          <ListItemText
+            primary="Patient Orders"
+            sx={{ fontFamily: "Roboto", color: "black" }}
+          />
+        </ListItem>
       </List>
     </Drawer>
   );
