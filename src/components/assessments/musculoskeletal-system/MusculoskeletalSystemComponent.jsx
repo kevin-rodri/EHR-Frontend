@@ -1,9 +1,8 @@
 import React, { useState, useEffect } from "react";
 import { FormControl, Box, Select, MenuItem, TextField, Typography, Button, IconButton, Divider } from "@mui/material";
 import { getMusculoskeletalInfo, addMusculoskeletalInfo, 
-  updateMusculoskeletalInfo, deleteMusculoskeletalInfo } from "../../../services/musculoskeletalInfoService";
+  updateMusculoskeletalInfo } from "../../../services/musculoskeletalInfoService";
   import { getSectionPatientById } from "../../../services/sectionPatientService";
-  import { Delete } from "@mui/icons-material";
 
 export default function MusculoskeletalSystemComponent({sectionId}) {
 
@@ -11,8 +10,8 @@ export default function MusculoskeletalSystemComponent({sectionId}) {
     const [loading, setLoading] = useState(false);
     const [sectionPatientId, setSectionPatientId] = useState("");
     const [wasAdded, setWasAdded] = useState(false);
-    const [musculoskeletalId, setMusculoskeletalId] = useState("");
     const [formData, setFormData] = useState({
+      id: "",
       left_upper_extremity: "",
       left_lower_extremity: "",
       right_upper_extremity: "",
@@ -21,34 +20,6 @@ export default function MusculoskeletalSystemComponent({sectionId}) {
       adl_id: "",
       abnormalities: ""
     });
-
-    function handleLUE(event) {
-        setFormData({...formData, left_upper_extremity: event.target.value});
-    };
-
-    function handleLLE(event) {
-      setFormData({...formData, left_lower_extremity: event.target.value});
-    };
-
-    function handleRUE(event) {
-      setFormData({...formData, right_upper_extremity: event.target.value});
-    };
-
-    function handleRLE(event) {
-      setFormData({...formData, right_lower_extremity: event.target.value});
-    };
-
-    function handleGait(event) {
-      setFormData({...formData, gait: event.target.value});
-    };
-                
-    function handleADLs(event) {
-      setFormData({...formData, adl_id: event.target.value});
-    };
-
-    function handleAbnormalities(event) {
-      setFormData({...formData, abnormalities: event.target.value});
-    };
 
     const fetchMusculoskeletalInfo = async () => {
       try {
@@ -63,7 +34,6 @@ export default function MusculoskeletalSystemComponent({sectionId}) {
               setWasAdded(true)
             };
             if (patientMusculoskeletal != null){
-              setMusculoskeletalId(patientMusculoskeletal.id);
               setFormData(patientMusculoskeletal);
             };
             setSectionPatientId(sectionPatientId);
@@ -82,9 +52,7 @@ export default function MusculoskeletalSystemComponent({sectionId}) {
     const onSubmit = async () => {
         setLoading(true);
         try {
-          await new Promise((resolve) => setTimeout(resolve, 1000));
-    
-          await addMusculoskeletalInfo(sectionPatientId, {
+          const response = await addMusculoskeletalInfo(sectionPatientId, {
             left_upper_extremity: formData.left_upper_extremity,
             left_lower_extremity: formData.left_lower_extremity,
             right_upper_extremity: formData.right_upper_extremity,
@@ -93,8 +61,8 @@ export default function MusculoskeletalSystemComponent({sectionId}) {
             adl_id: formData.adl_id,
             abnormalities: formData.abnormalities
           });
+          setFormData((prevData) => [prevData, response])
           setWasAdded(true);
-          fetchMusculoskeletalInfo();
         } catch (err) {
           throw err;
         } finally {
@@ -105,9 +73,7 @@ export default function MusculoskeletalSystemComponent({sectionId}) {
     const onEdit = async () => {
       setLoading(true);
         try {
-          await new Promise((resolve) => setTimeout(resolve, 1000));
-    
-          await updateMusculoskeletalInfo(sectionPatientId, musculoskeletalId, {
+          const response = await updateMusculoskeletalInfo(sectionPatientId, formData.id, {
             left_upper_extremity: formData.left_upper_extremity,
             left_lower_extremity: formData.left_lower_extremity,
             right_upper_extremity: formData.right_upper_extremity,
@@ -116,21 +82,11 @@ export default function MusculoskeletalSystemComponent({sectionId}) {
             adl_id: formData.adl_id,
             abnormalities: formData.abnormalities
           });
-          fetchMusculoskeletalInfo();
-        } catch (err) {
-          throw err;
-        } finally {
-          setLoading(false);
-        }
-    };
-
-    const onDelete = async () => {
-      setLoading(true);
-        try {
-          await new Promise((resolve) => setTimeout(resolve, 1000));
-          await deleteMusculoskeletalInfo(sectionPatientId, musculoskeletalId);
-          setWasAdded(false);
-          fetchMusculoskeletalInfo();
+          setFormData((prevData) => 
+            prevData.map((item) => 
+              item.id === response.id ? response : item
+            )
+          );
         } catch (err) {
           throw err;
         } finally {
@@ -146,12 +102,9 @@ export default function MusculoskeletalSystemComponent({sectionId}) {
               flexDirection: "column",
               padding: 1,
               borderRadius: 2,
-              width: 500,
-              marginLeft: 50
             }}>
               <div>
                 <Typography>ROM</Typography>
-                {wasAdded ?? <IconButton onClick={onDelete}><Delete /></IconButton>}
               </div>
             <Divider />
             <div>
@@ -160,11 +113,11 @@ export default function MusculoskeletalSystemComponent({sectionId}) {
                 <FormControl>
                 <Select
                 value={formData.left_upper_extremity || ""}
-                onChange={handleLUE}
+                onChange={(event) => setFormData({...formData, left_upper_extremity: event.target.value})}
                 fullWidth
               >
-                <MenuItem value={"Full ROM"}>Full ROM</MenuItem>
-                <MenuItem value={"Limited ROM"}>Limited ROM</MenuItem>
+                <MenuItem value={"Full-ROM"}>Full ROM</MenuItem>
+                <MenuItem value={"Limited-ROM"}>Limited ROM</MenuItem>
                 <MenuItem value={"Immobile"}>Immobile</MenuItem>
                 <MenuItem value={"Flaccid"}>Flaccid</MenuItem>
                 <MenuItem value={"Contracted"}>Contracted</MenuItem>
@@ -176,10 +129,10 @@ export default function MusculoskeletalSystemComponent({sectionId}) {
                 <FormControl>
                 <Select
                 value={formData.left_lower_extremity || ""}
-                onChange={handleLLE}
+                onChange={(event) => setFormData({...formData, left_lower_extremity: event.target.value})}
               >
-                <MenuItem value={"Full ROM"}>Full ROM</MenuItem>
-                <MenuItem value={"Limited ROM"}>Limited ROM</MenuItem>
+                <MenuItem value={"Full-ROM"}>Full ROM</MenuItem>
+                <MenuItem value={"Limited-ROM"}>Limited ROM</MenuItem>
                 <MenuItem value={"Immobile"}>Immobile</MenuItem>
                 <MenuItem value={"Flaccid"}>Flaccid</MenuItem>
                 <MenuItem value={"Contracted"}>Contracted</MenuItem>
@@ -192,10 +145,10 @@ export default function MusculoskeletalSystemComponent({sectionId}) {
                 <FormControl>
                 <Select
                 value={formData.right_upper_extremity || ""}
-                onChange={handleRUE}
+                onChange={(event) => setFormData({...formData, right_upper_extremity: event.target.value})}
               >
-                <MenuItem value={"Full ROM"}>Full ROM</MenuItem>
-                <MenuItem value={"Limited ROM"}>Limited ROM</MenuItem>
+                <MenuItem value={"Full-ROM"}>Full ROM</MenuItem>
+                <MenuItem value={"Limited-ROM"}>Limited ROM</MenuItem>
                 <MenuItem value={"Immobile"}>Immobile</MenuItem>
                 <MenuItem value={"Flaccid"}>Flaccid</MenuItem>
                 <MenuItem value={"Contracted"}>Contracted</MenuItem>
@@ -207,10 +160,10 @@ export default function MusculoskeletalSystemComponent({sectionId}) {
                 <FormControl>
                 <Select
                 value={formData.right_lower_extremity || ""}
-                onChange={handleRLE}
+                onChange={(event) => setFormData({...formData, right_lower_extremity: event.target.value})}
               >
-                <MenuItem value={"Full ROM"}>Full ROM</MenuItem>
-                <MenuItem value={"Limited ROM"}>Limited ROM</MenuItem>
+                <MenuItem value={"Full-ROM"}>Full ROM</MenuItem>
+                <MenuItem value={"Limited-ROM"}>Limited ROM</MenuItem>
                 <MenuItem value={"Immobile"}>Immobile</MenuItem>
                 <MenuItem value={"Flaccid"}>Flaccid</MenuItem>
                 <MenuItem value={"Contracted"}>Contracted</MenuItem>
@@ -222,12 +175,12 @@ export default function MusculoskeletalSystemComponent({sectionId}) {
                 <FormControl>
                 <Select
                 value={formData.gait || ""}
-                onChange={handleGait}
+                onChange={(event) => setFormData({...formData, gait: event.target.value})}
               >
-                <MenuItem value={"Self, Steady"}>Self, Steady</MenuItem>
-                <MenuItem value={"Self, Unsteady"}>Self, Unsteady</MenuItem>
-                <MenuItem value={"1 assist"}>1 assist</MenuItem>
-                <MenuItem value={"2 assist"}>2 assist</MenuItem>
+                <MenuItem value={"Self-Steady"}>Self, Steady</MenuItem>
+                <MenuItem value={"Self-Unsteady"}>Self, Unsteady</MenuItem>
+                <MenuItem value={"1-assist"}>1 assist</MenuItem>
+                <MenuItem value={"2-assist"}>2 assist</MenuItem>
                 <MenuItem value={"Wheelchair"}>Wheelchair</MenuItem>
                 <MenuItem value={"Bedbound"}>Bedbound</MenuItem>
               </Select>
@@ -238,11 +191,11 @@ export default function MusculoskeletalSystemComponent({sectionId}) {
                 <FormControl>
                 <Select
                 value={formData.adl_id || ""}
-                onChange={handleADLs}
+                onChange={(event) => setFormData({...formData, adl_id: event.target.value})}
               >
-                <MenuItem value={"Self Care"}>Self Care</MenuItem>
+                <MenuItem value={"Self-Care"}>Self Care</MenuItem>
                 <MenuItem value={"Facilitated"}>Facilitated</MenuItem>
-                <MenuItem value={"Total Care"}>Total Care</MenuItem>
+                <MenuItem value={"Total-Care"}>Total Care</MenuItem>
               </Select>
                 </FormControl>
                 </div>
@@ -251,7 +204,7 @@ export default function MusculoskeletalSystemComponent({sectionId}) {
                 <FormControl>
                     <TextField
                         value={formData.abnormalities || ""}
-                        onChange={handleAbnormalities}
+                        onChange={(event) => setFormData({...formData, abnormalities: event.target.value})}
                         rows={4}
                         multiline
                         fullWidth

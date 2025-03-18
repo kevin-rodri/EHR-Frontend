@@ -123,7 +123,7 @@ export default function NavBar() {
             >
               <AccordionSummary expandIcon={<ExpandMoreIcon />}>
                 <Typography sx={{ fontFamily: "Roboto" }}>
-                  Head to Toe Assessment
+                  Head to Toe Assessments
                 </Typography>
               </AccordionSummary>
               <AccordionDetails>

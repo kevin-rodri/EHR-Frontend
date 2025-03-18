@@ -23,12 +23,10 @@ export default function MusculoskeletalSystem() {
             <Box sx={{
                 display: "flex",
               }}>
-                <NavBar />
                 <Box
                 sx={{
                     display: "flex",
                     flexDirection: "column",
-                    paddingLeft: 24,
                 }}
                 >
                     <PatientBannerComponent sectionId={sectionId} />
@@ -38,7 +36,6 @@ export default function MusculoskeletalSystem() {
                         color="white"
                         marginBottom={5}
                         marginTop={5}
-                        marginLeft={10}
                     >
                     Musculoskeletal System
                     </Typography>
