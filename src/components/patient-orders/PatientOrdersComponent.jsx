@@ -16,32 +16,39 @@ import EditIcon from "@mui/icons-material/Edit";
 import DeleteIcon from "@mui/icons-material/Delete";
 
 import { getPatientOrders, deletePatientOrder } from "../../services/patientOrdersService";
+import { getSectionPatientById } from "../../services/sectionPatientService";
+import { getUserRole } from "../../services/authService"; // Assumes you have a function to get the user role.
 import PatientOrdersModalComponent from "./PatientOrdersModalComponent";
 
-const PatientOrdersComponent = ({ patientId, userRole }) => {
+const PatientOrdersComponent = ({ sectionId }) => {
   const [orders, setOrders] = useState([]);
   const [openModal, setOpenModal] = useState(false);
   const [editingOrder, setEditingOrder] = useState(null);
+  const [canEdit, setEdit] = useState(false);
+  const [patientId, setPatientId] = useState(null);
 
-  // Fetch orders for the specific patient (orders are separated by patientId)
   useEffect(() => {
+    const role = getUserRole();
+    if (role === "ADMIN" || role === "INSTRUCTOR") {
+      setEdit(true);
+    }
     fetchOrders();
-  }, [patientId]);
+  }, [sectionId]);
 
   const fetchOrders = async () => {
     try {
-      const data = await getPatientOrders(patientId);
+      const sectionPatient = await getSectionPatientById(sectionId);
+      const patientID = sectionPatient.patient_id;
+      setPatientId(patientID);
+      const data = await getPatientOrders(patientID);
       setOrders(data);
     } catch (error) {
       console.error("Failed to fetch patient orders:", error);
     }
   };
 
-  // Only instructors and administrators can add/edit orders.
-  const canEdit = userRole === "INSTRUCTOR" || userRole === "ADMINISTRATOR";
-
   const handleOpenModal = () => {
-    setEditingOrder(null); // Clear editing state when adding a new order.
+    setEditingOrder(null);
     setOpenModal(true);
   };
 

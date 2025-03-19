@@ -10,16 +10,19 @@ import {
   Paper,
   IconButton,
   Box,
-  Menu,
-  MenuItem,
   Checkbox,
   TextField,
   Modal,
   Button,
   Typography,
   InputLabel,
+  FormControl,
+  Select,
+  MenuItem,
 } from "@mui/material";
-import { Add, Label } from "@mui/icons-material";
+import { Add } from "@mui/icons-material";
+import EditIcon from "@mui/icons-material/Edit";
+import DeleteIcon from "@mui/icons-material/Delete";
 import {
   addADLRecord,
   deleteADLRecord,
@@ -28,35 +31,31 @@ import {
 } from "../../services/patientADLService";
 import { getSectionPatientById } from "../../services/sectionPatientService";
 import dayjs from "dayjs";
-import MoreVertIcon from "@mui/icons-material/MoreVert";
 
 export default function PatientADLComponent({ sectionId }) {
+  // State for patient/records
   const [sectionPatientId, setSectionPatientId] = useState(null);
   const [adlRecords, setAdlRecords] = useState([]);
   const [scheduledTimes, setScheduledTimes] = useState([]);
+  // Modal state & record state
   const [modalOpen, setModalOpen] = useState(false);
-  const [anchorEl, setAnchorEl] = useState(null);
-  const [selectedTime, setSelectedTime] = useState(null);
-  const [selectedRecordId, setSelectedRecordId] = useState(null);
-  const [editingRecordId, setEditingRecordId] = useState(null);
+  // newRecord for adding and editing; when editing, editingRecord will be non-null.
   const [newRecord, setNewRecord] = useState({
+    has_oral_care: false,
     has_bathed: false,
+    has_foley_care: false,
     reposition: "",
     elimination_needed: "",
     is_meal_given: false,
     amount_meal_consumed: "0.00",
   });
+  const [editingRecord, setEditingRecord] = useState(null);
 
   useEffect(() => {
     fetchSectionPatientId();
   }, [sectionId]);
 
-  /*
-  For educational purposes: This is the process behind getting data from our endpoints: 
-  1. We get the section id from the url. 
-  2. We set the section patient based on what we get from the backend
-  3. We call the endpoint we're interested in (i.e. ADL record) and pass in the retrieved section patient id.
-  */
+  // Get the section patient ID and ADL records
   const fetchSectionPatientId = async () => {
     try {
       const sectionPatient = await getSectionPatientById(sectionId);
@@ -74,17 +73,35 @@ export default function PatientADLComponent({ sectionId }) {
     }
   };
 
-  // Open Add Modal
+  // Open modal in add mode
   const handleOpenModal = () => {
-    setModalOpen(true);
-  };
-
-  // Close Add Modal
-  const handleCloseModal = () => {
-    setModalOpen(false);
+    setEditingRecord(null);
     setNewRecord({
       has_oral_care: false,
       has_bathed: false,
+      has_foley_care: false,
+      reposition: "",
+      elimination_needed: "",
+      is_meal_given: false,
+      amount_meal_consumed: "0.00",
+    });
+    setModalOpen(true);
+  };
+
+  // Open modal in edit mode for a specific record
+  const handleEditRecord = (record) => {
+    setEditingRecord(record);
+    setModalOpen(true);
+  };
+
+  // Close modal and reset record state
+  const handleCloseModal = () => {
+    setModalOpen(false);
+    setEditingRecord(null);
+    setNewRecord({
+      has_oral_care: false,
+      has_bathed: false,
+      has_foley_care: false,
       reposition: "",
       elimination_needed: "",
       is_meal_given: false,
@@ -92,18 +109,17 @@ export default function PatientADLComponent({ sectionId }) {
     });
   };
 
-  // Save new ADL record
+  // Save new record (from add mode)
   const handleSaveRecord = async () => {
     try {
       const formattedData = {
-        has_oral_care: 0,
+        has_oral_care: newRecord.has_oral_care ? 1 : 0,
         has_bathed: newRecord.has_bathed ? 1 : 0,
+        has_foley_care: newRecord.has_foley_care ? 1 : 0,
         reposition: newRecord.reposition || "",
         elimination_needed: newRecord.elimination_needed || "",
         is_meal_given: newRecord.is_meal_given ? 1 : 0,
-        amount_meal_consumed: parseFloat(
-          newRecord.amount_meal_consumed
-        ).toFixed(2),
+        amount_meal_consumed: parseFloat(newRecord.amount_meal_consumed).toFixed(2),
       };
 
       const response = await addADLRecord(sectionPatientId, formattedData);
@@ -131,14 +147,35 @@ export default function PatientADLComponent({ sectionId }) {
     }
   };
 
+  // Save edits from modal (edit mode)
+  const handleSaveEditRecord = async () => {
+    try {
+      const updatedData = {
+        has_oral_care: editingRecord.has_oral_care ? 1 : 0,
+        has_bathed: editingRecord.has_bathed ? 1 : 0,
+        has_foley_care: editingRecord.has_foley_care ? 1 : 0,
+        reposition: editingRecord.reposition || "",
+        elimination_needed: editingRecord.elimination_needed || "",
+        is_meal_given: editingRecord.is_meal_given ? 1 : 0,
+        amount_meal_consumed: parseFloat(editingRecord.amount_meal_consumed).toFixed(2),
+      };
+
+      const response = await updateADLRecord(sectionPatientId, editingRecord.id, updatedData);
+      // Update local state for the record
+      setAdlRecords((prevRecords) =>
+        prevRecords.map((r) => (r.id === editingRecord.id ? { ...r, ...response } : r))
+      );
+      handleCloseModal();
+    } catch (error) {
+      console.error("Error updating ADL record:", error);
+    }
+  };
+
+  // Delete a record
   const handleDeleteADLRecord = async (id) => {
     try {
       await deleteADLRecord(sectionPatientId, id);
-
-      // Update UI state by filtering out the deleted record
       setAdlRecords((prevRecords) => prevRecords.filter((r) => r.id !== id));
-
-      // Also update scheduled times to remove the deleted record
       setScheduledTimes((prevTimes) =>
         prevTimes.filter(
           (t) =>
@@ -152,88 +189,61 @@ export default function PatientADLComponent({ sectionId }) {
     }
   };
 
-  const handleUpdateADLRecord = async (id, data) => {
-    try {
-      const response = await updateADLRecord(sectionPatientId, id, data);
-      // update the adl records we display
-      setAdlRecords((prevRecords) =>
-        prevRecords.map((r) => (r.id === id ? { ...r, ...response } : r))
-      );
-    } catch (error) {
-      console.error(error);
+  // Helper to update field value in modal (whether in add or edit mode)
+  const updateField = (key, value) => {
+    if (editingRecord) {
+      setEditingRecord({ ...editingRecord, [key]: value });
+    } else {
+      setNewRecord({ ...newRecord, [key]: value });
     }
   };
 
-  const handleMenuOpen = (event, time) => {
-    setAnchorEl(event.currentTarget);
-    setSelectedTime(time);
-  };
-
-  const handleMenuClose = () => {
-    setAnchorEl(null);
-    setSelectedTime(null);
-  };
+  // Determine if we are editing an existing record or adding a new one
+  const isEditing = editingRecord !== null;
+  const recordData = isEditing ? editingRecord : newRecord;
 
   return (
-    <Box
-      sx={{
-        position: "relative",
-        backgroundColor: "white",
-        borderRadius: 2,
-        padding: 2,
-      }}
-    >
+    <Box sx={{ position: "relative", backgroundColor: "white", borderRadius: 2, padding: 2 }}>
+      {/* Top bar: Add button */}
+      <Box sx={{ display: "flex", justifyContent: "flex-end", mb: 2 }}>
+        <IconButton onClick={handleOpenModal}>
+          <Add />
+        </IconButton>
+      </Box>
+
       <TableContainer component={Paper} sx={{ borderRadius: 2 }}>
         <Table>
           <TableHead>
             <TableRow>
               <TableCell>Patient ADL</TableCell>
-              {scheduledTimes.map((timeObj) => (
-                <TableCell key={timeObj.fullTimestamp} align="center">
-                  {timeObj.displayTime}
-                  {/* A change in the Figma: It probably makes sense to make the cell an update */}
-                  <IconButton
-                    size="small"
-                    onClick={(event) =>
-                      handleMenuOpen(event, timeObj.fullTimestamp)
-                    }
-                  >
-                    <MoreVertIcon />
-                  </IconButton>
-
-                  <Menu
-                    anchorEl={anchorEl}
-                    open={Boolean(anchorEl) && selectedTime !== null}
-                    onClose={handleMenuClose}
-                  >
-                    {/* Delete Method */}
-                    <MenuItem
-                      onClick={() => {
-                        const recordToDelete = adlRecords.find(
-                          (record) => record.created_date === selectedTime
-                        );
-                        if (recordToDelete) {
-                          handleDeleteADLRecord(recordToDelete.id);
-                        }
-                        handleMenuClose();
-                      }}
-                    >
-                      Delete
-                    </MenuItem>
-                  </Menu>
-                </TableCell>
-              ))}
-              <TableCell align="center">
-                <IconButton onClick={handleOpenModal}>
-                  <Add />
-                </IconButton>
-              </TableCell>
+              {scheduledTimes.map((timeObj) => {
+                const record = adlRecords.find(
+                  (r) => r.created_date === timeObj.fullTimestamp
+                );
+                return (
+                  <TableCell key={timeObj.fullTimestamp} align="center">
+                    {timeObj.displayTime}
+                    {record && (
+                      <Box sx={{ display: "flex", justifyContent: "center", mt: 1 }}>
+                        <IconButton size="small" onClick={() => handleEditRecord(record)}>
+                          <EditIcon />
+                        </IconButton>
+                        <IconButton size="small" onClick={() => handleDeleteADLRecord(record.id)}>
+                          <DeleteIcon />
+                        </IconButton>
+                      </Box>
+                    )}
+                  </TableCell>
+                );
+              })}
+              <TableCell align="center">{/* Extra cell not used */}</TableCell>
             </TableRow>
           </TableHead>
 
           <TableBody>
             {[
               { key: "has_bathed", label: "Bathing" },
+              { key: "has_foley_care", label: "Foley Care" },
               { key: "reposition", label: "Reposition" },
               { key: "elimination_needed", label: "Elimination Need" },
               { key: "is_meal_given", label: "Meal Given" },
@@ -242,40 +252,17 @@ export default function PatientADLComponent({ sectionId }) {
               <TableRow key={key}>
                 <TableCell>{label}</TableCell>
                 {adlRecords.map((record) => (
-                  <TableCell
-                    key={`${key}-${record.created_date}`}
-                    align="center"
-                  >
-                    {key === "has_bathed" || key === "is_meal_given" ? (
-                      <Checkbox
-                        checked={record?.[key] || false}
-                        onChange={(e) =>
-                          handleUpdateADLRecord(record.id, {
-                            [key]: e.target.checked,
-                          })
-                        }
-                      />
-                    ) : (
-                      <TextField
-                        variant="outlined"
-                        size="small"
-                        value={record?.[key] || ""}
-                        onChange={(e) =>
-                          setAdlRecords((prevRecords) =>
-                            prevRecords.map((r) =>
-                              r.id === record.id
-                                ? { ...r, [key]: e.target.value }
-                                : r
-                            )
-                          )
-                        }
-                        onBlur={() =>
-                          handleUpdateADLRecord(record.id, {
-                            [key]: record[key],
-                          })
-                        }
-                      />
-                    )}
+                  <TableCell key={`${key}-${record.created_date}`} align="center">
+                    {
+                      (key === "has_bathed" || key === "is_meal_given" || key === "has_foley_care")
+                        ? (
+                          <Checkbox checked={record?.[key] || false} disabled />
+                        ) : (
+                          <Typography variant="body2">
+                            {record?.[key] || ""}
+                          </Typography>
+                        )
+                    }
                   </TableCell>
                 ))}
               </TableRow>
@@ -284,7 +271,7 @@ export default function PatientADLComponent({ sectionId }) {
         </Table>
       </TableContainer>
 
-      {/* Modal for Adding New Record */}
+      {/* Modal for Adding or Editing ADL Record */}
       <Modal open={modalOpen} onClose={handleCloseModal}>
         <Box
           sx={{
@@ -298,79 +285,91 @@ export default function PatientADLComponent({ sectionId }) {
           }}
         >
           <Typography variant="h6" gutterBottom textAlign="center">
-            Add New ADL Record
+            {isEditing ? "Edit ADL Record" : "Add New ADL Record"}
           </Typography>
-          <Box
-            sx={{
-              display: "flex",
-              alignItems: "center",
-              gap: 1,
-            }}
-          >
+
+          {/* Has Bathed Checkbox */}
+          <Box sx={{ display: "flex", alignItems: "center", gap: 1 }}>
             <Checkbox
-              checked={newRecord.has_bathed}
-              onChange={(e) =>
-                setNewRecord({ ...newRecord, has_bathed: e.target.checked })
-              }
+              checked={recordData.has_bathed}
+              onChange={(e) => updateField("has_bathed", e.target.checked)}
             />
             <Typography variant="body1">Has Bathed</Typography>
           </Box>
 
-          <TextField
-            label="Reposition"
-            fullWidth
-            margin="normal"
-            value={newRecord.reposition}
-            onChange={(e) =>
-              setNewRecord({ ...newRecord, reposition: e.target.value })
-            }
-          />
-          <TextField
-            label="Elimination Need"
-            fullWidth
-            margin="normal"
-            value={newRecord.elimination_needed}
-            onChange={(e) =>
-              setNewRecord({ ...newRecord, elimination_needed: e.target.value })
-            }
-          />
-          <Box
-            sx={{
-              display: "flex",
-              alignItems: "center",
-              gap: 1,
-            }}
-          >
+          {/* Has Foley Care Checkbox */}
+          <Box sx={{ display: "flex", alignItems: "center", gap: 1 }}>
             <Checkbox
-              checked={newRecord.is_meal_given}
-              onChange={(e) =>
-                setNewRecord({ ...newRecord, is_meal_given: e.target.checked })
-              }
+              checked={recordData.has_foley_care}
+              onChange={(e) => updateField("has_foley_care", e.target.checked)}
+            />
+            <Typography variant="body1">Foley Care</Typography>
+          </Box>
+
+          {/* Oral Care Checkbox */}
+          <Box sx={{ display: "flex", alignItems: "center", gap: 1 }}>
+            <Checkbox
+              checked={recordData.has_oral_care}
+              onChange={(e) => updateField("has_oral_care", e.target.checked)}
+            />
+            <Typography variant="body1">Oral Care</Typography>
+          </Box>
+
+          {/* Reposition Dropdown */}
+          <FormControl fullWidth margin="normal">
+            <InputLabel>Reposition</InputLabel>
+            <Select
+              value={recordData.reposition}
+              onChange={(e) => updateField("reposition", e.target.value)}
+              label="Reposition"
+            >
+              <MenuItem value="turn left">Turn Left</MenuItem>
+              <MenuItem value="turn right">Turn Right</MenuItem>
+              <MenuItem value="back">Back</MenuItem>
+              <MenuItem value="self turn">Self Turn</MenuItem>
+            </Select>
+          </FormControl>
+
+          {/* Elimination Given Dropdown */}
+          <FormControl fullWidth margin="normal">
+            <InputLabel>Elimination Given</InputLabel>
+            <Select
+              value={recordData.elimination_needed}
+              onChange={(e) => updateField("elimination_needed", e.target.value)}
+              label="Elimination Given"
+            >
+              <MenuItem value="urinal">Urinal</MenuItem>
+              <MenuItem value="bedpan">Bedpan</MenuItem>
+              <MenuItem value="commode">Commode</MenuItem>
+            </Select>
+          </FormControl>
+
+          {/* Meal Given Checkbox */}
+          <Box sx={{ display: "flex", alignItems: "center", gap: 1 }}>
+            <Checkbox
+              checked={recordData.is_meal_given}
+              onChange={(e) => updateField("is_meal_given", e.target.checked)}
             />
             <Typography variant="body1">Meal Given</Typography>
           </Box>
 
+          {/* % of Meal Consumed */}
           <TextField
             label="% of Meal Consumed"
             fullWidth
             margin="normal"
-            value={newRecord.amount_meal_consumed}
-            onChange={(e) =>
-              setNewRecord({
-                ...newRecord,
-                amount_meal_consumed: e.target.value,
-              })
-            }
+            value={recordData.amount_meal_consumed}
+            onChange={(e) => updateField("amount_meal_consumed", e.target.value)}
           />
+
           <Box display="flex" justifyContent="center" mt={2}>
-            <Button
-              onClick={handleCloseModal}
-              color="error"
-              sx={{ marginRight: 1 }}
-            >
+            <Button onClick={handleCloseModal} color="error" sx={{ marginRight: 1 }}>
               Cancel
             </Button>
-            <Button onClick={handleSaveRecord} color="primary">
+            <Button
+              onClick={isEditing ? handleSaveEditRecord : handleSaveRecord}
+              color="primary"
+            >
               Save
             </Button>
           </Box>
