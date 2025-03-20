@@ -42,12 +42,8 @@ export default function SectionTableComponent() {
                 const sectionPatient = await getSectionPatientById(section.id);
 
                 // Match instructor_id with user.id to get the instructor's full name
-                const instructor = faculty.find(
-                  (user) => user.id === section.instructor_id
-                );
-                const instructorName = instructor
-                  ? instructor.full_name
-                  : "Unknown Instructor";
+                const instructor = faculty.find((user) => user.id === section.instructor_id);
+                const instructorName = instructor?.full_name ?? "Unknown Instructor";                
 
                 return {
                   ...section,

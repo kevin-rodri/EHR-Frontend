@@ -83,7 +83,7 @@ const NAVIGATION = (sectionId) => [
     icon: <NotesIcon />,
   },
   {
-    segment: ``,
+    segment: `/`,
     title: "Logout",
     icon: <LogoutIcon />,
   },
