@@ -130,7 +130,7 @@ export default function Layout({ children }) {
     }
 
     return item.title === "Logout" ? (
-      <ListItemButton key={index} onClick={handleLogout}>
+      <ListItemButton key={index} onClick={handleLogout} to={`/`}>
         <ListItemIcon>{item.icon}</ListItemIcon>
         <ListItemText primary={item.title} />
       </ListItemButton>
