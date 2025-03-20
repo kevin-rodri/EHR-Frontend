@@ -76,7 +76,6 @@ const PatientDemographicsComponent = () => {
       try {
         const parsedRole = JSON.parse(storedRole).role;
         setRole(parsedRole.toUpperCase());
-        console.log("User Role:", parsedRole.toUpperCase());
       } catch (error) {
         console.error("Error parsing ROLE from localStorage:", error);
       }
@@ -140,8 +139,6 @@ const PatientDemographicsComponent = () => {
       ? (e) => setFormData({ ...formData, [key]: e.target.value })
       : undefined,
   });
-
-  if (loading) return <Typography>Loading...</Typography>;
 
   return (
     <Box>

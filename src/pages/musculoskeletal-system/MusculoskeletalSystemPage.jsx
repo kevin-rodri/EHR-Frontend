@@ -1,17 +1,12 @@
-/*
-Name: Kevin Rodriguez
-Date: 2/21/25 
-Remarks: This page is meant for the home of the patient WALDO page 
-*/
 import React from "react";
-import { useEffect } from "react";
 import { useParams } from "react-router-dom";
 import { Box, Typography } from "@mui/material";
-import WaldoDiagramComponent from "../../components/waldo/WaldoDiagramComponent";
-import { useNavigate } from "react-router-dom";
 import { isAuthenticated } from "../../services/authService";
+import { useEffect } from "react";
+import { useNavigate } from "react-router-dom";
+import MusculoskeletalSystemComponent from "../../components/assessments/musculoskeletal/MusculoskeletalSystemComponent"; 
 
-const PatientWaldoPage = () => {
+export default function MusculoskeletalSystem() {
   const { sectionId } = useParams();
   const navigate = useNavigate();
 
@@ -35,12 +30,11 @@ const PatientWaldoPage = () => {
         color="white"
         marginBottom={5}
         marginTop={5}
-        alignSelf="center"
+        alignSelf={"center"}
       >
-        WALDO
+        Musculoskeletal System
       </Typography>
-      <WaldoDiagramComponent sectionId={sectionId} />
+      <MusculoskeletalSystemComponent sectionId={sectionId} />
     </Box>
   );
-};
-export default PatientWaldoPage;
+}

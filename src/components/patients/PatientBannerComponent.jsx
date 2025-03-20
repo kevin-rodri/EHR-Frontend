@@ -10,10 +10,14 @@ Blur changes seemed relevant for this: https://legacy.reactjs.org/docs/events.ht
 import React, { useEffect, useState } from "react";
 import {
   FormControl,
-  FormGroup,
   FormLabel,
   TextField,
-  Typography,
+  Select,
+  MenuItem,
+  Checkbox,
+  Card,
+  Grid,
+  Bpx,
 } from "@mui/material";
 import { getSectionPatientById } from "../../services/sectionPatientService";
 import {
@@ -21,27 +25,33 @@ import {
   patchPatientInfo,
 } from "../../services/patientService";
 import { getUserRole } from "../../services/authService";
+import { DatePicker } from "@mui/x-date-pickers/DatePicker";
+import { LocalizationProvider } from "@mui/x-date-pickers/LocalizationProvider";
+import { AdapterDayjs } from "@mui/x-date-pickers/AdapterDayjs";
+import dayjs from "dayjs";
 
 export function PatientBannerComponent({ sectionId }) {
-  // used to get the patient along with checking to see if user has permission to edit information
   const [patient, setPatient] = useState(null);
   const [modify, setModify] = useState(false);
 
   useEffect(() => {
     if (sectionId == null) return;
-    // chek if user will have permission
+    /*
+    Process to get the patient: 
+    1. Find out who the patient is based on the section id
+    2. Once we have the patient's id, let's get their data.
+    */
     const role = getUserRole();
     if (role === "ADMIN" || role === "INSTRUCTOR") {
       setModify(true);
     }
 
-    // gets the patient info
     const fetchPatientInfo = async () => {
       try {
         const sectionPatient = await getSectionPatientById(sectionId);
         const patientId = sectionPatient.patient_id;
         const patientData = await getPatientById(patientId);
-        if (patientData != null) {
+        if (patientData) {
           setPatient(patientData);
         }
       } catch (err) {
@@ -51,19 +61,16 @@ export function PatientBannerComponent({ sectionId }) {
     fetchPatientInfo();
   }, [sectionId]);
 
-  if (patient == null) return;
+  // If we found no patient, then there should be nothing that gets display. Otherwise, let display the banner (this is to prevent the app from throwing null errors, etc)
+  if (patient == null) return null;
 
   const handleFieldChange = (field, value) => {
     setPatient((prev) => ({ ...prev, [field]: value }));
   };
 
-  // this what we send to the backend
-  // fields should match the column that needs to be updated
-  // 
   const handleFieldBlur = async (field) => {
     try {
       let updatedValue = patient[field];
-
       await patchPatientInfo(patient.id, { [field]: updatedValue });
 
       setPatient((prev) => ({
@@ -76,311 +83,237 @@ export function PatientBannerComponent({ sectionId }) {
   };
 
   return (
-    <FormGroup
+    <Card
       sx={{
         backgroundColor: "white",
-        display: "flex",
-        flexDirection: "row",
-        flexWrap: "wrap",
-        justifyContent: "space-evenly",
-        padding: 1,
-        borderRadius: 1,
+        padding: 2,
+        borderRadius: 2,
+        boxShadow: "0px 4px 10px rgba(0, 0, 0, 0.1)",
       }}
     >
-      <FormControl
-        sx={{ display: "flex", flexDirection: "row", alignItems: "center" }}
-      >
-        <FormLabel sx={{ fontWeight: "bold", color: "black", marginRight: 1 }}>
-          Patient Name:
-        </FormLabel>
-        <TextField
-          variant="standard"
-          value={patient.full_name || "NONE"}
-          disabled={!modify}
-          size="small"
-          onChange={(e) => handleFieldChange("full_name", e.target.value)}
-          onBlur={() => handleFieldBlur("full_name")}
-          sx={{
-            width: "auto",
-            "& .MuiInput-underline:before, & .MuiInput-underline:after": {
-              display: "none",
-            },
-            "& .MuiInputBase-input": {
-              width: `${
-                (patient.weight || "").toString().length * 1.5 || 1
-              }rem`,
-            },
-          }}
-        />
-      </FormControl>
+      <Grid container spacing={1}>
+        {/* Patient Name */}
+        <Grid item xs={12} sm={6} md={3}>
+          <FormControl fullWidth>
+            <FormLabel
+              sx={{ fontWeight: "bold", marginRight: 1, color: "black" }}
+            >
+              Patient Name:
+            </FormLabel>
+            <TextField
+              variant="outlined"
+              value={patient.full_name || "NONE"}
+              disabled={!modify}
+              size="small"
+              onChange={(e) => handleFieldChange("full_name", e.target.value)}
+              onBlur={() => handleFieldBlur("full_name")}
+            />
+          </FormControl>
+        </Grid>
 
-      <FormControl
-        sx={{ display: "flex", flexDirection: "row", alignItems: "center" }}
-      >
-        <FormLabel sx={{ fontWeight: "bold", marginRight: 1, color: "black" }}>
-          MRN:
-        </FormLabel>
-        <TextField
-          variant="standard"
-          value={patient.medical_registration_number || "N/A"}
-          disabled={!modify}
-          size="small"
-          onChange={(e) =>
-            handleFieldChange("medical_registration_number", e.target.value)
-          }
-          onBlur={() => handleFieldBlur("medical_registration_number")}
-          sx={{
-            width: "auto",
-            "& .MuiInput-underline:before, & .MuiInput-underline:after": {
-              display: "none",
-            },
-            "& .MuiInputBase-input": {
-              width: `${
-                (patient.medical_registration_number || "").toString().length -
-                  1 || 1
-              }rem`,
-            },
-          }}
-        />
-      </FormControl>
+        {/* MRN */}
+        <Grid item xs={12} sm={6} md={3}>
+          <FormControl fullWidth>
+            <FormLabel
+              sx={{ fontWeight: "bold", marginRight: 1, color: "black" }}
+            >
+              MRN:
+            </FormLabel>
+            <TextField
+              variant="outlined"
+              value={patient.medical_registration_number || "N/A"}
+              disabled={!modify}
+              size="small"
+              onChange={(e) =>
+                handleFieldChange("medical_registration_number", e.target.value)
+              }
+              onBlur={() => handleFieldBlur("medical_registration_number")}
+            />
+          </FormControl>
+        </Grid>
+        {/* Weight */}
+        <Grid item xs={12} sm={6} md={3}>
+          <FormControl fullWidth>
+            <FormLabel
+              sx={{ fontWeight: "bold", marginRight: 1, color: "black" }}
+            >
+              Weight:
+            </FormLabel>
+            <TextField
+              variant="outlined"
+              type="number"
+              value={patient.weight || "N/A"}
+              disabled={!modify}
+              size="small"
+              onChange={(e) => handleFieldChange("weight", e.target.value)}
+              onBlur={() => handleFieldBlur("weight")}
+            />
+          </FormControl>
+        </Grid>
 
-      <FormControl
-        sx={{ display: "flex", flexDirection: "row", alignItems: "center" }}
-      >
-        <FormLabel sx={{ fontWeight: "bold", marginRight: 1, color: "black" }}>
-          DOB:
-        </FormLabel>
-        <TextField
-          variant="standard"
-          value={patient.date_of_birth || "N/A"}
-          disabled={!modify}
-          size="small"
-          onChange={(e) => handleFieldChange("date_of_birth", e.target.value)}
-          onBlur={() => handleFieldBlur("date_of_birth")}
-          sx={{
-            width: "auto",
-            "& .MuiInput-underline:before, & .MuiInput-underline:after": {
-              display: "none",
-            },
-            "& .MuiInputBase-input": {
-              width: `${
-                (patient.date_of_birth || "").toString().length || 1
-              }ch`,
-            },
-          }}
-        />
-      </FormControl>
+        {/* Height */}
+        <Grid item xs={12} sm={6} md={3}>
+          <FormControl fullWidth>
+            <FormLabel
+              sx={{ fontWeight: "bold", marginRight: 1, color: "black" }}
+            >
+              Height:
+            </FormLabel>
+            <TextField
+              variant="outlined"
+              type="number"
+              value={patient.height || "N/A"}
+              disabled={!modify}
+              size="small"
+              onChange={(e) => handleFieldChange("height", e.target.value)}
+              onBlur={() => handleFieldBlur("height")}
+            />
+          </FormControl>
+        </Grid>
 
-      <FormControl
-        sx={{ display: "flex", flexDirection: "row", alignItems: "center" }}
-      >
-        <FormLabel sx={{ fontWeight: "bold", marginRight: 1, color: "black" }}>
-          Weight:
-        </FormLabel>
-        <TextField
-          variant="standard"
-          value={patient.weight ? `${patient.weight}` : "N/A"}
-          disabled={!modify}
-          size="small"
-          onChange={(e) => handleFieldChange("weight", e.target.value)}
-          onBlur={() => handleFieldBlur("weight")}
-          sx={{
-            width: "auto",
-            "& .MuiInput-underline:before, & .MuiInput-underline:after": {
-              display: "none",
-            },
-            "& .MuiInputBase-input": {
-              width: `${(patient.weight || "").toString().length || 1}ch`,
-            },
-          }}
-        />
-        <Typography variant="body2" sx={{ ml: 1 }}>
-          lbs
-        </Typography>
-      </FormControl>
-
-      <FormControl
-        sx={{ display: "flex", flexDirection: "row", alignItems: "center" }}
-      >
-        <FormLabel sx={{ fontWeight: "bold", marginRight: 1, color: "black" }}>
-          Height:
-        </FormLabel>
-        <TextField
-          variant="standard"
-          value={patient.height || "N/A"}
-          disabled={!modify}
-          size="small"
-          onChange={(e) => handleFieldChange("height", e.target.value)}
-          onBlur={() => handleFieldBlur("height")}
-          sx={{
-            width: "auto",
-            "& .MuiInput-underline:before, & .MuiInput-underline:after": {
-              display: "none",
-            },
-            "& .MuiInputBase-input": {
-              width: `${(patient.height || "").toString().length || 1}ch`,
-            },
-          }}
-        />
-        <Typography variant="body2" sx={{ ml: 1 }}>
-          cm
-        </Typography>
-      </FormControl>
-
-      <FormControl
-        sx={{ display: "flex", flexDirection: "row", alignItems: "center" }}
-      >
-        <FormLabel sx={{ fontWeight: "bold", marginRight: 1, color: "black" }}>
-          Allergies:
-        </FormLabel>
-
-        <TextField
-          variant="standard"
-          value={
-            Array.isArray(patient.allergies)
-              ? patient.allergies.length
-                ? patient.allergies.join(", ")
-                : "NONE"
-              : "NONE"
-          }
-          disabled={!modify}
-          size="small"
-          onChange={(e) => {
-            const input = e.target.value;
-            const array = input
-              ? input.split(",").map((item) => item.trim())
-              : [];
-            handleFieldChange("allergies", array);
-          }}
-          onBlur={() => handleFieldBlur("allergies")}
-          sx={{
-            width: "auto",
-            "& .MuiInput-underline:before, & .MuiInput-underline:after": {
-              display: "none",
-            },
-            "& .MuiInputBase-input": {
-              width: `${
-                (Array.isArray(patient.allergies)
-                  ? patient.allergies.length
-                    ? patient.allergies.join(", ")
-                    : "NONE"
+        {/* Allergies */}
+        <Grid item xs={12} sm={6} md={3}>
+          <FormControl fullWidth>
+            <FormLabel
+              sx={{ fontWeight: "bold", marginRight: 1, color: "black" }}
+            >
+              Allergies:
+            </FormLabel>
+            <TextField
+              variant="outlined"
+              value={
+                Array.isArray(patient.allergies)
+                  ? patient.allergies.join(", ")
                   : "NONE"
-                ).length || 1
-              }ch`,
-            },
-          }}
-        />
-      </FormControl>
-      <FormControl
-        sx={{ display: "flex", flexDirection: "row", alignItems: "center" }}
-      >
-        <FormLabel sx={{ fontWeight: "bold", marginRight: 1, color: "black" }}>
-          Advanced Directives:
-        </FormLabel>
-        <TextField
-          variant="standard"
-          value={patient.has_advanced_directives ? "Yes" : "No"}
-          disabled={!modify}
-          size="small"
-          onChange={(e) =>
-            handleFieldChange("has_advanced_directives", e.target.value)
-          }
-          onBlur={() => handleFieldBlur("has_advanced_directives")}
-          sx={{
-            width: "auto",
-            "& .MuiInput-underline:before, & .MuiInput-underline:after": {
-              display: "none",
-            },
-            "& .MuiInputBase-input": {
-              width: `${
-                (patient.has_advanced_directives || "").toString().length + 5 ||
-                1
-              }ch`,
-            },
-          }}
-        />
-      </FormControl>
+              }
+              disabled={!modify}
+              size="small"
+              onChange={(e) =>
+                handleFieldChange(
+                  "allergies",
+                  e.target.value.split(",").map((a) => a.trim())
+                )
+              }
+              onBlur={() => handleFieldBlur("allergies")}
+            />
+          </FormControl>
+        </Grid>
 
-      <FormControl
-        sx={{ display: "flex", flexDirection: "row", alignItems: "center" }}
-      >
-        <FormLabel sx={{ fontWeight: "bold", marginRight: 1, color: "black" }}>
-          Precautions:
-        </FormLabel>
-        <TextField
-          variant="standard"
-          value={patient.precautions || "N/A"}
-          disabled={!modify}
-          size="small"
-          onChange={(e) => handleFieldChange("precautions", e.target.value)}
-          onBlur={() => handleFieldBlur("precautions")}
-          sx={{
-            width: "auto",
-            "& .MuiInput-underline:before, & .MuiInput-underline:after": {
-              display: "none",
-            },
-            "& .MuiInputBase-input": {
-              width: `${
-                (patient.precautions || "").toString().length + 2 || 1
-              }ch`,
-            },
-          }}
-        />
-      </FormControl>
+        {/* Date of Birth */}
+        <Grid item xs={12} sm={6} md={3}>
+          <FormControl fullWidth>
+            <FormLabel
+              sx={{ fontWeight: "bold", marginRight: 1, color: "black" }}
+            >
+              Date of Birth:
+            </FormLabel>
+            <LocalizationProvider dateAdapter={AdapterDayjs}>
+              <DatePicker
+                value={
+                  patient.date_of_birth ? dayjs(patient.date_of_birth) : null
+                }
+                onChange={(newDate) =>
+                  handleFieldChange(
+                    "date_of_birth",
+                    newDate ? newDate.format("YYYY-MM-DD") : ""
+                  )
+                }
+                disabled={!modify}
+                renderInput={(params) => <TextField {...params} size="small" />}
+                onClose={() => handleFieldBlur("date_of_birth")}
+              />
+            </LocalizationProvider>
+          </FormControl>
+        </Grid>
 
-      <FormControl
-        sx={{ display: "flex", flexDirection: "row", alignItems: "center" }}
-      >
-        <FormLabel sx={{ fontWeight: "bold", marginRight: 1, color: "black" }}>
-          Code Status:
-        </FormLabel>
-        <TextField
-          variant="standard"
-          value={patient.code_status || "N/A"}
-          disabled={!modify}
-          size="small"
-          onChange={(e) => handleFieldChange("code_status", e.target.value)}
-          onBlur={() => handleFieldBlur("code_status")}
-          sx={{
-            width: "auto",
-            "& .MuiInput-underline:before, & .MuiInput-underline:after": {
-              display: "none",
-            },
-            "& .MuiInputBase-input": {
-              width: `${
-                (patient.code_status || "").toString().length + 2 || 1
-              }ch`,
-            },
-          }}
-        />
-      </FormControl>
+        {/* Precautions */}
+        <Grid item xs={12} sm={6} md={3}>
+          <FormControl fullWidth>
+            <FormLabel
+              sx={{ fontWeight: "bold", marginRight: 1, color: "black" }}
+            >
+              Precautions:
+            </FormLabel>
+            <Select
+              value={patient.precautions}
+              onChange={(e) => handleFieldChange("precautions", e.target.value)}
+              onBlur={() => handleFieldBlur("precautions")}
+              disabled={!modify}
+            >
+              <MenuItem value="PRECAUTIONS">Precautions</MenuItem>
+              <MenuItem value="CONTACT">Contact</MenuItem>
+              <MenuItem value="DROPLET">Droplet</MenuItem>
+              <MenuItem value="TUBERCULOSIS">Tuberculosis</MenuItem>
+              <MenuItem value="AIRBORNE">Airborne</MenuItem>
+            </Select>
+          </FormControl>
+        </Grid>
 
-      <FormControl
-        sx={{ display: "flex", flexDirection: "row", alignItems: "center" }}
-      >
-        <FormLabel sx={{ fontWeight: "bold", marginRight: 1, color: "black" }}>
-          Insurance:
-        </FormLabel>
-        <TextField
-          variant="standard"
-          value={patient.has_insurance ? "Yes" : "No"}
-          disabled={!modify}
-          size="small"
-          onChange={(e) => handleFieldChange("has_insurance", e.target.value)}
-          onBlur={() => handleFieldBlur("has_insurance")}
-          sx={{
-            fontSize: "inherit",
-            "& .MuiInput-underline:before, & .MuiInput-underline:after": {
-              display: "none",
-            },
-            "& .MuiInputBase-input": {
-              width: `${
-                (patient.has_insurance || "").toString().length + 5 || 1
-              }ch`,
-            },
-          }}
-        />
-      </FormControl>
-    </FormGroup>
+
+        {/* Code Status */}
+        <Grid item xs={12} sm={6} md={3}>
+          <FormControl fullWidth>
+            <FormLabel
+              sx={{ fontWeight: "bold", marginRight: 1, color: "black" }}
+            >
+              Code Status:
+            </FormLabel>
+            <Select
+              value={patient.code_status}
+              onChange={(e) => handleFieldChange("code_status", e.target.value)}
+              onBlur={() => handleFieldBlur("code_status")}
+              disabled={!modify}
+            >
+              <MenuItem value="FULL_CODE">Full Code</MenuItem>
+              <MenuItem value="DOES-NOT-RESUSCITATE">
+                Does Not Resuscitate
+              </MenuItem>
+            </Select>
+          </FormControl>
+        </Grid>
+
+        {/* Has Insurance */}
+        <Grid item xs={12} sm={6} md={3}>
+          <FormControl
+            sx={{ display: "flex", flexDirection: "row", alignItems: "center" }}
+            fullWidth
+          >
+            <FormLabel
+              sx={{ fontWeight: "bold", marginRight: 1, color: "black" }}
+            >
+              Has Insurance:
+            </FormLabel>
+            <Checkbox
+              checked={patient.has_insurance || false}
+              onChange={(e) =>
+                handleFieldChange("has_insurance", e.target.checked)
+              }
+              onBlur={() => handleFieldBlur("has_insurance")}
+              disabled={!modify}
+            />
+          </FormControl>
+        </Grid>
+
+        <Grid item xs={12} sm={6} md={3}>
+          <FormControl
+            sx={{ display: "flex", flexDirection: "row", alignItems: "center" }}
+          >
+            <FormLabel
+              sx={{ fontWeight: "bold", marginRight: 1, color: "black" }}
+            >
+              Has Advanced Directives:
+            </FormLabel>
+            <Checkbox
+              checked={patient.has_advanced_directives || false}
+              onChange={(e) =>
+                handleFieldChange("has_advanced_directives", e.target.checked)
+              }
+              onBlur={() => handleFieldBlur("has_advanced_directives")}
+              disabled={!modify}
+            />
+          </FormControl>
+        </Grid>
+      </Grid>
+    </Card>
   );
 }

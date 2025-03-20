@@ -1,17 +1,12 @@
-/*
-Name: Kevin Rodriguez
-Date: 2/21/25 
-Remarks: This page is meant for the home of the patient WALDO page 
-*/
 import React from "react";
-import { useEffect } from "react";
 import { useParams } from "react-router-dom";
 import { Box, Typography } from "@mui/material";
-import WaldoDiagramComponent from "../../components/waldo/WaldoDiagramComponent";
-import { useNavigate } from "react-router-dom";
 import { isAuthenticated } from "../../services/authService";
+import { useEffect } from "react";
+import { useNavigate } from "react-router-dom";
+import { PatientOrderComponent } from "../../components/patient-orders/PatientOrdersComponent";
 
-const PatientWaldoPage = () => {
+const PatientOrdersPage = () => {
   const { sectionId } = useParams();
   const navigate = useNavigate();
 
@@ -29,6 +24,7 @@ const PatientWaldoPage = () => {
         flexDirection: "column",
       }}
     >
+      {" "}
       <Typography
         variant="h2"
         fontFamily={"Roboto"}
@@ -37,10 +33,11 @@ const PatientWaldoPage = () => {
         marginTop={5}
         alignSelf="center"
       >
-        WALDO
+        Patient Orders
       </Typography>
-      <WaldoDiagramComponent sectionId={sectionId} />
+      <PatientOrderComponent sectionId={sectionId} />
     </Box>
   );
 };
-export default PatientWaldoPage;
+
+export default PatientOrdersPage;

@@ -2,19 +2,23 @@
 // Date: 2/22/25
 // Remarks: WALDO Diagram component that involves the logic of the waldo diagrams and notes portion for any WALDO notes.
 // https://www.svgviewer.dev/ was my life saver to know where to put the checkboxes
-import React, { useEffect, useState } from "react";
+import React, { useState, useEffect, useMemo } from "react";
+import {
+  MaterialReactTable,
+  useMaterialReactTable,
+} from "material-react-table";
 import {
   Box,
-  FormControl,
-  FormGroup,
-  FormLabel,
+  Dialog,
+  DialogActions,
+  DialogContent,
+  DialogTitle,
+  IconButton,
+  Tooltip,
   TextField,
   Button,
   Checkbox,
   Typography,
-  Snackbar,
-  CircularProgress,
-  Alert,
 } from "@mui/material";
 import { ReactComponent as WaldoFront } from "../../assets/waldo_front.svg";
 import { ReactComponent as WaldoBack } from "../../assets/waldo_back.svg";
@@ -22,22 +26,31 @@ import {
   getPatientWaldoInfo,
   updatePatientWaldoInfo,
   addPatientWaldoInfo,
+  deletePatientWaldoInfo,
 } from "../../services/waldoService";
+import EditIcon from "@mui/icons-material/Edit";
+import DeleteIcon from "@mui/icons-material/Delete";
 import { getSectionPatientById } from "../../services/sectionPatientService";
-import { useForm } from "react-hook-form";
+import DeleteConfirmationModal from "../utils/DeleteModalComponent";
+
 export default function WaldoDiagramComponent({ sectionId }) {
-  const {
-    register,
-    handleSubmit,
-    formState: { errors },
-    setValue,
-  } = useForm();
+  const [openModal, setOpenModal] = useState(false);
   const [checkedBoxes, setCheckedBoxes] = useState({});
-  const [patientId, setPatientId] = useState(null);
-  const [waldoInfo, setWaldoInfo] = useState({});
-  const [snackbarOpen, setSnackbarOpen] = useState(false);
-  const [error, setError] = useState(null);
-  const [loading, setLoading] = useState(false);
+  const [selectedLocation, setSelectedLocation] = useState(null);
+  const [sectionPatientId, setSectionPatientId] = useState(null);
+  const [waldoInfo, setWaldoInfo] = useState([]);
+  const [openDeleteModal, setOpenDeleteModal] = useState(false);
+  const [editingRow, setEditingRow] = useState(null);
+  const [deletingRow, setDeletingRow] = useState(null);
+  const [newWaldoInfo, setNewWaldoInfo] = useState({
+    id: "",
+    section_patient_id: "",
+    wound_drain_locations: "",
+    surgical_wound_note: "",
+    pressure_sore_note: "",
+    drain_notetrauma_wound_note: "",
+    drain_note: "",
+  });
 
   // let's get the waldo info first (if any)
   useEffect(() => {
@@ -46,51 +59,123 @@ export default function WaldoDiagramComponent({ sectionId }) {
         const sectionPatient = await getSectionPatientById(sectionId);
         const patientId = sectionPatient.id;
         const patientWaldoData = await getPatientWaldoInfo(patientId);
-
-        if (Array.isArray(patientWaldoData) && patientWaldoData.length > 0) {
-          const waldoEntry = patientWaldoData[0];
-          setWaldoInfo(waldoEntry);
-          setCheckedBoxes(waldoEntry.wound_drain_locations || {});
-
-          // Set form values
-          setValue("drain_note", waldoEntry.drain_note || "");
-          setValue("pressure_sore_note", waldoEntry.pressure_sore_note || "");
-          setValue("surgical_wound_note", waldoEntry.surgical_wound_note || "");
-          setValue("trauma_wound_note", waldoEntry.trauma_wound_note || "");
-        } else {
-          setWaldoInfo({});
-        }
-
-        setPatientId(patientId);
+        setWaldoInfo(patientWaldoData);
+        await Promise.all(
+          patientWaldoData.map((waldo) => {
+            setCheckedBoxes(waldo.wound_drain_locations || {});
+          })
+        );
+        setSectionPatientId(patientId);
       } catch (error) {
-        console.error("Error fetching data:", error);
+        console.error(error);
       }
     };
 
     fetchPatientWaldo();
-  }, [setValue]);
+  }, [sectionId]);
 
   const handleCheckboxChange = (id) => {
-    console.log(id);
     setCheckedBoxes((prev) => ({ ...prev, [id]: !prev[id] }));
+    setSelectedLocation((prev) => (prev === id ? null : id));
+    setOpenModal(true);
   };
 
-  const handleFieldChange = (field, value) => {
-    setWaldoInfo((prev) => ({ ...prev, [field]: value }));
+  const columns = useMemo(() => [
+    {
+      accessorKey: "wound_drain_locations",
+      header: "Wound/Drain Location",
+      size: 200,
+      Cell: ({ row }) => {
+        const locations = row.original.wound_drain_locations;
+        return locations
+          ? Object.keys(locations).filter((key) => locations[key])
+          : "None";
+      },
+    },
+    { accessorKey: "drain_note", header: "Drain Note", size: 150 },
+    {
+      accessorKey: "pressure_sore_note",
+      header: "Pressure Sore Note",
+      size: 200,
+    },
+    {
+      accessorKey: "surgical_wound_note",
+      header: "Surgical Wound Note",
+      size: 200,
+    },
+    {
+      accessorKey: "trauma_wound_note",
+      header: "Trauma Wound Note",
+      size: 200,
+    },
+    {
+      accessorKey: "actions",
+      header: "Actions",
+      size: 150,
+      enableSorting: false,
+      Cell: ({ row }) => (
+        <Box>
+          <Tooltip title="Edit">
+            <IconButton onClick={() => handleOpenModal(row, "edit")}>
+              <EditIcon />
+            </IconButton>
+          </Tooltip>
+          <Tooltip title="Delete">
+            <IconButton
+              color="error"
+              onClick={() => handleOpenModal(row, "delete")}
+            >
+              <DeleteIcon />
+            </IconButton>
+          </Tooltip>
+        </Box>
+      ),
+    },
+  ]);
+
+  const handleOpenModal = (row = null, action = "edit") => {
+    if (action === "edit") {
+      setEditingRow(row);
+      if (row) {
+        setNewWaldoInfo({
+          id: row.original.id,
+          section_patient_id: row.original.section_patient_id,
+          wound_drain_locations: row.original.wound_drain_locations,
+          surgical_wound_note: row.original.surgical_wound_note,
+          pressure_sore_note: row.original.pressure_sore_note,
+          trauma_wound_note: row.original.trauma_wound_note,
+          drain_note: row.original.drain_note,
+        });
+      } else {
+        setNewWaldoInfo({
+          id: "",
+          section_patient_id: sectionPatientId,
+          wound_drain_locations: "",
+          surgical_wound_note: "",
+          pressure_sore_note: "",
+          trauma_wound_note: "",
+          drain_note: "",
+        });
+      }
+      setOpenModal(true);
+    } else if (action === "delete") {
+      setDeletingRow(row);
+      setOpenDeleteModal(true);
+    }
   };
 
   // TO-DO: Confirm these are the actual names in the diagram.
   const frontRawPoints = [
-    { id: "Left Forearm", x: 470.802551, y: 440.544281 },
+    { id: "Left Forearm (Front)", x: 470.802551, y: 440.544281 },
     { id: "Left Lower Leg", x: 365.5, y: 817.260925 },
     { id: "Right Upper Chest", x: 330.430847, y: 270.328705 },
     { id: "Left Foot", x: 355.92984, y: 930.378174 },
-    { id: "Left Hand", x: 508.16684, y: 560.615784 },
+    { id: "Left Hand (Front)", x: 508.16684, y: 560.615784 },
     { id: "Left Upper Arm", x: 439.500153, y: 248.085052 },
     { id: "Abdominal", x: 324.125671, y: 375.916077 },
-    { id: "Right Hand", x: 128.815369, y: 545.494873 },
+    { id: "Right Hand (Front)", x: 128.815369, y: 545.494873 },
     { id: "Left Thigh", x: 370.903351, y: 595.358582 },
-    { id: "Right Forearm", x: 180.346039, y: 418.705109 },
+    { id: "Right Forearm (Front)", x: 180.346039, y: 418.705109 },
     { id: "Right Upper Arm", x: 213.993073, y: 245.910217 },
     { id: "Right Thigh", x: 262.398987, y: 595.358582 },
     { id: "Right Lower Leg", x: 260.408112, y: 817.818604 },
@@ -106,17 +191,17 @@ export default function WaldoDiagramComponent({ sectionId }) {
     { id: "Upper Left Shoulder", x: 230.2686, y: 260.44368 },
     { id: "Right Heel", x: 380.424042, y: 940.437622 },
     { id: "Upper Right Shoulder", x: 490.225067, y: 260.006683 },
-    { id: "Left Forearm", x: 160.088791, y: 440.22171 },
+    { id: "Left Forearm (Back)", x: 160.088791, y: 440.22171 },
     { id: "Right Glute", x: 401.60968, y: 515.769226 },
-    { id: "Left Hand", x: 110.291641, y: 558.97113 },
+    { id: "Left Hand (Back)", x: 110.291641, y: 558.97113 },
     { id: "Right Thigh (Back Side)", x: 410.581146, y: 620.705994 },
     { id: "Mid Upper Back", x: 350.177246, y: 435.424561 },
     { id: "Right Calf", x: 400.812012, y: 808.804016 },
     { id: "Back of the Head", x: 350.5, y: 95.14109 },
     { id: "Upper Back", x: 360.499969, y: 275.730865 },
-    { id: "Right Forearm", x: 530.177246, y: 440.424561 },
+    { id: "Right Forearm (Back)", x: 530.177246, y: 440.424561 },
     { id: "Left Glute", x: 280.50148, y: 515.176147 },
-    { id: "Right Hand", x: 555.291641, y: 562.97113 },
+    { id: "Right Hand (Back)", x: 555.291641, y: 562.97113 },
   ];
 
   // BASED on the largest svg dimensions
@@ -155,52 +240,107 @@ export default function WaldoDiagramComponent({ sectionId }) {
     id: pt.id,
   }));
 
-  // Let's either add or update the waldo info
-  const onSubmit = async (formData) => {
-    setLoading(true);
+  const handleSave = async () => {
     try {
-      await new Promise((resolve) => setTimeout(resolve, 1000));
+      const updatedLocation = { [selectedLocation]: true };
+
       const requestData = {
-        section_patient_id: patientId,
-        wound_drain_locations: checkedBoxes,
-        surgical_wound_note: formData.surgical_wound_note,
-        pressure_sore_note: formData.pressure_sore_note,
-        trauma_wound_note: formData.trauma_wound_note,
-        drain_note: formData.drain_note,
+        section_patient_id: sectionPatientId,
+        wound_drain_locations: updatedLocation,
+        surgical_wound_note: newWaldoInfo.surgical_wound_note,
+        pressure_sore_note: newWaldoInfo.pressure_sore_note,
+        trauma_wound_note: newWaldoInfo.trauma_wound_note,
+        drain_note: newWaldoInfo.drain_note,
       };
 
-      let info;
-      if (waldoInfo && waldoInfo.id != null) {
-        info = await updatePatientWaldoInfo(
-          patientId,
-          waldoInfo.id,
+      if (editingRow) {
+        await updatePatientWaldoInfo(
+          sectionPatientId,
+          newWaldoInfo.id,
           requestData
         );
+
+        setWaldoInfo((prevData) =>
+          prevData.map((item) =>
+            item.id === newWaldoInfo.id
+              ? {
+                  ...item,
+                  ...newWaldoInfo,
+                  wound_drain_locations: {
+                    ...item.wound_drain_locations,
+                    ...updatedLocation,
+                  },
+                }
+              : item
+          )
+        );
       } else {
-        info = await addPatientWaldoInfo(patientId, requestData);
+        const response = await addPatientWaldoInfo(
+          sectionPatientId,
+          requestData
+        );
+
+        if (response && response.id) {
+          setWaldoInfo((prevData) => [
+            ...prevData,
+            {
+              id: response.id,
+              section_patient_id: sectionPatientId,
+              wound_drain_locations: updatedLocation,
+              surgical_wound_note: response.surgical_wound_note,
+              pressure_sore_note: response.pressure_sore_note,
+              trauma_wound_note: response.trauma_wound_note,
+              drain_note: response.drain_note,
+            },
+          ]);
+        }
       }
 
-      setWaldoInfo(info);
+      setSelectedLocation(null);
+      setOpenModal(false);
     } catch (error) {
-      setError(error);
-    } finally {
-      setSnackbarOpen(true);
-      setLoading(false);
+      console.error(error);
     }
   };
 
-  const closeSnackbar = () => {
-    setSnackbarOpen(false);
+  const handleDelete = async () => {
+    await deletePatientWaldoInfo(sectionPatientId, deletingRow.original.id);
+    setWaldoInfo(
+      waldoInfo.filter((item) => item.id !== deletingRow.original.id)
+    );
+    const woundLocation = deletingRow.original.wound_drain_locations;
+    setCheckedBoxes((prev) => {
+      const updatedBoxes = { ...prev };
+      Object.keys(woundLocation).forEach((key) => {
+        if (woundLocation[key]) {
+          delete updatedBoxes[key];
+        }
+      });
+      return updatedBoxes;
+    });
+    setOpenDeleteModal(false);
   };
+
+  const table = useMaterialReactTable({
+    columns,
+    data: waldoInfo,
+    enableColumnActions: false,
+    enableDensityToggle: false,
+    enableFullScreenToggle: false,
+    enableColumnFilters: false,
+    enableFilterMatchHighlighting: false,
+    createDisplayMode: "modal",
+    editDisplayMode: "modal",
+  });
 
   return (
     <Box
-      sx={{
-        display: "flex",
-        flexDirection: "column",
-        textAlign: "center",
-        gap: 2,
-      }}
+    sx={{
+      display: "flex", 
+      flexDirection: "column",
+      alignContent: "center", 
+      alignItems: "center"
+    }}
     >
       <Typography variant="h6" fontFamily={"Roboto"} color="white">
         Check Off the Patient's Corresponding Wound or Drain Locations
@@ -210,10 +350,6 @@ export default function WaldoDiagramComponent({ sectionId }) {
           display: "flex",
           flexDirection: { xs: "column", md: "row" },
           alignItems: "center",
-          gap: 2,
-          justifyContent: "center",
-          padding: 2,
-          borderRadius: 2,
         }}
       >
         <Box
@@ -229,7 +365,9 @@ export default function WaldoDiagramComponent({ sectionId }) {
             <Checkbox
               key={pos.id}
               checked={checkedBoxes[pos.id] || false}
-              onChange={() => handleCheckboxChange(pos.id)}
+              onChange={() => {
+                handleCheckboxChange(pos.id);
+              }}
               sx={{
                 position: "absolute",
                 top: `${pos.y}%`,
@@ -253,7 +391,9 @@ export default function WaldoDiagramComponent({ sectionId }) {
             <Checkbox
               key={pos.id}
               checked={checkedBoxes[pos.id] || false}
-              onChange={() => handleCheckboxChange(pos.id)}
+              onChange={() => {
+                handleCheckboxChange(pos.id);
+              }}
               sx={{
                 position: "absolute",
                 top: `${pos.y}%`,
@@ -264,143 +404,99 @@ export default function WaldoDiagramComponent({ sectionId }) {
           ))}
         </Box>
       </Box>
-      <Typography
-        variant="h2"
-        fontFamily={"Roboto"}
-        color="white"
-        textAlign={"center"}
-      >
-        Notes
-      </Typography>
-      <Box
-        sx={{
-          display: "flex",
-          flexDirection: "column",
-          backgroundColor: "white",
-          gap: 2,
-          padding: 2,
-          borderRadius: 2,
-          marginBottom: 2,
-          flexGrow: 1,
-          flexWrap: "wrap",
-        }}
-      >
-        <form onSubmit={handleSubmit(onSubmit)}>
-          <FormGroup sx={{ gap: 2 }}>
-            <FormControl fullWidth>
-              <FormLabel sx={{ display: "flex", alignItems: "flex-start" }}>
-                Drain Notes: Type of drain, location, and drainage
-              </FormLabel>
-              <TextField
-                multiline
-                rows={4}
-                fullWidth
-                value={waldoInfo.drain_note || ""}
-                placeholder="Enter note here"
-                {...register("drain_note", {
-                  required: "Please Enter a Drain Note",
-                })}
-                onChange={(e) =>
-                  handleFieldChange("drain_note", e.target.value)
-                }
-                error={!!errors.drain_note}
-              />
-            </FormControl>
+      <MaterialReactTable table={table} />
+      {/* Modal for Create/Edit */}
+      <Dialog open={openModal} onClose={() => setOpenModal(false)}>
+        <DialogTitle align="center">
+          {editingRow
+            ? `Edit ${Object.keys(newWaldoInfo.wound_drain_locations).filter(
+                (key) => key
+              )} Info`
+            : `Add ${
+                selectedLocation ||
+                Object.keys(newWaldoInfo.wound_drain_locations).filter(
+                  (key) => key
+                )
+              } Info`}
+        </DialogTitle>
+        <DialogContent>
+          <TextField
+            label="Surgical Wound Note"
+            fullWidth
+            multiline
+            margin="dense"
+            value={newWaldoInfo.surgical_wound_note}
+            rows={4}
+            onChange={(e) =>
+              setNewWaldoInfo({
+                ...newWaldoInfo,
+                surgical_wound_note: e.target.value,
+              })
+            }
+          />
+          <TextField
+            label="Pressure Sore Note"
+            fullWidth
+            multiline
+            margin="dense"
+            value={newWaldoInfo.pressure_sore_note}
+            rows={4}
+            onChange={(e) =>
+              setNewWaldoInfo({
+                ...newWaldoInfo,
+                pressure_sore_note: e.target.value,
+              })
+            }
+          />
+          <TextField
+            label="Trauma Wound Note"
+            fullWidth
+            multiline
+            margin="dense"
+            value={newWaldoInfo.trauma_wound_note}
+            rows={4}
+            onChange={(e) =>
+              setNewWaldoInfo({
+                ...newWaldoInfo,
+                trauma_wound_note: e.target.value,
+              })
+            }
+          />
+          <TextField
+            label="Drain Note"
+            fullWidth
+            multiline
+            margin="dense"
+            value={newWaldoInfo.drain_note}
+            rows={4}
+            onChange={(e) =>
+              setNewWaldoInfo({
+                ...newWaldoInfo,
+                drain_note: e.target.value,
+              })
+            }
+          />
+        </DialogContent>
+        <DialogActions sx={{ display: "flex", justifyContent: "center" }}>
+          <Button
+            onClick={() => setOpenModal(false)}
+            color="error"
+            variant="contained"
+          >
+            Cancel
+          </Button>
+          <Button onClick={handleSave} color="primary" variant="contained">
+            {editingRow ? "Save" : "Submit"}
+          </Button>
+        </DialogActions>
+      </Dialog>
 
-            <FormControl fullWidth>
-              <FormLabel sx={{ display: "flex", alignItems: "flex-start" }}>
-                Pressure Sore
-              </FormLabel>
-              <TextField
-                multiline
-                rows={4}
-                fullWidth
-                value={waldoInfo.pressure_sore_note || ""}
-                placeholder="Enter note here"
-                {...register("pressure_sore_note", {
-                  required: "Please Enter a Pressure Sore Note",
-                })}
-                onChange={(e) =>
-                  handleFieldChange("pressure_sore_note", e.target.value)
-                }
-                error={!!errors.pressure_sore_note}
-              />
-            </FormControl>
-
-            <FormControl fullWidth>
-              <FormLabel sx={{ display: "flex", alignItems: "flex-start" }}>
-                Surgical Wound
-              </FormLabel>
-              <TextField
-                multiline
-                rows={4}
-                fullWidth
-                value={waldoInfo.surgical_wound_note || ""}
-                placeholder="Enter note here"
-                {...register("surgical_wound_note", {
-                  required: "Please Enter a Surgical Wound Note",
-                })}
-                onChange={(e) =>
-                  handleFieldChange("surgical_wound_note", e.target.value)
-                }
-                error={!!errors.surgical_wound_note}
-              />
-            </FormControl>
-
-            <FormControl fullWidth>
-              <FormLabel sx={{ display: "flex", alignItems: "flex-start" }}>
-                Trauma Wound
-              </FormLabel>
-              <TextField
-                multiline
-                rows={4}
-                fullWidth
-                value={waldoInfo.trauma_wound_note || ""}
-                placeholder="Enter note here"
-                {...register("trauma_wound_note", {
-                  required: "Please Enter a Trauma Wound Note",
-                })}
-                onChange={(e) =>
-                  handleFieldChange("trauma_wound_note", e.target.value)
-                }
-                error={!!errors.trauma_wound_note}
-              />
-            </FormControl>
-          </FormGroup>
-
-          <Box sx={{ display: "flex", justifyContent: "center", gap: 2 }}>
-            <Button
-              type="submit"
-              sx={{
-                width: "100%",
-                backgroundColor: "#2196F3",
-                color: "white",
-                marginTop: 2,
-                "&:hover": { backgroundColor: "#1976D2" },
-              }}
-              disabled={loading}
-            >
-              {loading ? (
-                <CircularProgress size={24} color="inherit" />
-              ) : (
-                "Save"
-              )}
-            </Button>
-          </Box>
-        </form>
-        <Snackbar
-          open={snackbarOpen}
-          autoHideDuration={6000}
-          onClose={closeSnackbar}
-          anchorOrigin={{ vertical: "bottom", horizontal: "center" }}
-        >
-          {error ? (
-            <Alert severity="error">{error}</Alert>
-          ) : (
-            <Alert severity="success">Patient Information Saved</Alert>
-          )}
-        </Snackbar>
-      </Box>
+      {/* Delete Confirmation Modal */}
+      <DeleteConfirmationModal
+        open={openDeleteModal}
+        onClose={() => setOpenDeleteModal(false)}
+        onConfirm={handleDelete}
+      />
     </Box>
   );
 }

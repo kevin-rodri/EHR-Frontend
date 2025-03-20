@@ -10,9 +10,6 @@ import PatientIVandLinesComponent from "../../components/IVsandLines/PatientIVan
 import { isAuthenticated } from "../../services/authService";
 import { useEffect } from "react";
 import { useNavigate } from "react-router-dom";
-import NavBar from "../../components/nav/SideNavComponent";
-import { PatientBannerComponent } from "../../components/patients/PatientBannerComponent";
-
 
 const IVandLinesPage = () => {
   const { sectionId } = useParams();
@@ -26,25 +23,18 @@ const IVandLinesPage = () => {
   }, [navigate]);
 
   return (
-    <Box
-      sx={{
-        display: "flex",
-      }}
-    >
-      <NavBar />
-      <Box sx={{ display: "flex", flexDirection: "column", paddingLeft: 24 }}>
-      <PatientBannerComponent sectionId={sectionId} />
-        <Typography
-          variant="h2"
-          fontFamily={"Roboto"}
-          color="white"
-          marginBottom={5}
-          marginTop={5}
-        >
-          IVs and Lines
-        </Typography>
-        <PatientIVandLinesComponent sectionId={sectionId} />
-      </Box>
+    <Box sx={{ display: "flex", flexDirection: "column" }}>
+      <Typography
+        variant="h2"
+        fontFamily={"Roboto"}
+        color="white"
+        marginBottom={5}
+        marginTop={5}
+        alignSelf="center"
+      >
+        IVs and Lines
+      </Typography>
+      <PatientIVandLinesComponent sectionId={sectionId} />
     </Box>
   );
 };

@@ -1,4 +1,3 @@
-//Gabby Pierce
 import React, { useState, useEffect, useMemo } from "react";
 import {
   MaterialReactTable,
@@ -15,43 +14,45 @@ import {
   TextField,
   Button,
 } from "@mui/material";
-import {
-  getNotesForPatient,
-  deleteNoteForPatient,
-  addNoteForPatient,
-  updateNoteForPatient,
-} from "../../services/PatientNotesService";
 import EditIcon from "@mui/icons-material/Edit";
 import DeleteIcon from "@mui/icons-material/Delete";
 import AddIcon from "@mui/icons-material/Add";
 import { getSectionPatientById } from "../../services/sectionPatientService";
+import {
+  getPatientOrders,
+  createPatientOrder,
+  updatePatientOrder,
+  deletePatientOrder,
+} from "../../services/patientOrdersSerive";
+import { formatDateTime } from "../../utils/date-time-formatter";
 import dayjs from "dayjs";
 import utc from "dayjs/plugin/utc";
 import timezone from "dayjs/plugin/timezone";
-import { formatDateTime } from "../../utils/date-time-formatter";
 import DeleteConfirmationModal from "../utils/DeleteModalComponent";
+import { getUserRole } from "../../services/authService";
 // This is so that we are properly passing the day and time correctly.
 // We want FE to display the date and time properly but pass it to the BE correctly.
 dayjs.extend(utc);
 dayjs.extend(timezone);
 
-function PatientNotesTableComponent({ sectionId }) {
+export function PatientOrderComponent({ sectionId }) {
+  const [display, setDisplay] = useState(false);
   const [openModal, setOpenModal] = useState(false);
   const [openDeleteModal, setOpenDeleteModal] = useState(false);
   const [editingRow, setEditingRow] = useState(null);
   const [deletingRow, setDeletingRow] = useState(null);
-  const [notes, setNotes] = useState([]);
-  const [sectionPatientId, setSectionPatientId] = useState(null);
-  const [newPatientNoteRecord, setNewPatientNoteRecord] = useState({
+  const [patientId, setPatientId] = useState(null);
+  const [orders, setOrders] = useState([]);
+  const [newPatientOrderRecord, setPatientOrderRecord] = useState({
     id: "",
-    section_patient_id: "",
-    title: "",
+    patient_id: "",
+    order_title: "",
     description: "",
     modified_date: "",
   });
 
   const columns = useMemo(() => [
-    { accessorKey: "title", header: "Title"},
+    { accessorKey: "order_title", header: "Title" },
     { accessorKey: "description", header: "Description" },
     {
       accessorKey: "modified_date",
@@ -59,64 +60,72 @@ function PatientNotesTableComponent({ sectionId }) {
       size: 150,
       Cell: ({ cell }) => formatDateTime(cell.getValue()),
     },
-    {
-      accessorKey: "actions",
-      header: "Actions",
-      maxSize: 50, 
-      enableSorting: false,
-      Cell: ({ row }) => (
-        <Box>
-          <Tooltip title="Edit">
-            <IconButton onClick={() => handleOpenModal(row, "edit")}>
-              <EditIcon />
-            </IconButton>
-          </Tooltip>
-          <Tooltip title="Delete">
-            <IconButton
-              color="error"
-              onClick={() => handleOpenModal(row, "delete")}
-            >
-              <DeleteIcon />
-            </IconButton>
-          </Tooltip>
-        </Box>
-      ),
-    },
+    ...(display
+      ? [
+          {
+            accessorKey: "actions",
+            header: "Actions",
+            maxSize: 75,
+            enableSorting: false,
+            Cell: ({ row }) => (
+              <Box>
+                <Tooltip title="Edit">
+                  <IconButton onClick={() => handleOpenModal(row, "edit")}>
+                    <EditIcon />
+                  </IconButton>
+                </Tooltip>
+                <Tooltip title="Delete">
+                  <IconButton
+                    color="error"
+                    onClick={() => handleOpenModal(row, "delete")}
+                  >
+                    <DeleteIcon />
+                  </IconButton>
+                </Tooltip>
+              </Box>
+            ),
+          },
+        ]
+      : []),
   ]);
 
-  useEffect(() => {
-    async function fetchNotes() {
-      try {
-        const sectionPatient = await getSectionPatientById(sectionId);
-        const sectionPatientId = sectionPatient.id;
-        const notesData = await getNotesForPatient(sectionPatientId);
-        setNotes(notesData);
-        setSectionPatientId(sectionPatientId);
-      } catch (error) {
-        console.error(error);
+  const fetchOrders = async () => {
+    try {
+      const sectionPatient = await getSectionPatientById(sectionId);
+      console.log(sectionPatient);
+      const data = await getPatientOrders(sectionPatient.patient_id);
+      setOrders(data);
+      setPatientId(sectionPatient.patient_id);
+      const role = getUserRole();
+      if (role === "ADMIN" || role === "INSTRUCTOR") {
+        setDisplay(true);
       }
+    } catch (error) {
+      console.error(error);
     }
-    fetchNotes();
+  };
+
+  // Fetch orders for the specific patient
+  useEffect(() => {
+    fetchOrders();
   }, [sectionId]);
 
-  // Open modal for add/edit/delete
   const handleOpenModal = (row = null, action = "edit") => {
     if (action === "edit") {
       setEditingRow(row);
       if (row) {
-        setNewPatientNoteRecord({
+        setPatientOrderRecord({
           id: row.original.id,
-          section_patient_id: row.original.section_patient_id,
-          title: row.original.title,
+          patient_id: row.original.patient_id,
+          order_title: row.original.order_title,
           description: row.original.description,
           modified_date: row.original.modified_date,
         });
       } else {
-        setNewPatientNoteRecord({
+        setPatientOrderRecord({
           id: "",
-          section_patient_id: sectionPatientId,
-          type: "",
-          title: "",
+          patient_id: patientId,
+          order_title: "",
           description: "",
         });
       }
@@ -134,38 +143,38 @@ function PatientNotesTableComponent({ sectionId }) {
         .format("YYYY-MM-DD HH:mm:ss");
 
       if (editingRow) {
-        await updateNoteForPatient(sectionPatientId, editingRow.original.id, {
-          title: newPatientNoteRecord.title,
-          description: newPatientNoteRecord.description,
+        await updatePatientOrder(patientId, editingRow.original.id, {
+          order_title: newPatientOrderRecord.order_title,
+          description: newPatientOrderRecord.description,
         });
 
-        setNotes((prevData) =>
+        setOrders((prevData) =>
           prevData.map((item) =>
             item.id === editingRow.original.id
               ? {
                   ...item,
-                  ...newPatientNoteRecord,
+                  ...newPatientOrderRecord,
                   modified_date: formattedTime,
                 }
               : item
           )
         );
       } else {
-        const response = await addNoteForPatient(sectionPatientId, {
-          title: newPatientNoteRecord.title,
-          description: newPatientNoteRecord.description,
+        const response = await createPatientOrder(patientId, {
+          order_title: newPatientOrderRecord.order_title,
+          description: newPatientOrderRecord.description,
         });
 
         if (response && response.id) {
-          const newNote = {
+          const newOrder = {
             id: response.id,
-            section_patient_id: sectionPatientId,
-            title: newPatientNoteRecord.title,
-            description: newPatientNoteRecord.description,
+            patient_id: patientId,
+            order_title: newPatientOrderRecord.order_title,
+            description: newPatientOrderRecord.description,
             modified_date: formattedTime,
           };
 
-          setNotes((prevData) => [...prevData, newNote]);
+          setOrders((prevData) => [...prevData, newOrder]);
         }
       }
       setOpenModal(false);
@@ -175,14 +184,14 @@ function PatientNotesTableComponent({ sectionId }) {
   };
 
   const handleDelete = async () => {
-    await deleteNoteForPatient(sectionPatientId, deletingRow.original.id);
-    setNotes(notes.filter((item) => item.id !== deletingRow.original.id));
+    await deletePatientOrder(patientId, deletingRow.original.id);
+    setOrders(orders.filter((item) => item.id !== deletingRow.original.id));
     setOpenDeleteModal(false);
   };
 
   const table = useMaterialReactTable({
     columns,
-    data: notes,
+    data: orders,
     enableColumnActions: false,
     enableDensityToggle: false,
     enableFullScreenToggle: false,
@@ -192,11 +201,13 @@ function PatientNotesTableComponent({ sectionId }) {
     editDisplayMode: "modal",
     renderTopToolbarCustomActions: () => (
       <Box sx={{ flexGrow: 1, display: "flex", justifyContent: "flex-end" }}>
-        <Tooltip title="Add Patient Note">
-          <IconButton onClick={() => handleOpenModal()}>
-            <AddIcon />
-          </IconButton>
-        </Tooltip>
+        {display && (
+          <Tooltip title="Add Patient Order">
+            <IconButton onClick={() => handleOpenModal()}>
+              <AddIcon />
+            </IconButton>
+          </Tooltip>
+        )}
       </Box>
     ),
   });
@@ -204,22 +215,21 @@ function PatientNotesTableComponent({ sectionId }) {
   return (
     <Box>
       <MaterialReactTable table={table} />
-
       {/* Modal for Create/Edit */}
       <Dialog open={openModal} onClose={() => setOpenModal(false)}>
         <DialogTitle align="center">
-          {editingRow ? "Edit Patient Note" : "Add Patient Note"}
+          {editingRow ? "Edit Patient Order" : "Add Patient Order"}
         </DialogTitle>
         <DialogContent>
           <TextField
-            label="Note Title"
+            label="Order Title"
             fullWidth
             margin="dense"
-            value={newPatientNoteRecord.title}
+            value={newPatientOrderRecord.order_title}
             onChange={(e) =>
-              setNewPatientNoteRecord({
-                ...newPatientNoteRecord,
-                title: e.target.value,
+              setPatientOrderRecord({
+                ...newPatientOrderRecord,
+                order_title: e.target.value,
               })
             }
           />
@@ -229,11 +239,11 @@ function PatientNotesTableComponent({ sectionId }) {
             fullWidth
             multiline
             margin="dense"
-            value={newPatientNoteRecord.description}
+            value={newPatientOrderRecord.description}
             rows={4}
             onChange={(e) =>
-              setNewPatientNoteRecord({
-                ...newPatientNoteRecord,
+              setPatientOrderRecord({
+                ...newPatientOrderRecord,
                 description: e.target.value,
               })
             }
@@ -262,5 +272,3 @@ function PatientNotesTableComponent({ sectionId }) {
     </Box>
   );
 }
-
-export default PatientNotesTableComponent;

@@ -1,17 +1,15 @@
 /*
-Name: Kevin Rodriguez
-Date: 2/21/25 
-Remarks: This page is meant for the home of the patient WALDO page 
+Name: Charlize Aponte
+Date: 3/16/25
+Remarks: This page displays the gastrointestinal system information for a patient using Material UI.
 */
-import React from "react";
-import { useEffect } from "react";
-import { useParams } from "react-router-dom";
+import React, { useEffect } from "react";
+import { useParams, useNavigate } from "react-router-dom";
 import { Box, Typography } from "@mui/material";
-import WaldoDiagramComponent from "../../components/waldo/WaldoDiagramComponent";
-import { useNavigate } from "react-router-dom";
+import GastrointestinalSystemComponent from "../../components/assessments/gastrointestinal/GastrointestinalSystemComponent";
 import { isAuthenticated } from "../../services/authService";
 
-const PatientWaldoPage = () => {
+const GastrointestinalSystemPage = () => {
   const { sectionId } = useParams();
   const navigate = useNavigate();
 
@@ -35,12 +33,13 @@ const PatientWaldoPage = () => {
         color="white"
         marginBottom={5}
         marginTop={5}
-        alignSelf="center"
+        alignSelf={"center"}
       >
-        WALDO
+        Gastrointestinal System
       </Typography>
-      <WaldoDiagramComponent sectionId={sectionId} />
+      <GastrointestinalSystemComponent sectionId={sectionId} />
     </Box>
   );
 };
-export default PatientWaldoPage;
+
+export default GastrointestinalSystemPage;
