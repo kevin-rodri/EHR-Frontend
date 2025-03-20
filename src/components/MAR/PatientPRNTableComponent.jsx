@@ -289,13 +289,11 @@ export default function PatientPRNTableComponent({sectionId}) {
     enableFilterMatchHighlighting: false,
     renderTopToolbarCustomActions: () => (
       <Box sx={{ flexGrow: 1, display: "flex", justifyContent: "flex-end" }}>
-        {display && (
           <Tooltip title="Add Scheduled Medication">
             <IconButton onClick={() => handleOpenModal()}>
               <AddIcon />
             </IconButton>
           </Tooltip>
-        )}
       </Box>
     ),
   });

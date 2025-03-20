@@ -25,6 +25,8 @@ import AccordionSummary from "@mui/material/AccordionSummary";
 import AccordionDetails from "@mui/material/AccordionDetails";
 import ExpandMoreIcon from "@mui/icons-material/ExpandMore";
 import { logout } from "../../services/authService";
+import { useLocation } from "react-router-dom";
+
 const drawerWidth = 240;
 
 const Main = styled("main", { shouldForwardProp: (prop) => prop !== "open" })(
@@ -82,6 +84,7 @@ const DrawerHeader = styled("div")(({ theme }) => ({
 
 export default function Layout({ children }) {
   const theme = useTheme();
+  const location = useLocation();
   const [sectionId, setSectionId] = useState(null);
   const [open, setOpen] = React.useState(true);
   const isMobile = useMediaQuery(theme.breakpoints.down("md"));
@@ -93,9 +96,7 @@ export default function Layout({ children }) {
       setSectionId(storedSectionId);
       setNavigationItems(NAVIGATION(storedSectionId));
     }
-    if (!isMobile) {
-      setOpen(true);
-    }
+    setOpen(!isMobile);
   }, [isMobile]);
 
   const handleDrawerOpen = () => {
@@ -108,6 +109,37 @@ export default function Layout({ children }) {
 
   const handleLogout = () => {
     logout();
+  };
+
+  const renderNavItem = (item, index) => {
+    if (item.children) {
+      return (
+        <Accordion key={index} sx={{ boxShadow: "none" }}>
+          <AccordionSummary expandIcon={<ExpandMoreIcon />}>
+            <Typography>{item.title}</Typography>
+          </AccordionSummary>
+          <AccordionDetails>
+            <List>
+              {item.children.map((child, childIndex) =>
+                renderNavItem(child, `${index}-${childIndex}`)
+              )}
+            </List>
+          </AccordionDetails>
+        </Accordion>
+      );
+    }
+
+    return item.title === "Logout" ? (
+      <ListItemButton key={index} onClick={handleLogout}>
+        <ListItemIcon>{item.icon}</ListItemIcon>
+        <ListItemText primary={item.title} />
+      </ListItemButton>
+    ) : (
+      <ListItemButton key={index} component={Link} to={`/${item.segment}`}>
+        <ListItemIcon>{item.icon}</ListItemIcon>
+        <ListItemText primary={item.title} />
+      </ListItemButton>
+    );
   };
 
   return (
@@ -172,50 +204,13 @@ export default function Layout({ children }) {
         </DrawerHeader>
         <Divider />
         <List>
-          {navigationItems.map((item, index) => {
-            if (item.children) {
-              return (
-                <Accordion key={index} sx={{ boxShadow: "none" }}>
-                  <AccordionSummary expandIcon={<ExpandMoreIcon />}>
-                    <Typography>{item.title}</Typography>
-                  </AccordionSummary>
-                  <AccordionDetails>
-                    <List>
-                      {item.children.map((child, childIndex) => (
-                        <ListItemButton
-                          key={childIndex}
-                          component={Link}
-                          to={`/${child.segment}`}
-                        >
-                          <ListItemIcon>{child.icon}</ListItemIcon>
-                          <ListItemText primary={child.title} />
-                        </ListItemButton>
-                      ))}
-                    </List>
-                  </AccordionDetails>
-                </Accordion>
-              );
-            }
-            return item.title === "Logout" ? (
-              <ListItemButton key={index} onClick={handleLogout} to={`/${item.segment}`}>
-                <ListItemIcon>{item.icon}</ListItemIcon>
-                <ListItemText primary={item.title} />
-              </ListItemButton>
-            ) : (
-              <ListItemButton
-                key={index}
-                component={Link}
-                to={`/${item.segment}`}
-              >
-                <ListItemIcon>{item.icon}</ListItemIcon>
-                <ListItemText primary={item.title} />
-              </ListItemButton>
-            );
-          })}
+          {navigationItems.map((item, index) => renderNavItem(item, index))}
         </List>
       </Drawer>
       <Main open={open}>
-        <PatientBannerComponent sectionId={sectionId} />
+        {location.pathname !== "/assign" && (
+          <PatientBannerComponent sectionId={sectionId} />
+        )}
         {children}
       </Main>
     </Box>

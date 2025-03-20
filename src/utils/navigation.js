@@ -13,6 +13,9 @@ import DirectionsRunIcon from "@mui/icons-material/DirectionsRun";
 import NotesIcon from "@mui/icons-material/Note";
 import ExpandMoreIcon from "@mui/icons-material/ExpandMore";
 import LogoutIcon from "@mui/icons-material/Logout";
+import { DirectionsRun } from "@mui/icons-material";
+import { Biotech } from "@mui/icons-material";
+import MedicalInformationIcon from "@mui/icons-material/MedicalInformation";
 
 const NAVIGATION = (sectionId) => [
   {
@@ -24,6 +27,11 @@ const NAVIGATION = (sectionId) => [
     segment: `history/${sectionId}`,
     title: "History",
     icon: <HistoryIcon />,
+  },
+  {
+    segment: `orders/${sectionId}`,
+    title: "Orders",
+    icon: <MedicalInformationIcon />,
   },
   {
     segment: `mar/${sectionId}`,
@@ -46,6 +54,23 @@ const NAVIGATION = (sectionId) => [
         icon: <EvStationIcon />,
       },
       {
+        segment: "head-to-toe-assessments",
+        title: "Head to Toe Assessment",
+        icon: <ExpandMoreIcon />,
+        children: [
+          {
+            segment: `musculoskeletal/${sectionId}`,
+            title: "Musculoskeletal",
+            icon: <DirectionsRun />,
+          },
+          {
+            segment: `gastrointestinal/${sectionId}`,
+            title: "Gastrointestinal",
+            icon: <Biotech />,
+          },
+        ],
+      },
+      {
         segment: `adl/${sectionId}`,
         title: "ADL",
         icon: <DirectionsRunIcon />,
@@ -56,12 +81,12 @@ const NAVIGATION = (sectionId) => [
     segment: `patient-notes/${sectionId}`,
     title: "Patient Notes",
     icon: <NotesIcon />,
-  }, 
+  },
   {
     segment: ``,
     title: "Logout",
     icon: <LogoutIcon />,
-  }
+  },
 ];
 
 export default NAVIGATION;

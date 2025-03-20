@@ -337,7 +337,9 @@ export default function WaldoDiagramComponent({ sectionId }) {
     <Box
     sx={{
       display: "flex", 
-      flexDirection: "column"
+      flexDirection: "column",
+      alignContent: "center", 
+      alignItems: "center"
     }}
     >
       <Typography variant="h6" fontFamily={"Roboto"} color="white">

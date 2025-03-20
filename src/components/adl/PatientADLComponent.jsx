@@ -62,6 +62,7 @@ export default function PatientADLComponent({ sectionId }) {
     is_meal_given: false,
     amount_meal_consumed: "0.00",
     created_date: "",
+    has_foley_care: false
   });
 
   const columns = useMemo(() => [
@@ -83,6 +84,14 @@ export default function PatientADLComponent({ sectionId }) {
         <Checkbox checked={row.original.is_meal_given} disabled />
       ),
     },
+    {
+        accessorKey: "has_foley_care",
+        header: "Has Foley Care",
+        enableSorting: false,
+        Cell: ({ row }) => (
+          <Checkbox checked={row.original.has_foley_care} disabled />
+        ),
+      },
     { accessorKey: "amount_meal_consumed", header: "% of Meal Consumed" },
     {
       accessorKey: "created_date",
@@ -179,6 +188,7 @@ export default function PatientADLComponent({ sectionId }) {
         reposition: newRecord.reposition || "",
         elimination_needed: newRecord.elimination_needed || "",
         is_meal_given: newRecord.is_meal_given ? 1 : 0,
+        has_foley_care: newRecord.has_foley_care ? 1: 0,
         amount_meal_consumed: parseFloat(
           newRecord.amount_meal_consumed
         ).toFixed(2),
@@ -213,6 +223,7 @@ export default function PatientADLComponent({ sectionId }) {
             reposition: newRecord.reposition || "",
             elimination_needed: newRecord.elimination_needed || "",
             is_meal_given: newRecord.is_meal_given ? 1 : 0,
+            has_foley_care: newRecord.has_foley_care ? 1: 0,
             amount_meal_consumed: parseFloat(
               newRecord.amount_meal_consumed
             ).toFixed(2),
@@ -343,6 +354,20 @@ export default function PatientADLComponent({ sectionId }) {
               />
             </Tooltip>
             <Typography>Meal Given</Typography>
+          </Box>
+          <Box display="flex" alignItems="center">
+            <Tooltip title="Has Foley Care">
+              <Checkbox
+                checked={newRecord.has_foley_care}
+                onChange={(e) =>
+                  setNewRecord({
+                    ...newRecord,
+                    has_foley_care: e.target.checked,
+                  })
+                }
+              />
+            </Tooltip>
+            <Typography>Foley Care</Typography>
           </Box>
           <TextField
             label="% of Meal Consumed"
