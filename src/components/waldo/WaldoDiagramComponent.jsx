@@ -334,7 +334,12 @@ export default function WaldoDiagramComponent({ sectionId }) {
   });
 
   return (
-    <Box>
+    <Box
+    sx={{
+      display: "flex", 
+      flexDirection: "column"
+    }}
+    >
       <Typography variant="h6" fontFamily={"Roboto"} color="white">
         Check Off the Patient's Corresponding Wound or Drain Locations
       </Typography>

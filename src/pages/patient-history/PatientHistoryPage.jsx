@@ -28,6 +28,7 @@ const PatientHistory = () => {
           color="white"
           marginBottom={5}
           marginTop={5}
+          alignSelf="center"
         >
           Patient History
         </Typography>

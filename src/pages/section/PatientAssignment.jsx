@@ -34,6 +34,7 @@ export default function PatientAssignment() {
           color="white"
           marginBottom={5}
           marginTop={5}
+          alignSelf={"center"}
         >
           Assign Patient to Lab
         </Typography>

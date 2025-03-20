@@ -80,7 +80,7 @@ export default function SectionTableComponent() {
         sx={{
           display: "flex",
           flexDirection: "column",
-          alignItems: isMobile ? "center" : "start",
+          alignItems: "center",
         }}
       >
         <UnauthorizedComponent />
@@ -94,7 +94,7 @@ export default function SectionTableComponent() {
       sx={{
         display: "flex",
         flexDirection: "column",
-        alignItems: isMobile ? "center" : "start",
+        alignItems: "center",
         gap: 2,
       }}
     >

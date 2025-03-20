@@ -11,7 +11,6 @@ import { isAuthenticated } from "../../services/authService";
 import { useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 
-
 const IVandLinesPage = () => {
   const { sectionId } = useParams();
   const navigate = useNavigate();
@@ -24,18 +23,19 @@ const IVandLinesPage = () => {
   }, [navigate]);
 
   return (
-      <Box sx={{ display: "flex", flexDirection: "column"}}>
-        <Typography
-          variant="h2"
-          fontFamily={"Roboto"}
-          color="white"
-          marginBottom={5}
-          marginTop={5}
-        >
-          IVs and Lines
-        </Typography>
-        <PatientIVandLinesComponent sectionId={sectionId} />
-      </Box>
+    <Box sx={{ display: "flex", flexDirection: "column" }}>
+      <Typography
+        variant="h2"
+        fontFamily={"Roboto"}
+        color="white"
+        marginBottom={5}
+        marginTop={5}
+        alignSelf="center"
+      >
+        IVs and Lines
+      </Typography>
+      <PatientIVandLinesComponent sectionId={sectionId} />
+    </Box>
   );
 };
 

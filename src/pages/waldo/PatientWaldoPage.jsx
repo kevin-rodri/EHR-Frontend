@@ -23,23 +23,24 @@ const PatientWaldoPage = () => {
   }, [navigate]);
 
   return (
-      <Box
-        sx={{
-          display: "flex",
-          flexDirection: "column",
-        }}
+    <Box
+      sx={{
+        display: "flex",
+        flexDirection: "column",
+      }}
+    >
+      <Typography
+        variant="h2"
+        fontFamily={"Roboto"}
+        color="white"
+        marginBottom={5}
+        marginTop={5}
+        alignSelf="center"
       >
-        <Typography
-          variant="h2"
-          fontFamily={"Roboto"}
-          color="white"
-          marginBottom={5}
-          marginTop={5}
-        >
-          Patient Wounds and Drains
-        </Typography>
-        <WaldoDiagramComponent sectionId={sectionId} />
-      </Box>
+        WALDO
+      </Typography>
+      <WaldoDiagramComponent sectionId={sectionId} />
+    </Box>
   );
 };
 export default PatientWaldoPage;
