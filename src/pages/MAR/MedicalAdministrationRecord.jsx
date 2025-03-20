@@ -34,6 +34,7 @@ export default function MedicalAdministrationRecord() {
         color="white"
         marginBottom={5}
         marginTop={5}
+        alignSelf={"center"}
       >
         Medical Administration Record
       </Typography>
