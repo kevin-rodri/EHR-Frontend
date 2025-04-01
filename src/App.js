@@ -13,6 +13,7 @@ import IVandLinesPage from "./pages/IVandLines/IVandLinesPage";
 import PatientOrdersPage from "./pages/patient-orders/PatientOrdersPage";
 import MusculoskeletalSystem from "./pages/musculoskeletal-system/MusculoskeletalSystemPage";
 import GastrointestinalSystemPage from "./pages/gastrointestinal/GastrointestinalSystemPage";
+import AtHomeMedicationPage from "./pages/at-home-medication/AtHomeMedicationPage";
 import Layout from "./components/layouts/Layout";
 
 function App() {
@@ -68,6 +69,10 @@ function App() {
                  <Route
                   path="/gastrointestinal/:sectionId"
                   element={<GastrointestinalSystemPage />}
+                />
+                <Route
+                  path="/at-home/:sectionId"
+                  element={<AtHomeMedicationPage />}
                 />
               </Routes>
             </Layout>

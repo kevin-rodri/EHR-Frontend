@@ -39,6 +39,11 @@ const NAVIGATION = (sectionId) => [
     icon: <MedicationIcon />,
   },
   {
+    segment: `at-home/${sectionId}`,
+    title: "At Home Medications",
+    icon: <MedicationIcon />,
+  },
+  {
     segment: "patient-care",
     title: "Patient Care",
     icon: <ExpandMoreIcon />,
