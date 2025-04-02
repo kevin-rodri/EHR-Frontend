@@ -10,6 +10,7 @@ import MedicationIcon from "@mui/icons-material/Medication";
 import LocalHospitalIcon from "@mui/icons-material/LocalHospital";
 import EvStationIcon from "@mui/icons-material/EvStation";
 import DirectionsRunIcon from "@mui/icons-material/DirectionsRun";
+import ScaleIcon from '@mui/icons-material/Scale';
 import NotesIcon from "@mui/icons-material/Note";
 import ExpandMoreIcon from "@mui/icons-material/ExpandMore";
 import LogoutIcon from "@mui/icons-material/Logout";
@@ -81,6 +82,11 @@ const NAVIGATION = (sectionId) => [
     segment: `patient-notes/${sectionId}`,
     title: "Patient Notes",
     icon: <NotesIcon />,
+  },
+  {
+    segment: `pain-scale/${sectionId}`,
+    title: "Scenario Specific Scales",
+    icon: <ScaleIcon />,
   },
   {
     segment: `/`,
