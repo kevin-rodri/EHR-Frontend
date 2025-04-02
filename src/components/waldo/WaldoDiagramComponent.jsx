@@ -77,6 +77,18 @@ export default function WaldoDiagramComponent({ sectionId }) {
   const handleCheckboxChange = (id) => {
     setCheckedBoxes((prev) => ({ ...prev, [id]: !prev[id] }));
     setSelectedLocation((prev) => (prev === id ? null : id));
+
+    setNewWaldoInfo({
+      id: "",
+      section_patient_id: sectionPatientId,
+      wound_drain_locations: { [id]: true },
+      surgical_wound_note: "",
+      pressure_sore_note: "",
+      trauma_wound_note: "",
+      drain_note: "",
+    });
+
+    setEditingRow(null);
     setOpenModal(true);
   };
 
@@ -335,12 +347,12 @@ export default function WaldoDiagramComponent({ sectionId }) {
 
   return (
     <Box
-    sx={{
-      display: "flex", 
-      flexDirection: "column",
-      alignContent: "center", 
-      alignItems: "center"
-    }}
+      sx={{
+        display: "flex",
+        flexDirection: "column",
+        alignContent: "center",
+        alignItems: "center",
+      }}
     >
       <Typography variant="h6" fontFamily={"Roboto"} color="white">
         Check Off the Patient's Corresponding Wound or Drain Locations

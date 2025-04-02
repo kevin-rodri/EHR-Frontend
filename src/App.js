@@ -13,6 +13,7 @@ import IVandLinesPage from "./pages/IVandLines/IVandLinesPage";
 import PatientOrdersPage from "./pages/patient-orders/PatientOrdersPage";
 import MusculoskeletalSystem from "./pages/musculoskeletal-system/MusculoskeletalSystemPage";
 import GastrointestinalSystemPage from "./pages/gastrointestinal/GastrointestinalSystemPage";
+import PainScalePage from "./pages/pain-scale/PainScalePage";
 import Layout from "./components/layouts/Layout";
 
 function App() {
@@ -65,9 +66,13 @@ function App() {
                   path="/musculoskeletal/:sectionId"
                   element={<MusculoskeletalSystem />}
                 />
-                 <Route
+                <Route
                   path="/gastrointestinal/:sectionId"
                   element={<GastrointestinalSystemPage />}
+                />
+                <Route
+                  path="/pain-scale/:sectionId"
+                  element={<PainScalePage />}
                 />
               </Routes>
             </Layout>
