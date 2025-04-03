@@ -166,7 +166,7 @@ import {
                                     section_patient_id: sectionPatientId,
                                     type: newIntake.type,
                                     intake_or_output: "INTAKE",
-                                    amount: newIntake.amount.trim(),
+                                    amount: newIntake.amount,
                                     date_and_time_taken: formattedIntakeTime,
                             };
                                   

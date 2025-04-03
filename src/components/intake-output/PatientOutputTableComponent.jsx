@@ -168,7 +168,7 @@ dayjs.extend(utc);
                                 section_patient_id: sectionPatientId,
                                 type: newOutput.type,
                                 intake_or_output: "OUTPUT",
-                                amount: newOutput.amount.trim(),
+                                amount: newOutput.amount,
                                 date_and_time_taken: formattedOutputTime,
                             };
                                           
