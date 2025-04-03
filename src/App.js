@@ -14,6 +14,8 @@ import PatientOrdersPage from "./pages/patient-orders/PatientOrdersPage";
 import MusculoskeletalSystem from "./pages/musculoskeletal-system/MusculoskeletalSystemPage";
 import GastrointestinalSystemPage from "./pages/gastrointestinal/GastrointestinalSystemPage";
 import Layout from "./components/layouts/Layout";
+import LabValuesPage from "./pages/LabValues/LabValuesPage";
+import NeurologicalSystemPage from "./pages/NeurologicalSystem/NeurologicalSystemPage";
 
 function App() {
   return (
@@ -68,6 +70,14 @@ function App() {
                  <Route
                   path="/gastrointestinal/:sectionId"
                   element={<GastrointestinalSystemPage />}
+                />
+                <Route
+                  path="/lab-values/:sectionId"
+                  element={<LabValuesPage />}
+                />
+                <Route
+                  path="/neurological/:sectionId"
+                  element={<NeurologicalSystemPage />}
                 />
               </Routes>
             </Layout>

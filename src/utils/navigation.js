@@ -12,10 +12,12 @@ import EvStationIcon from "@mui/icons-material/EvStation";
 import DirectionsRunIcon from "@mui/icons-material/DirectionsRun";
 import NotesIcon from "@mui/icons-material/Note";
 import ExpandMoreIcon from "@mui/icons-material/ExpandMore";
+import ScienceIcon from '@mui/icons-material/Science';
 import LogoutIcon from "@mui/icons-material/Logout";
 import { DirectionsRun } from "@mui/icons-material";
 import { Biotech } from "@mui/icons-material";
 import MedicalInformationIcon from "@mui/icons-material/MedicalInformation";
+import PsychologyAltIcon from '@mui/icons-material/PsychologyAlt';
 
 const NAVIGATION = (sectionId) => [
   {
@@ -37,6 +39,11 @@ const NAVIGATION = (sectionId) => [
     segment: `mar/${sectionId}`,
     title: "MAR",
     icon: <MedicationIcon />,
+  },
+  {
+    segment: `lab-values/${sectionId}`,
+    title: "Lab Values",
+    icon: <ScienceIcon />,
   },
   {
     segment: "patient-care",
@@ -67,6 +74,11 @@ const NAVIGATION = (sectionId) => [
             segment: `gastrointestinal/${sectionId}`,
             title: "Gastrointestinal",
             icon: <Biotech />,
+          },
+          {
+            segment: `neurological/${sectionId}`,
+            title: "Neurological",
+            icon: <PsychologyAltIcon />,
           },
         ],
       },
