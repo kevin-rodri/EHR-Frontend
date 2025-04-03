@@ -15,6 +15,12 @@ import MusculoskeletalSystem from "./pages/musculoskeletal-system/Musculoskeleta
 import GastrointestinalSystemPage from "./pages/gastrointestinal/GastrointestinalSystemPage";
 import PainScalePage from "./pages/pain-scale/PainScalePage";
 import Layout from "./components/layouts/Layout";
+import LabValuesPage from "./pages/LabValues/LabValuesPage";
+import NeurologicalSystemPage from "./pages/NeurologicalSystem/NeurologicalSystemPage";
+import GenitourinaryInfoPage from "./pages/genitourinary/GenitourinaryInfoPage";
+import RespiratorySystemPage from "./pages/respiratory/RespiratorySystemPage";
+import AtHomeMedicationPage from "./pages/at-home-medication/AtHomeMedicationPage";
+import IntakeAndOutputPage from "./pages/intake-output/IntakeAndOutputPage";
 
 function App() {
   return (
@@ -73,6 +79,30 @@ function App() {
                 <Route
                   path="/pain-scale/:sectionId"
                   element={<PainScalePage />}
+                />
+                <Route
+                  path="/lab-values/:sectionId"
+                  element={<LabValuesPage />}
+                />
+                <Route
+                  path="/neurological/:sectionId"
+                  element={<NeurologicalSystemPage />}
+                />
+                <Route
+                  path="/genitourinary/:sectionId"
+                  element={<GenitourinaryInfoPage />}
+                />
+                <Route
+                  path="/respiratory/:sectionId"
+                  element={<RespiratorySystemPage />}
+                />
+                <Route
+                  path="/at-home/:sectionId"
+                  element={<AtHomeMedicationPage />}
+                />
+                <Route
+                  path="/intake-output/:sectionId"
+                  element={<IntakeAndOutputPage />}
                 />
               </Routes>
             </Layout>

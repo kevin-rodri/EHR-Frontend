@@ -10,13 +10,17 @@ import MedicationIcon from "@mui/icons-material/Medication";
 import LocalHospitalIcon from "@mui/icons-material/LocalHospital";
 import EvStationIcon from "@mui/icons-material/EvStation";
 import DirectionsRunIcon from "@mui/icons-material/DirectionsRun";
-import ScaleIcon from '@mui/icons-material/Scale';
+import ScaleIcon from "@mui/icons-material/Scale";
 import NotesIcon from "@mui/icons-material/Note";
 import ExpandMoreIcon from "@mui/icons-material/ExpandMore";
 import LogoutIcon from "@mui/icons-material/Logout";
-import { DirectionsRun } from "@mui/icons-material";
+import { DirectionsRun, Output } from "@mui/icons-material";
 import { Biotech } from "@mui/icons-material";
 import MedicalInformationIcon from "@mui/icons-material/MedicalInformation";
+import ScienceIcon from "@mui/icons-material/Science";
+import PsychologyAltIcon from "@mui/icons-material/PsychologyAlt";
+import AirIcon from "@mui/icons-material/Air";
+import MedicalServicesIcon from '@mui/icons-material/MedicalServices';
 
 const NAVIGATION = (sectionId) => [
   {
@@ -40,6 +44,16 @@ const NAVIGATION = (sectionId) => [
     icon: <MedicationIcon />,
   },
   {
+    segment: `at-home/${sectionId}`,
+    title: "At Home Medications",
+    icon: <MedicalServicesIcon />,
+  },
+  {
+    segment: `lab-values/${sectionId}`,
+    title: "Lab Values",
+    icon: <ScienceIcon />,
+  },
+  {
     segment: "patient-care",
     title: "Patient Care",
     icon: <ExpandMoreIcon />,
@@ -55,6 +69,11 @@ const NAVIGATION = (sectionId) => [
         icon: <EvStationIcon />,
       },
       {
+        segment: `intake-output/${sectionId}`,
+        title: "Intake and Output",
+        icon: <Output />,
+      },
+      {
         segment: "head-to-toe-assessments",
         title: "Head to Toe Assessment",
         icon: <ExpandMoreIcon />,
@@ -68,6 +87,21 @@ const NAVIGATION = (sectionId) => [
             segment: `gastrointestinal/${sectionId}`,
             title: "Gastrointestinal",
             icon: <Biotech />,
+          },
+          {
+            segment: `neurological/${sectionId}`,
+            title: "Neurological",
+            icon: <PsychologyAltIcon />,
+          },
+          {
+            segment: `genitourinary/${sectionId}`,
+            title: "Genitourinary",
+            icon: <MedicalInformationIcon />,
+          },
+          {
+            segment: `respiratory/${sectionId}`,
+            title: "Respiratory",
+            icon: <AirIcon />,
           },
         ],
       },
