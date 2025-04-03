@@ -13,7 +13,7 @@ import DirectionsRunIcon from "@mui/icons-material/DirectionsRun";
 import NotesIcon from "@mui/icons-material/Note";
 import ExpandMoreIcon from "@mui/icons-material/ExpandMore";
 import LogoutIcon from "@mui/icons-material/Logout";
-import { DirectionsRun } from "@mui/icons-material";
+import { DirectionsRun, Output } from "@mui/icons-material";
 import { Biotech } from "@mui/icons-material";
 import MedicalInformationIcon from "@mui/icons-material/MedicalInformation";
 
@@ -57,6 +57,11 @@ const NAVIGATION = (sectionId) => [
         segment: `iv-lines/${sectionId}`,
         title: "IV And Lines",
         icon: <EvStationIcon />,
+      },
+      {
+        segment: `intake-output/${sectionId}`,
+        title: "Intake and Output",
+        icon: <Output />,
       },
       {
         segment: "head-to-toe-assessments",

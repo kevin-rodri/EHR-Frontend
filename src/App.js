@@ -14,6 +14,7 @@ import PatientOrdersPage from "./pages/patient-orders/PatientOrdersPage";
 import MusculoskeletalSystem from "./pages/musculoskeletal-system/MusculoskeletalSystemPage";
 import GastrointestinalSystemPage from "./pages/gastrointestinal/GastrointestinalSystemPage";
 import AtHomeMedicationPage from "./pages/at-home-medication/AtHomeMedicationPage";
+import IntakeAndOutputPage from "./pages/intake-output/IntakeAndOutputPage";
 import Layout from "./components/layouts/Layout";
 
 function App() {
@@ -73,6 +74,10 @@ function App() {
                 <Route
                   path="/at-home/:sectionId"
                   element={<AtHomeMedicationPage />}
+                />
+                <Route
+                  path="/intake-output/:sectionId"
+                  element={<IntakeAndOutputPage />}
                 />
               </Routes>
             </Layout>
