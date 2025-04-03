@@ -25,7 +25,7 @@ export async function getPatientIntake(section_patient_id) {
   export async function addPatientInputOutput(section_patient_id, input_output) {
     try {
       const response = await axiosTokenInstance().post(
-        `intake-output/${section_patient_id}/output`,
+        `intake-output/${section_patient_id}`,
         input_output
       );
       return response.data;
@@ -37,7 +37,7 @@ export async function getPatientIntake(section_patient_id) {
   export async function updatePatientInputOutput(section_patient_id, input_output, id) {
     try {
       const response = await axiosTokenInstance().put(
-        `intake-output/${section_patient_id}/output/${id}`,
+        `intake-output/${section_patient_id}/${id}`,
         input_output
       );
       return response.data;
@@ -49,7 +49,7 @@ export async function getPatientIntake(section_patient_id) {
   export async function deletePatientInputOutput(section_patient_id, id) {
     try {
       const response = await axiosTokenInstance().delete(
-        `intake-output/${section_patient_id}/output/${id}`
+        `intake-output/${section_patient_id}/${id}`
       );
       return response.data;
     } catch (error) {
