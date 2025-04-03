@@ -13,6 +13,8 @@ import IVandLinesPage from "./pages/IVandLines/IVandLinesPage";
 import PatientOrdersPage from "./pages/patient-orders/PatientOrdersPage";
 import MusculoskeletalSystem from "./pages/musculoskeletal-system/MusculoskeletalSystemPage";
 import GastrointestinalSystemPage from "./pages/gastrointestinal/GastrointestinalSystemPage";
+import GenitourinaryInfoPage from "./pages/genitourinary/GenitourinaryInfoPage";
+import RespiratorySystemPage from "./pages/respiratory/RespiratorySystemPage";
 import Layout from "./components/layouts/Layout";
 
 function App() {
@@ -68,6 +70,14 @@ function App() {
                  <Route
                   path="/gastrointestinal/:sectionId"
                   element={<GastrointestinalSystemPage />}
+                />
+                <Route
+                  path="/genitourinary/:sectionId"
+                  element={<GenitourinaryInfoPage />}
+                />
+                <Route
+                  path="/respiratory/:sectionId"
+                  element={<RespiratorySystemPage />}
                 />
               </Routes>
             </Layout>

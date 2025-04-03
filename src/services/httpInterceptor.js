@@ -48,8 +48,8 @@ export const axiosTokenInstance = () => {
     (config) => {
       const storedValue = localStorage.getItem(localStorageKey);
       if (storedValue != null) {
-        const parsed = JSON.parse(storedValue); 
-        const token = parsed.token; 
+        const parsed = JSON.parse(storedValue);
+        const token = parsed.token;
         if (token != null) {
           config.headers["Authorization"] = `Bearer ${token}`;
         }

@@ -16,6 +16,7 @@ import LogoutIcon from "@mui/icons-material/Logout";
 import { DirectionsRun } from "@mui/icons-material";
 import { Biotech } from "@mui/icons-material";
 import MedicalInformationIcon from "@mui/icons-material/MedicalInformation";
+import AirIcon from "@mui/icons-material/Air";
 
 const NAVIGATION = (sectionId) => [
   {
@@ -67,6 +68,16 @@ const NAVIGATION = (sectionId) => [
             segment: `gastrointestinal/${sectionId}`,
             title: "Gastrointestinal",
             icon: <Biotech />,
+          },
+          {
+            segment: `genitourinary/${sectionId}`,
+            title: "Genitourinary System",
+            icon: <MedicalInformationIcon />,
+          },
+          {
+            segment: `respiratory/${sectionId}`,
+            title: "Respiratory",
+            icon: <AirIcon />,
           },
         ],
       },
