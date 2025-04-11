@@ -23,7 +23,7 @@ export default function IntakeAndOutputPage() {
   }, [navigate]);
 
   return (
-    <Box sx={{ display: "flex", flexDirection: "column" , gap: 2}}>
+    <Box sx={{ display: "flex", flexDirection: "column", gap: 2 }}>
       <Typography
         variant="h2"
         fontFamily={"Roboto"}
@@ -34,7 +34,13 @@ export default function IntakeAndOutputPage() {
       >
         Intake and Output
       </Typography>
+      <Typography fontFamily={"Roboto"} color="white" variant="h3" fontWeight={200}>
+        Intake
+      </Typography>
       <PatientIntakeTableComponent sectionId={sectionId} />
+      <Typography fontFamily={"Roboto"} color="white" variant="h3" fontWeight={200}>
+        Output
+      </Typography>
       <PatientOutputTableComponent sectionId={sectionId} />
     </Box>
   );
