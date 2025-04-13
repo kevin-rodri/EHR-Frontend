@@ -21,6 +21,7 @@ import GenitourinaryInfoPage from "./pages/genitourinary/GenitourinaryInfoPage";
 import RespiratorySystemPage from "./pages/respiratory/RespiratorySystemPage";
 import AtHomeMedicationPage from "./pages/at-home-medication/AtHomeMedicationPage";
 import IntakeAndOutputPage from "./pages/intake-output/IntakeAndOutputPage";
+import NotFoundPage from "./pages/not-found/NotFoundPage";
 
 function App() {
   return (
@@ -34,10 +35,9 @@ function App() {
         musculoskeletal/032c51d8-dea1-11ef-b75f-fa63d398c461
         */}
         <Route
-          path="/*"
           element={
-            <Layout>
-              <Routes>
+            <Layout />
+              }>
                 <Route path="/assign" element={<PatientAssignment />} />
                 <Route
                   path="/mar/:sectionId"
@@ -104,11 +104,9 @@ function App() {
                   path="/intake-output/:sectionId"
                   element={<IntakeAndOutputPage />}
                 />
-              </Routes>
-            </Layout>
-          }
-        />
-      </Routes>
+                </Route>
+              <Route path="*" element={<NotFoundPage />} />
+          </Routes>
     </BrowserRouter>
   );
 }

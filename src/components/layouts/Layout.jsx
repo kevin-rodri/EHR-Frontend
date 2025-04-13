@@ -26,6 +26,7 @@ import AccordionDetails from "@mui/material/AccordionDetails";
 import ExpandMoreIcon from "@mui/icons-material/ExpandMore";
 import { logout } from "../../services/authService";
 import { useLocation } from "react-router-dom";
+import { Outlet } from "react-router-dom";
 
 const drawerWidth = 240;
 
@@ -211,7 +212,7 @@ export default function Layout({ children }) {
         {location.pathname !== "/assign" && (
           <PatientBannerComponent sectionId={sectionId} />
         )}
-        {children}
+        <Outlet />
       </Main>
     </Box>
   );
