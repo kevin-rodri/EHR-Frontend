@@ -24,13 +24,11 @@ export default function NotFoundPage() {
     }, [navigate]);
 
     return(
-        <Box sx={{ display: "flex", flexDirection: "column" }}>
+        <Box sx={{ display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", height: "100vh" }}>
             <Typography
                     variant="h2"
                     fontFamily={"Roboto"}
                     color="white"
-                    marginBottom={5}
-                    marginTop={35}
                     alignSelf={"center"}
                   >
                     404: This page cannot be found
