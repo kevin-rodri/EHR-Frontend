@@ -25,6 +25,7 @@ import { useNavigate } from "react-router-dom";
 import { registerUser } from "../../services/authService";
 import { getAllSections } from "../../services/sectionService";
 import { addUserToSectionRoster } from "../../services/sectionRosterService";
+import logo from "../../assets/ehr_logo.png";
 
 export default function CreateAccountComponent() {
   const {
@@ -88,6 +89,21 @@ export default function CreateAccountComponent() {
 
   return (
     <Card variant="outlined" sx={{ padding: 2 }}>
+      <Box
+        sx={{
+          display: "flex",
+          justifyContent: "center",
+          alignItems: "center",
+          flex: 1,
+        }}
+      >
+        <img
+          src={logo}
+          alt="Quinnipiac School of Nursing logo"
+          style={{ width: "100%", maxWidth: "18rem", marginBottom: "1rem" }}
+          alignItems="center"
+        />
+      </Box>
       <Typography
         component="h1"
         variant="h4"
@@ -97,6 +113,7 @@ export default function CreateAccountComponent() {
       >
         Create an Account
       </Typography>
+
       <form onSubmit={handleSubmit(onSubmit)}>
         <FormGroup sx={{ gap: 2, marginBottom: 3 }}>
           <FormControl>

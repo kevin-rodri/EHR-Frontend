@@ -27,6 +27,7 @@ const PatientADLPage = () => {
         sx={{
           display: "flex",
           flexDirection: "column",
+          p: 1
         }}
       >
         <Typography

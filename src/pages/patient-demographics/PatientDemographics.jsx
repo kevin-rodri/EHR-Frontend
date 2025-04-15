@@ -22,6 +22,7 @@ const PatientDemographicsPage = () => {
       sx={{
         display: "flex",
         flexDirection: "column",
+        p: 1
       }}
     >
       <PatientDemographicsComponent sectionId={sectionId} />

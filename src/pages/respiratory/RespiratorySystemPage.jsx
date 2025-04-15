@@ -18,7 +18,7 @@ const RespiratorySystemPage = () => {
   }, [navigate]);
 
   return (
-    <Box sx={{ display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
+    <Box sx={{ display: 'flex', flexDirection: 'column', alignItems: 'center', p: 1 }}>
       <Typography
         variant="h2"
         fontFamily="Roboto"

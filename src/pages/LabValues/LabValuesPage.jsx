@@ -27,6 +27,7 @@ const LabValuesPage = () => {
       sx={{
         display: "flex",
         flexDirection: "column",
+        p: 1
       }}
     >
       {" "}

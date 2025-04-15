@@ -17,7 +17,7 @@ import {
   Checkbox,
   Card,
   Grid,
-  Bpx,
+  Box,
 } from "@mui/material";
 import { getSectionPatientById } from "../../services/sectionPatientService";
 import {
@@ -83,11 +83,10 @@ export function PatientBannerComponent({ sectionId }) {
   };
 
   return (
-    <Card
+    <Box
       sx={{
         backgroundColor: "white",
         padding: 2,
-        borderRadius: 2,
         boxShadow: "0px 4px 10px rgba(0, 0, 0, 0.1)",
       }}
     >
@@ -314,6 +313,6 @@ export function PatientBannerComponent({ sectionId }) {
           </FormControl>
         </Grid>
       </Grid>
-    </Card>
+    </Box>
   );
 }

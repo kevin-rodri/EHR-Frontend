@@ -22,7 +22,7 @@ export default function AtHomeMedicationPage() {
   }, [navigate]);
 
   return (
-    <Box sx={{ display: "flex", flexDirection: "column" }}>
+    <Box sx={{ display: "flex", flexDirection: "column" , p: 1}}>
       <Typography
         variant="h2"
         fontFamily={"Roboto"}

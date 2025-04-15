@@ -23,7 +23,7 @@ export default function IntakeAndOutputPage() {
   }, [navigate]);
 
   return (
-    <Box sx={{ display: "flex", flexDirection: "column", gap: 2 }}>
+    <Box sx={{ display: "flex", flexDirection: "column", gap: 2, p: 1 }}>
       <Typography
         variant="h2"
         fontFamily={"Roboto"}

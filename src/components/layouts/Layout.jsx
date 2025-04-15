@@ -27,6 +27,8 @@ import ExpandMoreIcon from "@mui/icons-material/ExpandMore";
 import { logout } from "../../services/authService";
 import { useLocation } from "react-router-dom";
 import { Outlet } from "react-router-dom";
+import logo from "../../assets/ehr_logo.png";
+
 
 const drawerWidth = 240;
 
@@ -144,7 +146,7 @@ export default function Layout({ children }) {
   };
 
   return (
-    <Box sx={{ display: "flex", gap: isMobile ? 0 : 2 }}>
+    <Box sx={{ display: "flex" }}>
       {isMobile && (
         <AppBar
           position="fixed"
@@ -212,7 +214,9 @@ export default function Layout({ children }) {
         {location.pathname !== "/assign" && (
           <PatientBannerComponent sectionId={sectionId} />
         )}
-        <Outlet />
+        <Box>
+          <Outlet />
+        </Box>
       </Main>
     </Box>
   );
