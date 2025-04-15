@@ -24,15 +24,25 @@ export default function NotFoundPage() {
     }, [navigate]);
 
     return(
-        <Box sx={{ display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", height: "100vh" }}>
+        <Box sx={{ display: "flex", flexDirection: "row", alignItems: "center", justifyContent: "center", height: "100vh" }}>
             <Typography
                     variant="h2"
                     fontFamily={"Roboto"}
                     color="white"
                     alignSelf={"center"}
+                    borderRight={"2px solid"}
+                    paddingRight={"25px"}
                   >
-                    404: This page cannot be found
+                    404 
                   </Typography>
+            <Typography
+            variant="h2"
+            fontFamily={"Roboto"}
+            color="white"
+            alignSelf={"center"}
+            paddingLeft={"25px"}>
+              This page cannot be found
+            </Typography>
         </Box>
     )
 }
