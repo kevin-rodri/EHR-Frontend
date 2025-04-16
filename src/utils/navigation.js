@@ -18,8 +18,14 @@ import { DirectionsRun } from "@mui/icons-material";
 import { Biotech } from "@mui/icons-material";
 import MedicalInformationIcon from "@mui/icons-material/MedicalInformation";
 import PsychologyAltIcon from '@mui/icons-material/PsychologyAlt';
+import PersonAddIcon from '@mui/icons-material/PersonAdd';
 
 const NAVIGATION = (sectionId) => [
+  {
+    segment: `assign`,
+    title: "Patient Dashboard",
+    icon: <PersonAddIcon />,
+  },
   {
     segment: `patient-demographics/${sectionId}`,
     title: "Demographics",

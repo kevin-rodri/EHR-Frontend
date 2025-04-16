@@ -43,3 +43,12 @@ export async function patchPatientInfo(id, value) {
     throw error;
   }
 }
+
+export async function addPatient(patientData) {
+  try {
+    const response = await axiosTokenInstance().post(`/patients`, patientData);
+    return response.data;
+  } catch (error) {
+    throw error;
+  }
+}
