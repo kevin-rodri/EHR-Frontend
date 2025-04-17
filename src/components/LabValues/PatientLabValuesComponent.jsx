@@ -54,44 +54,62 @@ export function PatientLabValuesComponent({ sectionId }) {
     modified_date: "",
   });
 
-  const columns = useMemo(() => [
-    { accessorKey: "element_name", header: "Element Name" },
-    { accessorKey: "element_value", header: "Element Value" },
-    {
-      accessorKey: "modified_date",
-      header: "Timestamp",
-      size: 150,
-      Cell: ({ cell }) => formatDateTime(cell.getValue()),
-    },
-    ...(display
-      ? [
-          {
-            accessorKey: "actions",
-            header: "Actions",
-            maxSize: 75,
-            enableSorting: false,
-            Cell: ({ row }) => (
-              <Box>
-                <Tooltip title="Edit">
-                  <IconButton onClick={() => handleOpenModal(row, "edit")}>
-                    <EditIcon />
-                  </IconButton>
-                </Tooltip>
-                <Tooltip title="Delete">
-                  <IconButton
-                    color="error"
-                    onClick={() => handleOpenModal(row, "delete")}
-                  >
-                    <DeleteIcon />
-                  </IconButton>
-                </Tooltip>
-              </Box>
-            ),
-          },
-        ]
-      : [])
-  ], [display]);
-  
+  const [touchedFields, setTouchedFields] = useState({
+    element_name: false,
+    element_value: false,
+    modified_date: false,
+  });
+
+  const isFormValid =
+    touchedFields.element_name &&
+    touchedFields.element_value &&
+    newLabValue.element_name.trim() !== "" &&
+    newLabValue.element_value.trim() !== "";
+
+  const handleBlur = (field) => {
+    setTouchedFields((prev) => ({ ...prev, [field]: true }));
+  };
+
+  const columns = useMemo(
+    () => [
+      { accessorKey: "element_name", header: "Element Name" },
+      { accessorKey: "element_value", header: "Element Value" },
+      {
+        accessorKey: "modified_date",
+        header: "Timestamp",
+        size: 150,
+        Cell: ({ cell }) => formatDateTime(cell.getValue()),
+      },
+      ...(display
+        ? [
+            {
+              accessorKey: "actions",
+              header: "Actions",
+              maxSize: 75,
+              enableSorting: false,
+              Cell: ({ row }) => (
+                <Box>
+                  <Tooltip title="Edit">
+                    <IconButton onClick={() => handleOpenModal(row, "edit")}>
+                      <EditIcon />
+                    </IconButton>
+                  </Tooltip>
+                  <Tooltip title="Delete">
+                    <IconButton
+                      color="error"
+                      onClick={() => handleOpenModal(row, "delete")}
+                    >
+                      <DeleteIcon />
+                    </IconButton>
+                  </Tooltip>
+                </Box>
+              ),
+            },
+          ]
+        : []),
+    ],
+    [display]
+  );
 
   // Fetch orders for the specific patient
   useEffect(() => {
@@ -241,6 +259,11 @@ export function PatientLabValuesComponent({ sectionId }) {
                 element_name: e.target.value,
               })
             }
+            required
+            onBlur={() => handleBlur("element_name")}
+            error={
+              touchedFields.element_name && newLabValue.element_name === ""
+            }
           />
           <TextField
             label="Element Value"
@@ -255,6 +278,11 @@ export function PatientLabValuesComponent({ sectionId }) {
                 element_value: e.target.value,
               })
             }
+            required
+            onBlur={() => handleBlur("element_value")}
+            error={
+              touchedFields.element_value && newLabValue.element_value === ""
+            }
           />
         </DialogContent>
         <DialogActions sx={{ display: "flex", justifyContent: "center" }}>
@@ -265,7 +293,12 @@ export function PatientLabValuesComponent({ sectionId }) {
           >
             Cancel
           </Button>
-          <Button onClick={handleSave} color="primary" variant="contained">
+          <Button
+            onClick={handleSave}
+            color="primary"
+            variant="contained"
+            disabled={!isFormValid}
+          >
             {editingRow ? "Save" : "Submit"}
           </Button>
         </DialogActions>

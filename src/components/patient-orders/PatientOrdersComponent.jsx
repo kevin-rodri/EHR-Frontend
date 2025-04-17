@@ -51,6 +51,22 @@ export function PatientOrderComponent({ sectionId }) {
     modified_date: "",
   });
 
+      const [touchedFields, setTouchedFields] = useState({
+        order_title: false,
+        description: false,
+      });
+    
+      const handleBlur = (field) => {
+        setTouchedFields((prev) => ({ ...prev, [field]: true }));
+      };
+  
+      const isFormValid =
+      (editingRow || (touchedFields.order_title && touchedFields.description)) &&
+      newPatientOrderRecord.order_title.trim() !== "" &&
+      newPatientOrderRecord.description.trim() !== "";
+    
+    
+
   const columns = useMemo(() => [
     { accessorKey: "order_title", header: "Title" },
     { accessorKey: "description", header: "Description" },
@@ -232,6 +248,9 @@ export function PatientOrderComponent({ sectionId }) {
                 order_title: e.target.value,
               })
             }
+            required
+            onBlur={() => handleBlur("order_title")}
+            error={touchedFields.order_title && newPatientOrderRecord.order_title.trim() === ""}
           />
 
           <TextField
@@ -247,6 +266,9 @@ export function PatientOrderComponent({ sectionId }) {
                 description: e.target.value,
               })
             }
+            required
+            onBlur={() => handleBlur("description")}
+            error={touchedFields.description && newPatientOrderRecord.description.trim() === ""}
           />
         </DialogContent>
         <DialogActions sx={{ display: "flex", justifyContent: "center" }}>
@@ -257,7 +279,7 @@ export function PatientOrderComponent({ sectionId }) {
           >
             Cancel
           </Button>
-          <Button onClick={handleSave} color="primary" variant="contained">
+          <Button onClick={handleSave} color="primary" variant="contained" disabled={!isFormValid}>
             {editingRow ? "Save" : "Submit"}
           </Button>
         </DialogActions>

@@ -46,6 +46,28 @@ const GastrointestinalSystemComponent = ({ sectionId }) => {
   const [patientId, setPatientId] = useState(null);
   const [time, setTime] = useState(null);
 
+  const [touchedFields, setTouchedFields] = useState({
+    right_upper_quadrant: false,
+    right_lower_quadrant: false,
+    lower_upper_quadrant: false,
+    lower_lower_quadrant: false,
+    stool: false,
+    abdomen_description: false,
+  });
+
+  const handleBlur = (field) => {
+    setTouchedFields((prev) => ({ ...prev, [field]: true }));
+  };
+
+  const isFormValid =
+    gastroData.right_upper_quadrant.trim() !== "" &&
+    gastroData.right_lower_quadrant.trim() !== "" &&
+    gastroData.lower_upper_quadrant.trim() !== "" &&
+    gastroData.lower_lower_quadrant.trim() !== "" &&
+    gastroData.stool.trim() !== "" &&
+    Array.isArray(gastroData.abdomen_description) &&
+    gastroData.abdomen_description.length > 0;
+
   useEffect(() => {
     const fetchData = async () => {
       try {
@@ -118,6 +140,11 @@ const GastrointestinalSystemComponent = ({ sectionId }) => {
 
       const formattedCreatedDate = dayjs().utc().format("YYYY-MM-DD HH:mm:ss");
       const formattedModifiedDate = dayjs().utc().format("YYYY-MM-DD HH:mm:ss");
+      const gastricNoteToSend =
+        gastroData.gastric_tubic_note &&
+        gastroData.gastric_tubic_note.trim() !== ""
+          ? gastroData.gastric_tubic_note
+          : "N/A";
 
       const formattedAbdomenDescription = Array.isArray(
         gastroData.abdomen_description
@@ -134,8 +161,15 @@ const GastrointestinalSystemComponent = ({ sectionId }) => {
           created_date: formattedCreatedDate,
           modified_date: formattedModifiedDate,
           abdomen_description: formattedAbdomenDescription,
+          gastric_tubic_note: gastricNoteToSend,
         });
       } else if (patientId && gastroData.id) {
+        const gastricNoteToSend =
+          gastroData.gastric_tubic_note &&
+          gastroData.gastric_tubic_note.trim() !== ""
+            ? gastroData.gastric_tubic_note
+            : "N/A";
+
         response = await updateGastrointestinalInfoForPatient(
           patientId,
           gastroData.id,
@@ -145,6 +179,7 @@ const GastrointestinalSystemComponent = ({ sectionId }) => {
             created_date: formattedCreatedDate,
             modified_date: formattedModifiedDate,
             abdomen_description: formattedAbdomenDescription,
+            gastric_tubic_note: gastricNoteToSend,
           }
         );
       }
@@ -198,6 +233,10 @@ const GastrointestinalSystemComponent = ({ sectionId }) => {
               <Select
                 value={gastroData[region] || ""}
                 onChange={(e) => handleChange(e, region)}
+                onBlur={() => handleBlur(region)}
+                error={
+                  touchedFields[region] && gastroData[region].trim() === ""
+                }
                 displayEmpty
               >
                 <MenuItem value="" disabled>
@@ -233,7 +272,13 @@ const GastrointestinalSystemComponent = ({ sectionId }) => {
           }
           renderValue={(selected) =>
             Array.isArray(selected) ? selected.join(", ") : ""
-          } 
+          }
+          onBlur={() => handleBlur("abdomen_description")}
+          error={
+            touchedFields.abdomen_description &&
+            (!Array.isArray(gastroData.abdomen_description) ||
+              gastroData.abdomen_description.length === 0)
+          }
         >
           <MenuItem value="soft">Soft</MenuItem>
           <MenuItem value="rigid">Rigid</MenuItem>
@@ -277,6 +322,8 @@ const GastrointestinalSystemComponent = ({ sectionId }) => {
               value={gastroData.stool || ""}
               onChange={(e) => handleChange(e, "stool")}
               displayEmpty
+              onBlur={() => handleBlur("stool")}
+              error={touchedFields.stool && gastroData.stool.trim() === ""}
             >
               <MenuItem value="" disabled>
                 Select stool type
@@ -317,6 +364,7 @@ const GastrointestinalSystemComponent = ({ sectionId }) => {
         fullWidth
         sx={{ mt: 3 }}
         onClick={handleSave}
+        disabled={!isFormValid}
       >
         Submit
       </Button>

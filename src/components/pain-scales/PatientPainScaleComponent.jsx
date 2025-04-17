@@ -61,6 +61,29 @@ export default function PatientPainScaleComponent({ sectionId }) {
     pain_scale_text: "",
     modified_date: "",
   });
+  const [touchedFields, setTouchedFields] = useState({
+    pain_scale_value: false,
+  });
+
+  const handleBlur = (field) => {
+    setTouchedFields((prev) => ({ ...prev, [field]: true }));
+  };
+  const isFLACC = () => {
+    const scaleName =
+      selectedScale?.scale_name ||
+      scales.find((s) => s.id === newScaleRecord.pain_scale_id)?.scale_name;
+    return scaleName === "FLACC";
+  };
+
+  const isFormValid = isFLACC()
+  ? true // FLACC scales are always valid (score is auto-calculated)
+  : touchedFields.pain_scale_value &&
+    newScaleRecord.pain_scale_value !== "" &&
+    !isNaN(Number(newScaleRecord.pain_scale_value)) &&
+    Number(newScaleRecord.pain_scale_value) >= 1 &&
+    Number(newScaleRecord.pain_scale_value) <= 10;
+
+
 
   const columns = useMemo(() => [
     { accessorKey: "scale_name", header: "Pain Scale Name", size: 150 },
@@ -224,13 +247,6 @@ export default function PatientPainScaleComponent({ sectionId }) {
       default:
         return "";
     }
-  };
-
-  const isFLACC = () => {
-    const scaleName =
-      selectedScale?.scale_name ||
-      scales.find((s) => s.id === newScaleRecord.pain_scale_id)?.scale_name;
-    return scaleName === "FLACC";
   };
 
   useEffect(() => {
@@ -398,6 +414,12 @@ export default function PatientPainScaleComponent({ sectionId }) {
                   pain_scale_value: e.target.value,
                 })
               }
+              required
+              onBlur={() => handleBlur("pain_scale_value")}
+              error={
+                touchedFields.pain_scale_value &&
+                newScaleRecord.pain_scale_value === ""
+              }
             />
           )}
 
@@ -428,7 +450,12 @@ export default function PatientPainScaleComponent({ sectionId }) {
           >
             Cancel
           </Button>
-          <Button onClick={handleSave} color="primary" variant="contained">
+          <Button
+            onClick={handleSave}
+            color="primary"
+            variant="contained"
+            disabled={!isFormValid}
+          >
             {editingRow ? "Save" : "Submit"}
           </Button>
         </DialogActions>

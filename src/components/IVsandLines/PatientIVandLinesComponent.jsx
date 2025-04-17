@@ -54,6 +54,31 @@ const PatientIVandLinesComponent = ({ sectionId }) => {
     is_clinical_documentation_improvement: false,
   });
 
+  const [touchedFields, setTouchedFields] = useState({
+    iv_type: false,
+    size: false,
+    location: false,
+    fluid_or_med_name: false,
+    fluid_or_med_rate: false,
+  });
+
+  const isFormValid =
+    (editingRow ||
+      (touchedFields.iv_type &&
+        touchedFields.size &&
+        touchedFields.location &&
+        touchedFields.fluid_or_med_name &&
+        touchedFields.fluid_or_med_rate)) &&
+    newIVLine.iv_type &&
+    newIVLine.size.trim() &&
+    newIVLine.location.trim() &&
+    newIVLine.fluid_or_med_name.trim() &&
+    newIVLine.fluid_or_med_rate.trim();
+
+  const handleBlur = (field) => {
+    setTouchedFields((prev) => ({ ...prev, [field]: true }));
+  };
+
   const columns = useMemo(
     () => [
       { accessorKey: "iv_type", header: "Type", size: 150 },
@@ -251,17 +276,22 @@ const PatientIVandLinesComponent = ({ sectionId }) => {
             value={newIVLine.iv_type}
             fullWidth
             margin="dense"
+            required
+            error={touchedFields.iv_type && newIVLine.iv_type === ""}
             onChange={(e) =>
               setNewIVLine({
                 ...newIVLine,
                 iv_type: e.target.value,
               })
             }
+            onBlur={() => handleBlur("iv_type")}
             renderValue={(selected) =>
               selected ? (
                 selected
               ) : (
-                <span style={{ color: "#757575" }}>Select IV and Line Type </span>
+                <span style={{ color: "#757575" }}>
+                  Select IV and Line Type{" "}
+                </span>
               )
             }
           >
@@ -281,6 +311,10 @@ const PatientIVandLinesComponent = ({ sectionId }) => {
             }
             fullWidth
             margin="dense"
+            required
+            onBlur={() => handleBlur("size")}
+            error={touchedFields.size && newIVLine.size === ""}
+            sx={{ backgroundColor: "white", mt: 1 }}
           />
 
           <TextField
@@ -291,6 +325,9 @@ const PatientIVandLinesComponent = ({ sectionId }) => {
             }
             fullWidth
             margin="dense"
+            onBlur={() => handleBlur("location")}
+            required
+            error={touchedFields.location && newIVLine.location === ""}
           />
 
           <TextField
@@ -301,6 +338,12 @@ const PatientIVandLinesComponent = ({ sectionId }) => {
             }
             fullWidth
             margin="dense"
+            required
+            onBlur={() => handleBlur("fluid_or_med_name")}
+            error={
+              touchedFields.fluid_or_med_name &&
+              newIVLine.fluid_or_med_name === ""
+            }
           />
 
           <TextField
@@ -311,6 +354,12 @@ const PatientIVandLinesComponent = ({ sectionId }) => {
             }
             fullWidth
             margin="dense"
+            required
+            onBlur={() => handleBlur("fluid_or_med_rate")}
+            error={
+              touchedFields.fluid_or_med_rate &&
+              newIVLine.fluid_or_med_rate === ""
+            }
           />
 
           <Box display="flex" alignItems="center" sx={{ mt: 2 }}>
@@ -349,7 +398,12 @@ const PatientIVandLinesComponent = ({ sectionId }) => {
           >
             Cancel
           </Button>
-          <Button onClick={handleSave} color="primary" variant="contained">
+          <Button
+            onClick={handleSave}
+            color="primary"
+            variant="contained"
+            disabled={!isFormValid}
+          >
             {editingRow ? "Save" : "Submit"}
           </Button>
         </DialogActions>

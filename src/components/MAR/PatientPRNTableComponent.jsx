@@ -45,11 +45,11 @@ import dayjs from "dayjs";
 import utc from "dayjs/plugin/utc";
 import { formatDateTime } from "../../utils/date-time-formatter";
 import DeleteConfirmationModal from "../utils/DeleteModalComponent";
-// This is so that we are properly passing the day and time correctly. 
+// This is so that we are properly passing the day and time correctly.
 // We want FE to display the date and time properly but pass it to the BE correctly.
 dayjs.extend(utc);
 
-export default function PatientPRNTableComponent({sectionId}) {
+export default function PatientPRNTableComponent({ sectionId }) {
   const [openModal, setOpenModal] = useState(false);
   const [openDeleteModal, setOpenDeleteModal] = useState(false);
   const [editingRow, setEditingRow] = useState(null);
@@ -70,6 +70,28 @@ export default function PatientPRNTableComponent({sectionId}) {
     route: "",
     dose_frequency: "",
   });
+
+  const [touchedFields, setTouchedFields] = useState({
+    medication_id: false,
+    dose: false,
+    route: false,
+    dose_frequency: false
+  });
+
+  const handleBlur = (field) => {
+    setTouchedFields((prev) => ({ ...prev, [field]: true }));
+  };
+
+  const isFormValid =
+    (editingRow ||
+      (touchedFields.medication_id &&
+        touchedFields.dose &&
+        touchedFields.route &&
+        touchedFields.dose_frequency)) &&
+    newScheduledRecord.medication_id !== "" &&
+    newScheduledRecord.dose.trim() !== "" &&
+    newScheduledRecord.route !== "" &&
+    newScheduledRecord.dose_frequency.trim() !== "";
 
   const columns = useMemo(
     () => [
@@ -94,7 +116,7 @@ export default function PatientPRNTableComponent({sectionId}) {
             {
               accessorKey: "actions",
               header: "Actions",
-              maxSize: 75, 
+              maxSize: 75,
               enableSorting: false,
               Cell: ({ row }) => (
                 <Box>
@@ -124,9 +146,7 @@ export default function PatientPRNTableComponent({sectionId}) {
     try {
       const sectionPatient = await getSectionPatientById(sectionId);
       const sectionPatientId = sectionPatient.id;
-      const patientMedData = await getPatientPRNMedication(
-        sectionPatientId
-      );
+      const patientMedData = await getPatientPRNMedication(sectionPatientId);
       const patientInfo = await getPatientById(sectionPatient.patient_id);
       const medications = await getMedications();
 
@@ -269,7 +289,6 @@ export default function PatientPRNTableComponent({sectionId}) {
     }
   };
 
-
   // Delete user
   const handleDelete = async () => {
     await deletePatientMedication(sectionPatientId, deletingRow.original.id);
@@ -289,11 +308,11 @@ export default function PatientPRNTableComponent({sectionId}) {
     enableFilterMatchHighlighting: false,
     renderTopToolbarCustomActions: () => (
       <Box sx={{ flexGrow: 1, display: "flex", justifyContent: "flex-end" }}>
-          <Tooltip title="Add Scheduled Medication">
-            <IconButton onClick={() => handleOpenModal()}>
-              <AddIcon />
-            </IconButton>
-          </Tooltip>
+        <Tooltip title="Add Scheduled Medication">
+          <IconButton onClick={() => handleOpenModal()}>
+            <AddIcon />
+          </IconButton>
+        </Tooltip>
       </Box>
     ),
   });
@@ -315,17 +334,24 @@ export default function PatientPRNTableComponent({sectionId}) {
             value={newScheduledRecord.medication_id}
             fullWidth
             margin="dense"
-            onChange={(e) =>
+            onChange={(e) => {
               setNewScheduledRecord({
                 ...newScheduledRecord,
                 medication_id: e.target.value,
-              })
+              });
+              handleBlur("medication_id");
+            }}
+            onBlur={() => handleBlur("medication_id")}
+            error={
+              touchedFields.medication_id &&
+              newScheduledRecord.medication_id === ""
             }
+            required
             renderValue={(selected) =>
               selected ? (
                 medications.find((med) => med.id === selected)?.drug_name
               ) : (
-                <span style={{ color: "#757575" }}>Select Medication </span>
+                <span style={{ color: "#757575" }}>Select Medication</span>
               )
             }
           >
@@ -368,17 +394,20 @@ export default function PatientPRNTableComponent({sectionId}) {
             fullWidth
             sx={{ marginTop: 1 }}
             margin="dense"
-            onChange={(e) =>
+            onChange={(e) => {
               setNewScheduledRecord({
                 ...newScheduledRecord,
                 route: e.target.value,
-              })
-            }
+              });
+              handleBlur("route");
+            }}
+            onBlur={() => handleBlur("route")}
+            error={touchedFields.route && newScheduledRecord.route === ""}
             renderValue={(selected) =>
               selected ? (
                 selected
               ) : (
-                <span style={{ color: "#757575" }}>Select Route </span>
+                <span style={{ color: "#757575" }}>Select Route</span>
               )
             }
           >
@@ -398,6 +427,9 @@ export default function PatientPRNTableComponent({sectionId}) {
             }
             fullWidth
             margin="dense"
+            required
+            onBlur={() => handleBlur("dose")}
+            error={touchedFields.dose && newScheduledRecord.dose.trim() === ""}
           />
 
           <TextField
@@ -411,6 +443,9 @@ export default function PatientPRNTableComponent({sectionId}) {
             }
             fullWidth
             sx={{ marginTop: 1 }}
+            required
+            onBlur={() => handleBlur("dose_frequency")}
+            error={touchedFields.dose_frequency && newScheduledRecord.dose_frequency.trim() === ""}
           />
         </DialogContent>
 
@@ -422,7 +457,12 @@ export default function PatientPRNTableComponent({sectionId}) {
           >
             Cancel
           </Button>
-          <Button onClick={handleSave} color="primary" variant="contained">
+          <Button
+            onClick={handleSave}
+            color="primary"
+            variant="contained"
+            disabled={!isFormValid}
+          >
             {editingRow ? "Save" : "Submit"}
           </Button>
         </DialogActions>

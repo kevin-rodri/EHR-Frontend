@@ -71,6 +71,28 @@ export default function PatientScheduledTableComponent({ sectionId }) {
     dose_frequency: "",
   });
 
+  const [touchedFields, setTouchedFields] = useState({
+    medication_id: false,
+    dose: false,
+    route: false,
+    dose_frequency: false
+  });
+
+  const handleBlur = (field) => {
+    setTouchedFields((prev) => ({ ...prev, [field]: true }));
+  };
+
+  const isFormValid =
+    (editingRow ||
+      (touchedFields.medication_id &&
+        touchedFields.dose &&
+        touchedFields.route &&
+        touchedFields.dose_frequency)) &&
+    newScheduledRecord.medication_id !== "" &&
+    newScheduledRecord.dose.trim() !== "" &&
+    newScheduledRecord.route !== "" &&
+    newScheduledRecord.dose_frequency.trim() !== "";
+
   const columns = useMemo(
     () => [
       { accessorKey: "drugName", header: "Drug Name", size: 150 },
@@ -94,7 +116,7 @@ export default function PatientScheduledTableComponent({ sectionId }) {
             {
               accessorKey: "actions",
               header: "Actions",
-              maxSize: 75, 
+              maxSize: 75,
               enableSorting: false,
               Cell: ({ row }) => (
                 <Box>
@@ -288,11 +310,11 @@ export default function PatientScheduledTableComponent({ sectionId }) {
     enableFilterMatchHighlighting: false,
     renderTopToolbarCustomActions: () => (
       <Box sx={{ flexGrow: 1, display: "flex", justifyContent: "flex-end" }}>
-          <Tooltip title="Add Scheduled Medication">
-            <IconButton onClick={() => handleOpenModal()}>
-              <AddIcon />
-            </IconButton>
-          </Tooltip>
+        <Tooltip title="Add Scheduled Medication">
+          <IconButton onClick={() => handleOpenModal()}>
+            <AddIcon />
+          </IconButton>
+        </Tooltip>
       </Box>
     ),
   });
@@ -314,17 +336,24 @@ export default function PatientScheduledTableComponent({ sectionId }) {
             value={newScheduledRecord.medication_id}
             fullWidth
             margin="dense"
-            onChange={(e) =>
+            onChange={(e) => {
               setNewScheduledRecord({
                 ...newScheduledRecord,
                 medication_id: e.target.value,
-              })
+              });
+              handleBlur("medication_id");
+            }}
+            onBlur={() => handleBlur("medication_id")}
+            error={
+              touchedFields.medication_id &&
+              newScheduledRecord.medication_id === ""
             }
+            required
             renderValue={(selected) =>
               selected ? (
                 medications.find((med) => med.id === selected)?.drug_name
               ) : (
-                <span style={{ color: "#757575" }}>Select Medication </span>
+                <span style={{ color: "#757575" }}>Select Medication</span>
               )
             }
           >
@@ -367,12 +396,15 @@ export default function PatientScheduledTableComponent({ sectionId }) {
             fullWidth
             sx={{ marginTop: 1 }}
             margin="dense"
-            onChange={(e) =>
+            onChange={(e) => {
               setNewScheduledRecord({
                 ...newScheduledRecord,
                 route: e.target.value,
-              })
-            }
+              });
+              handleBlur("route");
+            }}
+            onBlur={() => handleBlur("route")}
+            error={touchedFields.route && newScheduledRecord.route === ""}
             renderValue={(selected) =>
               selected ? (
                 selected
@@ -397,6 +429,9 @@ export default function PatientScheduledTableComponent({ sectionId }) {
             }
             fullWidth
             margin="dense"
+            required
+            onBlur={() => handleBlur("dose")}
+            error={touchedFields.dose && newScheduledRecord.dose.trim() === ""}
           />
 
           <TextField
@@ -410,6 +445,9 @@ export default function PatientScheduledTableComponent({ sectionId }) {
             }
             fullWidth
             sx={{ marginTop: 1 }}
+            required
+            onBlur={() => handleBlur("dose_frequency")}
+            error={touchedFields.dose_frequency && newScheduledRecord.dose_frequency.trim() === ""}
           />
         </DialogContent>
 
@@ -421,7 +459,12 @@ export default function PatientScheduledTableComponent({ sectionId }) {
           >
             Cancel
           </Button>
-          <Button onClick={handleSave} color="primary" variant="contained">
+          <Button
+            onClick={handleSave}
+            color="primary"
+            variant="contained"
+            disabled={!isFormValid}
+          >
             {editingRow ? "Save" : "Submit"}
           </Button>
         </DialogActions>
@@ -433,7 +476,6 @@ export default function PatientScheduledTableComponent({ sectionId }) {
         onClose={() => setOpenDeleteModal(false)}
         onConfirm={handleDelete}
       />
-
     </Box>
   );
 }

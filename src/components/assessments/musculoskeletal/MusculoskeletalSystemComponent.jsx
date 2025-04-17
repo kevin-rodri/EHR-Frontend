@@ -31,6 +31,27 @@ export default function MusculoskeletalSystemComponent({ sectionId }) {
     abnormalities: "",
   });
 
+  const [touchedFields, setTouchedFields] = useState({
+    left_upper_extremity: false,
+    left_lower_extremity: false,
+    right_upper_extremity: false,
+    right_lower_extremity: false,
+    gait: false,
+    adl_id: false,
+  });
+
+  const isFormValid =
+    formData.left_upper_extremity.trim() !== "" &&
+    formData.left_lower_extremity.trim() !== "" &&
+    formData.lower_upper_quadrant.trim() !== "" &&
+    formData.right_lower_extremity.trim() !== "" &&
+    formData.stool.trim() !== "" &&
+    formData.adl_id.trim() !== "";
+
+  const handleBlur = (field) => {
+    setTouchedFields((prev) => ({ ...prev, [field]: true }));
+  };
+
   const fetchMusculoskeletalInfo = async () => {
     try {
       const sectionPatient = await getSectionPatientById(sectionId);
@@ -62,6 +83,11 @@ export default function MusculoskeletalSystemComponent({ sectionId }) {
   const onSubmit = async () => {
     setLoading(true);
     try {
+      const abnormalitiesToSend =
+        formData.abnormalities && formData.abnormalities.trim() !== ""
+          ? formData.abnormalities
+          : "N/A";
+
       const response = await addMusculoskeletalInfo(sectionPatientId, {
         left_upper_extremity: formData.left_upper_extremity,
         left_lower_extremity: formData.left_lower_extremity,
@@ -69,7 +95,7 @@ export default function MusculoskeletalSystemComponent({ sectionId }) {
         right_lower_extremity: formData.right_lower_extremity,
         gait: formData.gait,
         adl_id: formData.adl_id,
-        abnormalities: formData.abnormalities,
+        abnormalities: abnormalitiesToSend,
       });
       setFormData(response);
       setWasAdded(true);
@@ -83,6 +109,11 @@ export default function MusculoskeletalSystemComponent({ sectionId }) {
   const onEdit = async () => {
     setLoading(true);
     try {
+      const abnormalitiesToSend =
+      formData.abnormalities && formData.abnormalities.trim() !== ""
+        ? formData.abnormalities
+        : "N/A";
+
       const response = await updateMusculoskeletalInfo(
         sectionPatientId,
         formData.id,
@@ -93,7 +124,7 @@ export default function MusculoskeletalSystemComponent({ sectionId }) {
           right_lower_extremity: formData.right_lower_extremity,
           gait: formData.gait,
           adl_id: formData.adl_id,
-          abnormalities: formData.abnormalities,
+          abnormalities: abnormalitiesToSend,
         }
       );
       setFormData(response);
@@ -123,7 +154,14 @@ export default function MusculoskeletalSystemComponent({ sectionId }) {
         sx={{ display: "grid", gridTemplateColumns: "repeat(3, 1fr)", gap: 2 }}
       >
         {/* LUE */}
-        <FormControl fullWidth>
+        {/* LUE */}
+        <FormControl
+          fullWidth
+          error={
+            touchedFields.left_upper_extremity &&
+            formData.left_upper_extremity.trim() === ""
+          }
+        >
           <Typography sx={{ fontWeight: 500 }}>LUE</Typography>
           <Select
             value={formData.left_upper_extremity || ""}
@@ -133,7 +171,12 @@ export default function MusculoskeletalSystemComponent({ sectionId }) {
                 left_upper_extremity: event.target.value,
               })
             }
+            onBlur={() => handleBlur("left_upper_extremity")}
+            displayEmpty
           >
+            <MenuItem value="" disabled>
+              Select an option
+            </MenuItem>
             <MenuItem value={"Full-ROM"}>Full ROM</MenuItem>
             <MenuItem value={"Limited-ROM"}>Limited ROM</MenuItem>
             <MenuItem value={"Immobile"}>Immobile</MenuItem>
@@ -143,7 +186,13 @@ export default function MusculoskeletalSystemComponent({ sectionId }) {
         </FormControl>
 
         {/* LLE */}
-        <FormControl fullWidth>
+        <FormControl
+          fullWidth
+          error={
+            touchedFields.left_lower_extremity &&
+            formData.left_lower_extremity.trim() === ""
+          }
+        >
           <Typography sx={{ fontWeight: 500 }}>LLE</Typography>
           <Select
             value={formData.left_lower_extremity || ""}
@@ -153,7 +202,12 @@ export default function MusculoskeletalSystemComponent({ sectionId }) {
                 left_lower_extremity: event.target.value,
               })
             }
+            onBlur={() => handleBlur("left_lower_extremity")}
+            displayEmpty
           >
+            <MenuItem value="" disabled>
+              Select an option
+            </MenuItem>
             <MenuItem value={"Full-ROM"}>Full ROM</MenuItem>
             <MenuItem value={"Limited-ROM"}>Limited ROM</MenuItem>
             <MenuItem value={"Immobile"}>Immobile</MenuItem>
@@ -163,7 +217,13 @@ export default function MusculoskeletalSystemComponent({ sectionId }) {
         </FormControl>
 
         {/* RUE */}
-        <FormControl fullWidth>
+        <FormControl
+          fullWidth
+          error={
+            touchedFields.right_upper_extremity &&
+            formData.right_upper_extremity.trim() === ""
+          }
+        >
           <Typography sx={{ fontWeight: 500 }}>RUE</Typography>
           <Select
             value={formData.right_upper_extremity || ""}
@@ -173,7 +233,12 @@ export default function MusculoskeletalSystemComponent({ sectionId }) {
                 right_upper_extremity: event.target.value,
               })
             }
+            onBlur={() => handleBlur("right_upper_extremity")}
+            displayEmpty
           >
+            <MenuItem value="" disabled>
+              Select an option
+            </MenuItem>
             <MenuItem value={"Full-ROM"}>Full ROM</MenuItem>
             <MenuItem value={"Limited-ROM"}>Limited ROM</MenuItem>
             <MenuItem value={"Immobile"}>Immobile</MenuItem>
@@ -183,7 +248,13 @@ export default function MusculoskeletalSystemComponent({ sectionId }) {
         </FormControl>
 
         {/* RLE */}
-        <FormControl fullWidth>
+        <FormControl
+          fullWidth
+          error={
+            touchedFields.right_lower_extremity &&
+            formData.right_lower_extremity.trim() === ""
+          }
+        >
           <Typography sx={{ fontWeight: 500 }}>RLE</Typography>
           <Select
             value={formData.right_lower_extremity || ""}
@@ -193,7 +264,12 @@ export default function MusculoskeletalSystemComponent({ sectionId }) {
                 right_lower_extremity: event.target.value,
               })
             }
+            onBlur={() => handleBlur("right_lower_extremity")}
+            displayEmpty
           >
+            <MenuItem value="" disabled>
+              Select an option
+            </MenuItem>
             <MenuItem value={"Full-ROM"}>Full ROM</MenuItem>
             <MenuItem value={"Limited-ROM"}>Limited ROM</MenuItem>
             <MenuItem value={"Immobile"}>Immobile</MenuItem>
@@ -203,14 +279,22 @@ export default function MusculoskeletalSystemComponent({ sectionId }) {
         </FormControl>
 
         {/* Gait */}
-        <FormControl fullWidth>
+        <FormControl
+          fullWidth
+          error={touchedFields.gait && formData.gait.trim() === ""}
+        >
           <Typography sx={{ fontWeight: 500 }}>Gait</Typography>
           <Select
             value={formData.gait || ""}
             onChange={(event) =>
               setFormData({ ...formData, gait: event.target.value })
             }
+            onBlur={() => handleBlur("gait")}
+            displayEmpty
           >
+            <MenuItem value="" disabled>
+              Select an option
+            </MenuItem>
             <MenuItem value={"Self-Steady"}>Self, Steady</MenuItem>
             <MenuItem value={"Self-Unsteady"}>Self, Unsteady</MenuItem>
             <MenuItem value={"1-assist"}>1 assist</MenuItem>
@@ -221,14 +305,22 @@ export default function MusculoskeletalSystemComponent({ sectionId }) {
         </FormControl>
 
         {/* ADL */}
-        <FormControl fullWidth>
+        <FormControl
+          fullWidth
+          error={touchedFields.adl_id && formData.adl_id.trim() === ""}
+        >
           <Typography sx={{ fontWeight: 500 }}>ADL's</Typography>
           <Select
             value={formData.adl_id || ""}
             onChange={(event) =>
               setFormData({ ...formData, adl_id: event.target.value })
             }
+            onBlur={() => handleBlur("adl_id")}
+            displayEmpty
           >
+            <MenuItem value="" disabled>
+              Select an option
+            </MenuItem>
             <MenuItem value={"Self-Care"}>Self Care</MenuItem>
             <MenuItem value={"Facilitated"}>Facilitated</MenuItem>
             <MenuItem value={"Total-Care"}>Total Care</MenuItem>
@@ -258,6 +350,7 @@ export default function MusculoskeletalSystemComponent({ sectionId }) {
           variant="contained"
           sx={{ gridColumn: "span 3", mt: 2 }}
           onClick={!wasAdded ? onSubmit : onEdit}
+          disabled={!isFormValid}
         >
           {!wasAdded ? "Submit" : "Save"}
         </Button>

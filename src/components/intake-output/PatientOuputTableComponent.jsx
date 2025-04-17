@@ -62,6 +62,24 @@ export default function PatientOutputTableComponent({ sectionId }) {
     date_and_time_taken: "",
   });
 
+  const [touchedFields, setTouchedFields] = useState({
+    type: false,
+    amount: false,
+  });
+
+  const handleBlur = (field) => {
+    setTouchedFields((prev) => ({ ...prev, [field]: true }));
+  };
+
+  const isFormValid =
+  (editingRow || (touchedFields.type && touchedFields.amount)) &&
+  newOutput.type !== "" &&
+  newOutput.amount.trim() !== "" &&
+  !isNaN(Number(newOutput.amount)) &&
+  Number(newOutput.amount) > 0;
+
+
+
   const columns = useMemo(
     () => [
       { accessorKey: "type", header: "Type", size: 150 },
@@ -161,8 +179,8 @@ export default function PatientOutputTableComponent({ sectionId }) {
       const formattedOutputTime = dayjs(newOutput.date_and_time_taken)
         .utc()
         .format("YYYY-MM-DD HH:mm:ss");
-        const parsedAmount = parseFloat(newOutput.amount);
-  
+      const parsedAmount = parseFloat(newOutput.amount);
+
       const recordToSend = {
         section_patient_id: sectionPatientId,
         type: newOutput.type,
@@ -261,6 +279,8 @@ export default function PatientOutputTableComponent({ sectionId }) {
                 type: e.target.value,
               })
             }
+            onBlur={() => handleBlur("type")}
+            error={touchedFields.type && newOutput.type === ""}
             renderValue={(selected) =>
               selected ? (
                 selected
@@ -282,9 +302,12 @@ export default function PatientOutputTableComponent({ sectionId }) {
               })
             }
             fullWidth
+            required
+            onBlur={() => handleBlur("amount")}
+            error={touchedFields.amount && newOutput.amount.trim() === ""}
             margin="dense"
           />
-          <LocalizationProvider dateAdapter={AdapterDayjs}>
+        <LocalizationProvider dateAdapter={AdapterDayjs}>
             <MobileDateTimePicker
               label="Date and Time"
               sx={{ marginTop: 1 }}
@@ -318,7 +341,7 @@ export default function PatientOutputTableComponent({ sectionId }) {
           >
             Cancel
           </Button>
-          <Button onClick={handleSave} color="primary" variant="contained">
+          <Button onClick={handleSave} color="primary" variant="contained"  disabled={!isFormValid}>
             {editingRow ? "Save" : "Submit"}
           </Button>
         </DialogActions>

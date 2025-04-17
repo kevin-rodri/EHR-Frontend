@@ -51,6 +51,25 @@ export default function PatientHistoryComponent({ sectionId }) {
     description: "",
   });
 
+  const [touchedFields, setTouchedFields] = useState({
+    type: false,
+    title: false,
+    description: false,
+  });
+
+  const handleBlur = (field) => {
+    setTouchedFields((prev) => ({ ...prev, [field]: true }));
+  };
+
+  const isFormValid =
+    (editingRow ||
+      (touchedFields.type &&
+        touchedFields.title &&
+        touchedFields.description)) &&
+    newHistoryRecord.type.trim() !== "" &&
+    newHistoryRecord.title.trim() !== "" &&
+    newHistoryRecord.description.trim() !== "";
+
   const columns = useMemo(
     () => [
       { accessorKey: "type", header: "History Type", size: 150 },
@@ -61,7 +80,7 @@ export default function PatientHistoryComponent({ sectionId }) {
             {
               accessorKey: "actions",
               header: "Actions",
-              maxSize: 50, 
+              maxSize: 50,
               enableSorting: false,
               Cell: ({ row }) => (
                 <Box>
@@ -71,7 +90,10 @@ export default function PatientHistoryComponent({ sectionId }) {
                     </IconButton>
                   </Tooltip>
                   <Tooltip title="Delete">
-                    <IconButton color="error" onClick={() => handleOpenModal(row, "delete")}>
+                    <IconButton
+                      color="error"
+                      onClick={() => handleOpenModal(row, "delete")}
+                    >
                       <DeleteIcon />
                     </IconButton>
                   </Tooltip>
@@ -83,7 +105,6 @@ export default function PatientHistoryComponent({ sectionId }) {
     ],
     [display]
   );
-  
 
   // Open modal for add/edit/delete
   const handleOpenModal = (row = null, action = "edit") => {
@@ -192,7 +213,7 @@ export default function PatientHistoryComponent({ sectionId }) {
           </Tooltip>
         )}
       </Box>
-    ),    
+    ),
   });
 
   return (
@@ -213,6 +234,8 @@ export default function PatientHistoryComponent({ sectionId }) {
             onChange={(e) =>
               setNewHistoryRecord({ ...newHistoryRecord, type: e.target.value })
             }
+            onBlur={() => handleBlur("type")}
+            error={touchedFields.type && newHistoryRecord.type.trim() === ""}
             renderValue={(selected) =>
               selected ? (
                 selected
@@ -230,6 +253,7 @@ export default function PatientHistoryComponent({ sectionId }) {
               Medical/Surgical History
             </MenuItem>
           </Select>
+
           <TextField
             label="History Title"
             fullWidth
@@ -241,6 +265,9 @@ export default function PatientHistoryComponent({ sectionId }) {
                 title: e.target.value,
               })
             }
+            required
+            onBlur={() => handleBlur("title")}
+            error={touchedFields.title && newHistoryRecord.title.trim() === ""}
           />
           <TextField
             label="Description"
@@ -255,6 +282,9 @@ export default function PatientHistoryComponent({ sectionId }) {
                 description: e.target.value,
               })
             }
+            required
+            onBlur={() => handleBlur("description")}
+            error={touchedFields.description && newHistoryRecord.description.trim() === ""}
           />
         </DialogContent>
         <DialogActions sx={{ display: "flex", justifyContent: "center" }}>
@@ -265,7 +295,7 @@ export default function PatientHistoryComponent({ sectionId }) {
           >
             Cancel
           </Button>
-          <Button onClick={handleSave} color="primary" variant="contained">
+          <Button onClick={handleSave} color="primary" variant="contained" disabled={!isFormValid}>
             {editingRow ? "Save" : "Submit"}
           </Button>
         </DialogActions>

@@ -68,6 +68,30 @@ export default function PatientAtHomeTableComponent({ sectionId }) {
     dose_frequency: "",
   });
 
+  const [touchedFields, setTouchedFields] = useState({
+    medication_id: false,
+    scheduled_time: false,
+    dose: false,
+    route: false,
+    dose_frequency: false,
+  });
+
+  const handleBlur = (field) => {
+    setTouchedFields((prev) => ({ ...prev, [field]: true }));
+  };
+  const isFormValid =
+    (editingRow ||
+      (touchedFields.medication_id &&
+        touchedFields.scheduled_time &&
+        touchedFields.dose &&
+        touchedFields.route &&
+        touchedFields.dose_frequency)) &&
+    newAtHomeRecord.medication_id !== "" &&
+    newAtHomeRecord.scheduled_time !== "" &&
+    newAtHomeRecord.dose.trim() !== "" &&
+    newAtHomeRecord.route !== "" &&
+    newAtHomeRecord.dose_frequency.trim() !== "";
+
   const columns = useMemo(
     () => [
       { accessorKey: "drugName", header: "Drug Name", size: 150 },
@@ -303,18 +327,25 @@ export default function PatientAtHomeTableComponent({ sectionId }) {
             displayEmpty
             value={newAtHomeRecord.medication_id}
             fullWidth
+            required
             margin="dense"
-            onChange={(e) =>
+            onChange={(e) => {
               setNewAtHomeRecord({
                 ...newAtHomeRecord,
                 medication_id: e.target.value,
-              })
+              });
+              handleBlur("medication_id");
+            }}
+            onBlur={() => handleBlur("medication_id")}
+            error={
+              touchedFields.medication_id &&
+              newAtHomeRecord.medication_id === ""
             }
             renderValue={(selected) =>
               selected ? (
                 medications.find((med) => med.id === selected)?.drug_name
               ) : (
-                <span style={{ color: "#757575" }}>Select Medication </span>
+                <span style={{ color: "#757575" }}>Select Medication</span>
               )
             }
           >
@@ -329,19 +360,20 @@ export default function PatientAtHomeTableComponent({ sectionId }) {
             <MobileDateTimePicker
               label="Date and Time Taken"
               sx={{ marginTop: 1 }}
+              required
               value={
                 newAtHomeRecord.scheduled_time
                   ? dayjs(newAtHomeRecord.scheduled_time)
                   : null
               }
-              onChange={(newDate) =>
+              onChange={(newDate) => {
                 setNewAtHomeRecord({
                   ...newAtHomeRecord,
                   scheduled_time: newDate
                     ? dayjs(newDate).format("YYYY-MM-DD HH:mm:ss")
                     : "",
-                })
-              }
+                });
+              }}
               minutesStep={1}
               ampm={true}
               views={["year", "day", "hours", "minutes"]}
@@ -353,16 +385,17 @@ export default function PatientAtHomeTableComponent({ sectionId }) {
 
           <Select
             displayEmpty
+            required
             value={newAtHomeRecord.route}
             fullWidth
             sx={{ marginTop: 1 }}
             margin="dense"
-            onChange={(e) =>
-              setNewAtHomeRecord({
-                ...newAtHomeRecord,
-                route: e.target.value,
-              })
-            }
+            onChange={(e) => {
+              setNewAtHomeRecord({ ...newAtHomeRecord, route: e.target.value });
+              handleBlur("route");
+            }}
+            onBlur={() => handleBlur("route")}
+            error={touchedFields.route && newAtHomeRecord.route === ""}
             renderValue={(selected) =>
               selected ? (
                 selected
@@ -387,6 +420,9 @@ export default function PatientAtHomeTableComponent({ sectionId }) {
             }
             fullWidth
             margin="dense"
+            required
+            onBlur={() => handleBlur("dose")}
+            error={touchedFields.dose && newAtHomeRecord.dose.trim() === ""}
           />
 
           <TextField
@@ -400,6 +436,12 @@ export default function PatientAtHomeTableComponent({ sectionId }) {
             }
             fullWidth
             sx={{ marginTop: 1 }}
+            required
+            onBlur={() => handleBlur("dose_frequency")}
+            error={
+              touchedFields.dose_frequency &&
+              newAtHomeRecord.dose_frequency.trim() === ""
+            }
           />
         </DialogContent>
 
@@ -411,7 +453,12 @@ export default function PatientAtHomeTableComponent({ sectionId }) {
           >
             Cancel
           </Button>
-          <Button onClick={handleSave} color="primary" variant="contained">
+          <Button
+            onClick={handleSave}
+            color="primary"
+            variant="contained"
+            disabled={!isFormValid}
+          >
             {editingRow ? "Save" : "Submit"}
           </Button>
         </DialogActions>

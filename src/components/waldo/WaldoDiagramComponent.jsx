@@ -52,6 +52,28 @@ export default function WaldoDiagramComponent({ sectionId }) {
     drain_note: "",
   });
 
+  const [touchedFields, setTouchedFields] = useState({
+    surgical_wound_note: false,
+    pressure_sore_note: false,
+    drain_notetrauma_wound_note: false,
+    drain_note: false,
+  });
+
+  const handleBlur = (field) => {
+    setTouchedFields((prev) => ({ ...prev, [field]: true }));
+  };
+
+  const isFormValid =
+    editingRow ||
+    (touchedFields.surgical_wound_note &&
+      touchedFields.pressure_sore_note &&
+      touchedFields.trauma_wound_note &&
+      touchedFields.drain_note &&
+      newWaldoInfo.surgical_wound_note.trim() !== "" &&
+      newWaldoInfo.pressure_sore_note.trim() !== "" &&
+      newWaldoInfo.trauma_wound_note.trim() !== "" &&
+      newWaldoInfo.drain_note.trim() !== "");
+
   // let's get the waldo info first (if any)
   useEffect(() => {
     const fetchPatientWaldo = async () => {
@@ -445,6 +467,11 @@ export default function WaldoDiagramComponent({ sectionId }) {
                 surgical_wound_note: e.target.value,
               })
             }
+            required
+            onBlur={() => handleBlur("surgical_wound_note")}
+            error={
+              touchedFields.surgical_wound_note && newWaldoInfo.surgical_wound_note.trim() === ""
+            }
           />
           <TextField
             label="Pressure Sore Note"
@@ -458,6 +485,11 @@ export default function WaldoDiagramComponent({ sectionId }) {
                 ...newWaldoInfo,
                 pressure_sore_note: e.target.value,
               })
+            }
+            required
+            onBlur={() => handleBlur("pressure_sore_note")}
+            error={
+              touchedFields.pressure_sore_note && newWaldoInfo.pressure_sore_note.trim() === ""
             }
           />
           <TextField
@@ -473,6 +505,11 @@ export default function WaldoDiagramComponent({ sectionId }) {
                 trauma_wound_note: e.target.value,
               })
             }
+            required
+            onBlur={() => handleBlur("trauma_wound_note")}
+            error={
+              touchedFields.trauma_wound_note && newWaldoInfo.trauma_wound_note.trim() === ""
+            }
           />
           <TextField
             label="Drain Note"
@@ -487,6 +524,11 @@ export default function WaldoDiagramComponent({ sectionId }) {
                 drain_note: e.target.value,
               })
             }
+            required
+            onBlur={() => handleBlur("drain_note")}
+            error={
+              touchedFields.drain_note && newWaldoInfo.drain_note.trim() === ""
+            }
           />
         </DialogContent>
         <DialogActions sx={{ display: "flex", justifyContent: "center" }}>
@@ -497,7 +539,12 @@ export default function WaldoDiagramComponent({ sectionId }) {
           >
             Cancel
           </Button>
-          <Button onClick={handleSave} color="primary" variant="contained">
+          <Button
+            onClick={handleSave}
+            color="primary"
+            variant="contained"
+            disabled={!isFormValid}
+          >
             {editingRow ? "Save" : "Submit"}
           </Button>
         </DialogActions>

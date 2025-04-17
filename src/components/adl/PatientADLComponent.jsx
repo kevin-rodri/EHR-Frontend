@@ -62,8 +62,30 @@ export default function PatientADLComponent({ sectionId }) {
     is_meal_given: false,
     amount_meal_consumed: "0.00",
     created_date: "",
-    has_foley_care: false
+    has_foley_care: false,
   });
+
+  const [touchedFields, setTouchedFields] = useState({
+    reposition: false,
+    elimination_needed: false,
+    amount_meal_consumed: false,
+  });
+
+  const handleBlur = (field) => {
+    setTouchedFields((prev) => ({ ...prev, [field]: true }));
+  };
+
+  const isFormValid =
+    editingRow ||
+    (touchedFields.reposition &&
+      touchedFields.elimination_needed &&
+      touchedFields.amount_meal_consumed &&
+      newRecord.reposition.trim() !== "" &&
+      newRecord.elimination_needed.trim() !== "" &&
+      newRecord.amount_meal_consumed.trim() !== "" &&
+      !isNaN(parseFloat(newRecord.amount_meal_consumed)) &&
+      parseFloat(newRecord.amount_meal_consumed) >= 0 &&
+      parseFloat(newRecord.amount_meal_consumed) <= 100);
 
   const columns = useMemo(() => [
     {
@@ -85,13 +107,13 @@ export default function PatientADLComponent({ sectionId }) {
       ),
     },
     {
-        accessorKey: "has_foley_care",
-        header: "Has Foley Care",
-        enableSorting: false,
-        Cell: ({ row }) => (
-          <Checkbox checked={row.original.has_foley_care} disabled />
-        ),
-      },
+      accessorKey: "has_foley_care",
+      header: "Has Foley Care",
+      enableSorting: false,
+      Cell: ({ row }) => (
+        <Checkbox checked={row.original.has_foley_care} disabled />
+      ),
+    },
     { accessorKey: "amount_meal_consumed", header: "% of Meal Consumed" },
     {
       accessorKey: "created_date",
@@ -188,7 +210,7 @@ export default function PatientADLComponent({ sectionId }) {
         reposition: newRecord.reposition || "",
         elimination_needed: newRecord.elimination_needed || "",
         is_meal_given: newRecord.is_meal_given ? 1 : 0,
-        has_foley_care: newRecord.has_foley_care ? 1: 0,
+        has_foley_care: newRecord.has_foley_care ? 1 : 0,
         amount_meal_consumed: parseFloat(
           newRecord.amount_meal_consumed
         ).toFixed(2),
@@ -223,11 +245,11 @@ export default function PatientADLComponent({ sectionId }) {
             reposition: newRecord.reposition || "",
             elimination_needed: newRecord.elimination_needed || "",
             is_meal_given: newRecord.is_meal_given ? 1 : 0,
-            has_foley_care: newRecord.has_foley_care ? 1: 0,
+            has_foley_care: newRecord.has_foley_care ? 1 : 0,
             amount_meal_consumed: parseFloat(
               newRecord.amount_meal_consumed
             ).toFixed(2),
-            created_date: formattedTime
+            created_date: formattedTime,
           };
           setAdlRecords((prevData) => [...prevData, data]);
         }
@@ -301,6 +323,10 @@ export default function PatientADLComponent({ sectionId }) {
                 reposition: e.target.value,
               })
             }
+            onBlur={() => handleBlur("reposition")}
+            error={
+              touchedFields.reposition && newRecord.reposition.trim() === ""
+            }
             renderValue={(selected) =>
               selected ? (
                 selected
@@ -327,6 +353,11 @@ export default function PatientADLComponent({ sectionId }) {
                 elimination_needed: e.target.value,
               })
             }
+            onBlur={() => handleBlur("elimination_needed")}
+            error={
+              touchedFields.elimination_needed &&
+              newRecord.elimination_needed.trim() === ""
+            }
             renderValue={(selected) =>
               selected ? (
                 selected
@@ -341,6 +372,7 @@ export default function PatientADLComponent({ sectionId }) {
             <MenuItem value="Bedpan">Bedpan</MenuItem>
             <MenuItem value="Commode">Commode</MenuItem>
           </Select>
+
           <Box display="flex" alignItems="center">
             <Tooltip title="Is Meal Given">
               <Checkbox
@@ -381,6 +413,12 @@ export default function PatientADLComponent({ sectionId }) {
             }
             fullWidth
             margin="dense"
+            required
+            onBlur={() => handleBlur("amount_meal_consumed")}
+            error={
+              touchedFields.amount_meal_consumed &&
+              newRecord.amount_meal_consumed.trim() === ""
+            }
           />
           <DialogActions sx={{ display: "flex", justifyContent: "center" }}>
             <Button
@@ -390,7 +428,12 @@ export default function PatientADLComponent({ sectionId }) {
             >
               Cancel
             </Button>
-            <Button onClick={handleSave} color="primary" variant="contained">
+            <Button
+              onClick={handleSave}
+              color="primary"
+              variant="contained"
+              disabled={!isFormValid}
+            >
               {editingRow ? "Save" : "Submit"}
             </Button>
           </DialogActions>
@@ -412,7 +455,7 @@ export default function PatientADLComponent({ sectionId }) {
             Cancel
           </Button>
           <Button onClick={handleDelete} color="primary" variant="contained">
-            Submit
+            {editingRow ? "Save" : "Submit"}
           </Button>
         </DialogActions>
       </Dialog>

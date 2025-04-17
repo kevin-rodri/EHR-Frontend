@@ -62,6 +62,22 @@ export default function PatientIntakeTableComponent({ sectionId }) {
     date_and_time_taken: "",
   });
 
+  const [touchedFields, setTouchedFields] = useState({
+    type: false,
+    amount: false,
+  });
+
+  const handleBlur = (field) => {
+    setTouchedFields((prev) => ({ ...prev, [field]: true }));
+  };
+
+  const isFormValid =
+    (editingRow || (touchedFields.type && touchedFields.amount)) &&
+    newIntake.type !== "" &&
+    newIntake.amount.trim() !== "" &&
+    !isNaN(Number(newIntake.amount)) &&
+    Number(newIntake.amount) > 0;
+
   const columns = useMemo(
     () => [
       { accessorKey: "type", header: "Type", size: 150 },
@@ -258,12 +274,12 @@ export default function PatientIntakeTableComponent({ sectionId }) {
             fullWidth
             sx={{ marginTop: 1 }}
             margin="dense"
-            onChange={(e) =>
-              setNewIntake({
-                ...newIntake,
-                type: e.target.value,
-              })
-            }
+            onChange={(e) => {
+              setNewIntake({ ...newIntake, type: e.target.value });
+              handleBlur("type");
+            }}
+            onBlur={() => handleBlur("type")}
+            error={touchedFields.type && newIntake.type === ""}
             renderValue={(selected) =>
               selected ? (
                 selected
@@ -287,6 +303,9 @@ export default function PatientIntakeTableComponent({ sectionId }) {
             }
             fullWidth
             margin="dense"
+            required
+            onBlur={() => handleBlur("amount")}
+            error={touchedFields.amount && newIntake.amount === ""}
           />
           <LocalizationProvider dateAdapter={AdapterDayjs}>
             <MobileDateTimePicker
@@ -297,14 +316,14 @@ export default function PatientIntakeTableComponent({ sectionId }) {
                   ? dayjs(newIntake.date_and_time_taken)
                   : null
               }
-              onChange={(newDate) =>
+              onChange={(newDate) => {
                 setNewIntake({
                   ...newIntake,
                   date_and_time_taken: newDate
                     ? dayjs(newDate).format("YYYY-MM-DD HH:mm:ss")
                     : "",
-                })
-              }
+                });
+              }}
               minutesStep={1}
               ampm={true}
               views={["year", "day", "hours", "minutes"]}
@@ -322,7 +341,12 @@ export default function PatientIntakeTableComponent({ sectionId }) {
           >
             Cancel
           </Button>
-          <Button onClick={handleSave} color="primary" variant="contained">
+          <Button
+            onClick={handleSave}
+            color="primary"
+            variant="contained"
+            disabled={!isFormValid}
+          >
             {editingRow ? "Save" : "Submit"}
           </Button>
         </DialogActions>

@@ -50,6 +50,21 @@ function PatientNotesTableComponent({ sectionId }) {
     modified_date: "",
   });
 
+    const [touchedFields, setTouchedFields] = useState({
+      title: false,
+      description: false,
+    });
+  
+    const handleBlur = (field) => {
+      setTouchedFields((prev) => ({ ...prev, [field]: true }));
+    };
+
+    const isFormValid =
+    (editingRow || (touchedFields.order_title && touchedFields.description)) &&
+    newPatientNoteRecord.order_title.trim() !== "" &&
+    newPatientNoteRecord.description.trim() !== "";
+  
+  
   const columns = useMemo(() => [
     { accessorKey: "title", header: "Title"},
     { accessorKey: "description", header: "Description" },
@@ -222,6 +237,9 @@ function PatientNotesTableComponent({ sectionId }) {
                 title: e.target.value,
               })
             }
+            required
+            onBlur={() => handleBlur("title")}
+            error={touchedFields.title && newPatientNoteRecord.title.trim() === ""}
           />
 
           <TextField
@@ -237,6 +255,9 @@ function PatientNotesTableComponent({ sectionId }) {
                 description: e.target.value,
               })
             }
+            required
+            onBlur={() => handleBlur("description")}
+            error={touchedFields.description && newPatientNoteRecord.description.trim() === ""}
           />
         </DialogContent>
         <DialogActions sx={{ display: "flex", justifyContent: "center" }}>
@@ -247,7 +268,7 @@ function PatientNotesTableComponent({ sectionId }) {
           >
             Cancel
           </Button>
-          <Button onClick={handleSave} color="primary" variant="contained">
+          <Button onClick={handleSave} color="primary" variant="contained" disabled={!isFormValid}>
             {editingRow ? "Save" : "Submit"}
           </Button>
         </DialogActions>
