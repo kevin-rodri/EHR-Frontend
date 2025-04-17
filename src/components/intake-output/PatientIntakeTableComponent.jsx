@@ -247,9 +247,7 @@ export default function PatientIntakeTableComponent({ sectionId }) {
       <MaterialReactTable table={table} />
       <Dialog open={openModal} onClose={() => setOpenModal(false)}>
         <DialogTitle align="center">
-          {editingRow
-            ? "Edit Patient Intake Record"
-            : "Add Patient Intake Record"}
+          {editingRow ? "Edit Patient Intake Record" : "Add Patient Intake Record"}
         </DialogTitle>
         <DialogContent>
           <Select
@@ -258,6 +256,8 @@ export default function PatientIntakeTableComponent({ sectionId }) {
             fullWidth
             sx={{ marginTop: 1 }}
             margin="dense"
+            required
+            error={newIntake.type === ""}
             onChange={(e) =>
               setNewIntake({
                 ...newIntake,
@@ -265,17 +265,14 @@ export default function PatientIntakeTableComponent({ sectionId }) {
               })
             }
             renderValue={(selected) =>
-              selected ? (
-                selected
-              ) : (
-                <span style={{ color: "#757575" }}>Select Type</span>
-              )
+              selected ? selected : <span style={{ color: "#757575" }}>Select Type</span>
             }
           >
             <MenuItem value="PO">PO</MenuItem>
             <MenuItem value="TUBE FEEDING">TUBE FEEDING</MenuItem>
             <MenuItem value="IV">IV</MenuItem>
           </Select>
+
           <TextField
             label="Amount"
             value={newIntake.amount}
@@ -286,17 +283,17 @@ export default function PatientIntakeTableComponent({ sectionId }) {
               })
             }
             fullWidth
-            margin="dense"
+            required
+            error={newIntake.amount === ""}
+            InputLabelProps={{ required: false }}
+            sx={{ backgroundColor: "white", mt: 1 }}
           />
+
           <LocalizationProvider dateAdapter={AdapterDayjs}>
             <MobileDateTimePicker
               label="Date and Time"
               sx={{ marginTop: 1 }}
-              value={
-                newIntake.date_and_time_taken
-                  ? dayjs(newIntake.date_and_time_taken)
-                  : null
-              }
+              value={newIntake.date_and_time_taken ? dayjs(newIntake.date_and_time_taken) : null}
               onChange={(newDate) =>
                 setNewIntake({
                   ...newIntake,
@@ -309,20 +306,36 @@ export default function PatientIntakeTableComponent({ sectionId }) {
               ampm={true}
               views={["year", "day", "hours", "minutes"]}
               slotProps={{
-                textField: { fullWidth: true },
+                textField: {
+                  fullWidth: true,
+                  required: true,
+                  error: newIntake.date_and_time_taken === "",
+                  InputLabelProps: { required: false },
+                  sx: { backgroundColor: "white" },
+                },
               }}
             />
           </LocalizationProvider>
         </DialogContent>
         <DialogActions sx={{ display: "flex", justifyContent: "center" }}>
-          <Button
-            onClick={() => setOpenModal(false)}
-            color="error"
-            variant="contained"
-          >
+          <Button onClick={() => setOpenModal(false)} color="error" variant="contained">
             Cancel
           </Button>
-          <Button onClick={handleSave} color="primary" variant="contained">
+          <Button
+            onClick={async () => {
+              const cleanedIntake = {
+                ...newIntake,
+                type: newIntake.type || "N/A",
+                amount: newIntake.amount.trim() || "0",
+                date_and_time_taken:
+                  newIntake.date_and_time_taken || dayjs().format("YYYY-MM-DD HH:mm:ss"),
+              };
+              setNewIntake(cleanedIntake);
+              await handleSave();
+            }}
+            color="primary"
+            variant="contained"
+          >
             {editingRow ? "Save" : "Submit"}
           </Button>
         </DialogActions>

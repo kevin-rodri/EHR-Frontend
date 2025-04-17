@@ -70,6 +70,7 @@ export default function PatientScheduledTableComponent({ sectionId }) {
     route: "",
     dose_frequency: "",
   });
+  const [formSubmitted, setFormSubmitted] = useState(false);
 
   const columns = useMemo(
     () => [
@@ -163,6 +164,8 @@ export default function PatientScheduledTableComponent({ sectionId }) {
 
   // Open modal for add/edit/delete
   const handleOpenModal = (row = null, action = "edit") => {
+    setFormSubmitted(false);
+
     if (action === "edit") {
       setEditingRow(row);
       if (row) {
@@ -304,16 +307,15 @@ export default function PatientScheduledTableComponent({ sectionId }) {
       {/* Modal for Create/Edit */}
       <Dialog open={openModal} onClose={() => setOpenModal(false)}>
         <DialogTitle align="center">
-          {editingRow
-            ? "Edit Patient Scheduled Medication"
-            : "Add Patient Scheduled Medication"}
+          {editingRow ? "Edit Scheduled Medication" : "Add Scheduled Medication"}
         </DialogTitle>
         <DialogContent>
           <Select
             displayEmpty
             value={newScheduledRecord.medication_id}
             fullWidth
-            margin="dense"
+            required
+            error={formSubmitted && newScheduledRecord.medication_id === ""}
             onChange={(e) =>
               setNewScheduledRecord({
                 ...newScheduledRecord,
@@ -321,16 +323,15 @@ export default function PatientScheduledTableComponent({ sectionId }) {
               })
             }
             renderValue={(selected) =>
-              selected ? (
-                medications.find((med) => med.id === selected)?.drug_name
-              ) : (
-                <span style={{ color: "#757575" }}>Select Medication </span>
-              )
+              selected
+                ? medications.find((m) => m.id === selected)?.drug_name
+                : <span style={{ color: "#757575" }}>Select Medication</span>
             }
+            sx={{ backgroundColor: "white", mt: 1 }}
           >
-            {medications.map((medication) => (
-              <MenuItem key={medication.id} value={medication.id}>
-                {medication.drug_name}
+            {medications.map((med) => (
+              <MenuItem key={med.id} value={med.id}>
+                {med.drug_name}
               </MenuItem>
             ))}
           </Select>
@@ -352,33 +353,56 @@ export default function PatientScheduledTableComponent({ sectionId }) {
                     : "",
                 })
               }
-              minutesStep={1}
-              ampm={true}
-              views={["year", "day", "hours", "minutes"]}
               slotProps={{
-                textField: { fullWidth: true },
+                textField: {
+                  fullWidth: true,
+                  required: true,
+                  error: formSubmitted && newScheduledRecord.scheduled_time === "",
+                  helperText:
+                    formSubmitted && newScheduledRecord.scheduled_time === ""
+                      ? "Required Field"
+                      : "",
+                  InputLabelProps: { required: false },
+                  sx: { backgroundColor: "white" },
+                },
               }}
             />
           </LocalizationProvider>
+
+          <TextField
+            label="Dose"
+            fullWidth
+            required
+            error={formSubmitted && newScheduledRecord.dose === ""}
+            helperText={
+              formSubmitted && newScheduledRecord.dose === "" ? "Required Field" : ""
+            }
+            value={newScheduledRecord.dose}
+            onChange={(e) =>
+              setNewScheduledRecord({
+                ...newScheduledRecord,
+                dose: e.target.value,
+              })
+            }
+            InputLabelProps={{ required: false }}
+            sx={{ backgroundColor: "white", mt: 1 }}
+          />
 
           <Select
             displayEmpty
             value={newScheduledRecord.route}
             fullWidth
-            sx={{ marginTop: 1 }}
-            margin="dense"
+            required
+            error={formSubmitted && newScheduledRecord.route === ""}
             onChange={(e) =>
               setNewScheduledRecord({
                 ...newScheduledRecord,
                 route: e.target.value,
               })
             }
+            sx={{ backgroundColor: "white", mt: 1 }}
             renderValue={(selected) =>
-              selected ? (
-                selected
-              ) : (
-                <span style={{ color: "#757575" }}>Select Route </span>
-              )
+              selected ? selected : <span style={{ color: "#757575" }}>Select Route</span>
             }
           >
             <MenuItem value="PO">PO</MenuItem>
@@ -387,20 +411,15 @@ export default function PatientScheduledTableComponent({ sectionId }) {
           </Select>
 
           <TextField
-            label="Dose"
-            value={newScheduledRecord.dose}
-            onChange={(e) =>
-              setNewScheduledRecord({
-                ...newScheduledRecord,
-                dose: e.target.value,
-              })
-            }
-            fullWidth
-            margin="dense"
-          />
-
-          <TextField
             label="Dose Frequency"
+            fullWidth
+            required
+            error={formSubmitted && newScheduledRecord.dose_frequency === ""}
+            helperText={
+              formSubmitted && newScheduledRecord.dose_frequency === ""
+                ? "Required Field"
+                : ""
+            }
             value={newScheduledRecord.dose_frequency}
             onChange={(e) =>
               setNewScheduledRecord({
@@ -408,24 +427,50 @@ export default function PatientScheduledTableComponent({ sectionId }) {
                 dose_frequency: e.target.value,
               })
             }
-            fullWidth
-            sx={{ marginTop: 1 }}
+            InputLabelProps={{ required: false }}
+            sx={{ backgroundColor: "white", mt: 1 }}
           />
         </DialogContent>
 
         <DialogActions sx={{ display: "flex", justifyContent: "center" }}>
-          <Button
-            onClick={() => setOpenModal(false)}
-            color="error"
-            variant="contained"
-          >
+          <Button onClick={() => setOpenModal(false)} color="error" variant="contained">
             Cancel
           </Button>
-          <Button onClick={handleSave} color="primary" variant="contained">
+          <Button
+            onClick={async () => {
+              setFormSubmitted(true);
+
+              const isFormValid =
+                newScheduledRecord.medication_id &&
+                newScheduledRecord.scheduled_time &&
+                newScheduledRecord.dose &&
+                newScheduledRecord.route &&
+                newScheduledRecord.dose_frequency;
+
+              if (!isFormValid) return;
+
+              const cleaned = {
+                section_patient_id: sectionPatientId,
+                medication_id: newScheduledRecord.medication_id,
+                medication_type: "SCHEDULED",
+                scheduled_time:
+                  newScheduledRecord.scheduled_time ||
+                  dayjs().format("YYYY-MM-DD HH:mm:ss"),
+                dose: newScheduledRecord.dose.trim() || "N/A",
+                route: newScheduledRecord.route.trim() || "PO",
+                dose_frequency: newScheduledRecord.dose_frequency.trim() || "N/A",
+              };
+
+              await handleSave(cleaned);
+            }}
+            color="primary"
+            variant="contained"
+          >
             {editingRow ? "Save" : "Submit"}
           </Button>
         </DialogActions>
       </Dialog>
+
 
       {/* Delete Confirmation Modal */}
       <DeleteConfirmationModal

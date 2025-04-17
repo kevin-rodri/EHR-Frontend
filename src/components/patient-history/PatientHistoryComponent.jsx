@@ -50,6 +50,7 @@ export default function PatientHistoryComponent({ sectionId }) {
     title: "",
     description: "",
   });
+  const [formSubmitted, setFormSubmitted] = useState(false);
 
   const columns = useMemo(
     () => [
@@ -87,6 +88,8 @@ export default function PatientHistoryComponent({ sectionId }) {
 
   // Open modal for add/edit/delete
   const handleOpenModal = (row = null, action = "edit") => {
+    setFormSubmitted(false);
+
     if (action === "edit") {
       setEditingRow(row);
       if (row) {
@@ -210,9 +213,15 @@ export default function PatientHistoryComponent({ sectionId }) {
             value={newHistoryRecord.type}
             fullWidth
             margin="dense"
+            required
+            error={formSubmitted && newHistoryRecord.type === ""}
+            renderValue={(selected) =>
+              selected ? selected : <span style={{ color: "#757575" }}>History Type</span>
+            }
             onChange={(e) =>
               setNewHistoryRecord({ ...newHistoryRecord, type: e.target.value })
             }
+
             renderValue={(selected) =>
               selected ? (
                 selected
@@ -233,21 +242,36 @@ export default function PatientHistoryComponent({ sectionId }) {
           <TextField
             label="History Title"
             fullWidth
+            required
             margin="dense"
             value={newHistoryRecord.title}
+            error={formSubmitted && newHistoryRecord.title.trim() === ""}
+              helperText={
+                formSubmitted && newHistoryRecord.title.trim() === ""
+                  ? "Required Field"
+                  : ""
+              }
             onChange={(e) =>
               setNewHistoryRecord({
                 ...newHistoryRecord,
                 title: e.target.value,
               })
             }
+            InputLabelProps={{ required: false }}
           />
           <TextField
             label="Description"
             fullWidth
             multiline
+            required
             margin="dense"
             value={newHistoryRecord.description}
+            error={formSubmitted && newHistoryRecord.description.trim() === ""}
+              helperText={
+                formSubmitted && newHistoryRecord.description.trim() === ""
+                  ? "Required Field"
+                  : ""
+              }
             rows={4}
             onChange={(e) =>
               setNewHistoryRecord({
@@ -255,6 +279,7 @@ export default function PatientHistoryComponent({ sectionId }) {
                 description: e.target.value,
               })
             }
+            InputLabelProps={{ required: false }}
           />
         </DialogContent>
         <DialogActions sx={{ display: "flex", justifyContent: "center" }}>
@@ -265,7 +290,24 @@ export default function PatientHistoryComponent({ sectionId }) {
           >
             Cancel
           </Button>
-          <Button onClick={handleSave} color="primary" variant="contained">
+          <Button
+            onClick={async () => {
+              setFormSubmitted(true);
+
+              const { type, title, description } = newHistoryRecord;
+              if (
+                type.trim() === "" ||
+                title.trim() === "" ||
+                description.trim() === ""
+              ) {
+                return; // block submission and show red
+              }
+
+              await handleSave();
+            }}
+            color="primary"
+            variant="contained"
+          >
             {editingRow ? "Save" : "Submit"}
           </Button>
         </DialogActions>

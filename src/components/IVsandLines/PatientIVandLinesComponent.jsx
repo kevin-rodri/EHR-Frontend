@@ -251,17 +251,16 @@ const PatientIVandLinesComponent = ({ sectionId }) => {
             value={newIVLine.iv_type}
             fullWidth
             margin="dense"
+            required
+            error={newIVLine.iv_type === ""}
             onChange={(e) =>
-              setNewIVLine({
-                ...newIVLine,
-                iv_type: e.target.value,
-              })
+              setNewIVLine({ ...newIVLine, iv_type: e.target.value })
             }
             renderValue={(selected) =>
               selected ? (
                 selected
               ) : (
-                <span style={{ color: "#757575" }}>Select IV and Line Type </span>
+                <span style={{ color: "#757575" }}>Select IV and Line Type</span>
               )
             }
           >
@@ -273,6 +272,7 @@ const PatientIVandLinesComponent = ({ sectionId }) => {
             <MenuItem value="PICC">PICC</MenuItem>
             <MenuItem value="Hickman">Hickman</MenuItem>
           </Select>
+
           <TextField
             label="Size"
             value={newIVLine.size}
@@ -280,7 +280,10 @@ const PatientIVandLinesComponent = ({ sectionId }) => {
               setNewIVLine({ ...newIVLine, size: e.target.value })
             }
             fullWidth
-            margin="dense"
+            required
+            error={newIVLine.size === ""}
+            InputLabelProps={{ required: false }}
+            sx={{ backgroundColor: "white", mt: 1 }}
           />
 
           <TextField
@@ -290,7 +293,10 @@ const PatientIVandLinesComponent = ({ sectionId }) => {
               setNewIVLine({ ...newIVLine, location: e.target.value })
             }
             fullWidth
-            margin="dense"
+            required
+            error={newIVLine.location === ""}
+            InputLabelProps={{ required: false }}
+            sx={{ backgroundColor: "white", mt: 1 }}
           />
 
           <TextField
@@ -300,7 +306,10 @@ const PatientIVandLinesComponent = ({ sectionId }) => {
               setNewIVLine({ ...newIVLine, fluid_or_med_name: e.target.value })
             }
             fullWidth
-            margin="dense"
+            required
+            error={newIVLine.fluid_or_med_name === ""}
+            InputLabelProps={{ required: false }}
+            sx={{ backgroundColor: "white", mt: 1 }}
           />
 
           <TextField
@@ -310,7 +319,10 @@ const PatientIVandLinesComponent = ({ sectionId }) => {
               setNewIVLine({ ...newIVLine, fluid_or_med_rate: e.target.value })
             }
             fullWidth
-            margin="dense"
+            required
+            error={newIVLine.fluid_or_med_rate === ""}
+            InputLabelProps={{ required: false }}
+            sx={{ backgroundColor: "white", mt: 1 }}
           />
 
           <Box display="flex" alignItems="center" sx={{ mt: 2 }}>
@@ -349,7 +361,22 @@ const PatientIVandLinesComponent = ({ sectionId }) => {
           >
             Cancel
           </Button>
-          <Button onClick={handleSave} color="primary" variant="contained">
+          <Button
+            onClick={async () => {
+              const filled = {
+                ...newIVLine,
+                iv_type: newIVLine.iv_type || "N/A",
+                size: newIVLine.size.trim() || "N/A",
+                location: newIVLine.location.trim() || "N/A",
+                fluid_or_med_name: newIVLine.fluid_or_med_name.trim() || "N/A",
+                fluid_or_med_rate: newIVLine.fluid_or_med_rate.trim() || "N/A",
+              };
+              await handleSave(filled);
+              setNewIVLine(filled);
+            }}
+            color="primary"
+            variant="contained"
+          >
             {editingRow ? "Save" : "Submit"}
           </Button>
         </DialogActions>

@@ -244,9 +244,7 @@ export default function PatientOutputTableComponent({ sectionId }) {
       <MaterialReactTable table={table} />
       <Dialog open={openModal} onClose={() => setOpenModal(false)}>
         <DialogTitle align="center">
-          {editingRow
-            ? "Edit Patient Output Record"
-            : "Add Patient Output Record"}
+          {editingRow ? "Edit Patient Output Record" : "Add Patient Output Record"}
         </DialogTitle>
         <DialogContent>
           <Select
@@ -255,6 +253,8 @@ export default function PatientOutputTableComponent({ sectionId }) {
             fullWidth
             sx={{ marginTop: 1 }}
             margin="dense"
+            required
+            error={newOutput.type === ""}
             onChange={(e) =>
               setNewOutput({
                 ...newOutput,
@@ -262,16 +262,13 @@ export default function PatientOutputTableComponent({ sectionId }) {
               })
             }
             renderValue={(selected) =>
-              selected ? (
-                selected
-              ) : (
-                <span style={{ color: "#757575" }}>Select Type</span>
-              )
+              selected ? selected : <span style={{ color: "#757575" }}>Select Type</span>
             }
           >
             <MenuItem value="URINE VOIDED">URINE VOIDED</MenuItem>
             <MenuItem value="FOLEY">FOLEY</MenuItem>
           </Select>
+
           <TextField
             label="Amount"
             value={newOutput.amount}
@@ -282,17 +279,17 @@ export default function PatientOutputTableComponent({ sectionId }) {
               })
             }
             fullWidth
-            margin="dense"
+            required
+            error={newOutput.amount === ""}
+            InputLabelProps={{ required: false }}
+            sx={{ backgroundColor: "white", mt: 1 }}
           />
+
           <LocalizationProvider dateAdapter={AdapterDayjs}>
             <MobileDateTimePicker
               label="Date and Time"
               sx={{ marginTop: 1 }}
-              value={
-                newOutput.date_and_time_taken
-                  ? dayjs(newOutput.date_and_time_taken)
-                  : null
-              }
+              value={newOutput.date_and_time_taken ? dayjs(newOutput.date_and_time_taken) : null}
               onChange={(newDate) =>
                 setNewOutput({
                   ...newOutput,
@@ -305,20 +302,36 @@ export default function PatientOutputTableComponent({ sectionId }) {
               ampm={true}
               views={["year", "day", "hours", "minutes"]}
               slotProps={{
-                textField: { fullWidth: true },
+                textField: {
+                  fullWidth: true,
+                  required: true,
+                  error: newOutput.date_and_time_taken === "",
+                  InputLabelProps: { required: false },
+                  sx: { backgroundColor: "white" },
+                },
               }}
             />
           </LocalizationProvider>
         </DialogContent>
         <DialogActions sx={{ display: "flex", justifyContent: "center" }}>
-          <Button
-            onClick={() => setOpenModal(false)}
-            color="error"
-            variant="contained"
-          >
+          <Button onClick={() => setOpenModal(false)} color="error" variant="contained">
             Cancel
           </Button>
-          <Button onClick={handleSave} color="primary" variant="contained">
+          <Button
+            onClick={async () => {
+              const cleanedOutput = {
+                ...newOutput,
+                type: newOutput.type || "N/A",
+                amount: newOutput.amount.trim() || "0",
+                date_and_time_taken:
+                  newOutput.date_and_time_taken || dayjs().format("YYYY-MM-DD HH:mm:ss"),
+              };
+              setNewOutput(cleanedOutput);
+              await handleSave();
+            }}
+            color="primary"
+            variant="contained"
+          >
             {editingRow ? "Save" : "Submit"}
           </Button>
         </DialogActions>

@@ -45,6 +45,7 @@ const GastrointestinalSystemComponent = ({ sectionId }) => {
 
   const [patientId, setPatientId] = useState(null);
   const [time, setTime] = useState(null);
+  const [hasError, setHasError] = useState(false);
 
   useEffect(() => {
     const fetchData = async () => {
@@ -109,6 +110,17 @@ const GastrointestinalSystemComponent = ({ sectionId }) => {
   };
 
   const handleSave = async () => {
+    if (
+          !gastroData.right_upper_quadrant ||
+          !gastroData.right_lower_quadrant ||
+          !gastroData.lower_upper_quadrant ||
+          !gastroData.lower_lower_quadrant ||
+          !gastroData.stool
+        ) {
+          setHasError(true);
+          return;
+        }
+        setHasError(false);
     try {
       let response;
 
@@ -194,15 +206,14 @@ const GastrointestinalSystemComponent = ({ sectionId }) => {
             <Typography variant="body1" fontWeight="bold">
               {region.replace(/_/g, " ").replace(/^\w/, (c) => c.toUpperCase())}
             </Typography>
-            <FormControl fullWidth size="small">
+            <FormControl fullWidth size="small" error={hasError && !gastroData[region]}>
               <Select
                 value={gastroData[region] || ""}
                 onChange={(e) => handleChange(e, region)}
                 displayEmpty
+                required
               >
-                <MenuItem value="" disabled>
-                  Select an option
-                </MenuItem>
+                <MenuItem value="" disabled>Select an option</MenuItem>
                 <MenuItem value="Hypoactive">Hypoactive</MenuItem>
                 <MenuItem value="Hyperactive">Hyperactive</MenuItem>
                 <MenuItem value="Absent">Absent</MenuItem>
@@ -215,33 +226,19 @@ const GastrointestinalSystemComponent = ({ sectionId }) => {
       <Typography variant="h6" sx={{ mt: 3 }}>
         Abdomen Description
       </Typography>
-      <FormControl fullWidth sx={{ mt: 1 }}>
+      <FormControl fullWidth error={hasError && !gastroData.stool}>
         <Select
-          multiple
-          value={
-            Array.isArray(gastroData.abdomen_description)
-              ? gastroData.abdomen_description
-              : []
-          } // ✅ Ensure array
-          onChange={(e) =>
-            setGastroData({
-              ...gastroData,
-              abdomen_description: Array.isArray(e.target.value)
-                ? e.target.value
-                : e.target.value.split(", "),
-            })
-          }
-          renderValue={(selected) =>
-            Array.isArray(selected) ? selected.join(", ") : ""
-          } 
+          value={gastroData.stool || ""}
+          onChange={(e) => handleChange(e, "stool")}
+          displayEmpty
+          required
         >
-          <MenuItem value="soft">Soft</MenuItem>
-          <MenuItem value="rigid">Rigid</MenuItem>
-          <MenuItem value="distended">Distended</MenuItem>
-          <MenuItem value="guarding">Guarding</MenuItem>
-          <MenuItem value="obese">Obese</MenuItem>
-          <MenuItem value="ascites">Ascites</MenuItem>
-          <MenuItem value="tender">Tender</MenuItem>
+          <MenuItem value="" disabled>Select stool type</MenuItem>
+          <MenuItem value="loose">Loose</MenuItem>
+          <MenuItem value="liquid">Liquid</MenuItem>
+          <MenuItem value="blood">Blood</MenuItem>
+          <MenuItem value="clay like">Clay-like</MenuItem>
+          <MenuItem value="mucous">Mucous</MenuItem>
         </Select>
       </FormControl>
 
@@ -272,11 +269,12 @@ const GastrointestinalSystemComponent = ({ sectionId }) => {
 
         <Box sx={{ display: "flex", alignItems: "center", gap: 1 }}>
           <Typography variant="body1">Stool</Typography>
-          <FormControl fullWidth>
+          <FormControl fullWidth error={hasError && !gastroData.stool}>
             <Select
               value={gastroData.stool || ""}
               onChange={(e) => handleChange(e, "stool")}
               displayEmpty
+              required
             >
               <MenuItem value="" disabled>
                 Select stool type

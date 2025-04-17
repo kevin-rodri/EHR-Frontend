@@ -148,43 +148,46 @@ export function PatientLabValuesComponent({ sectionId }) {
         .tz("America/New_York")
         .format("YYYY-MM-DD HH:mm:ss");
 
-      if (editingRow) {
-        await updatePatientLabValue(patientId, editingRow.original.id, {
-          element_name: newLabValue.element_name,
-          element_value: newLabValue.element_value,
-          modified_date: formattedTime,
-        });
+      const cleanedLab = {
+        element_name: newLabValue.element_name.trim() || "N/A",
+        element_value: newLabValue.element_value.trim() || "N/A",
+        modified_date: formattedTime,
+      };
 
+      if (editingRow) {
+        await updatePatientLabValue(patientId, editingRow.original.id, cleanedLab);
         setLabs((prevData) =>
           prevData.map((item) =>
             item.id === editingRow.original.id
               ? {
                   ...item,
-                  ...newLabValue,
-                  modified_date: formattedTime,
+                  ...cleanedLab,
                 }
               : item
           )
         );
       } else {
-        const response = await addPatientLabValues(patientId, {
-          element_name: newLabValue.element_name,
-          element_value: newLabValue.element_value,
-          modified_date: formattedTime,
-        });
+        const response = await addPatientLabValues(patientId, cleanedLab);
 
         if (response && response.id) {
           const newLab = {
             id: response.id,
             section_patient_id: patientId,
-            element_name: newLabValue.element_name,
-            element_value: newLabValue.element_value,
-            modified_date: formattedTime,
+            ...cleanedLab,
           };
 
           setLabs((prevData) => [...prevData, newLab]);
         }
       }
+
+      setLabValue({
+        id: "",
+        section_patient_id: patientId,
+        element_name: "",
+        element_value: "",
+        modified_date: "",
+      });
+
       setOpenModal(false);
     } catch (error) {
       console.error(error);
@@ -233,21 +236,26 @@ export function PatientLabValuesComponent({ sectionId }) {
           <TextField
             label="Element Name"
             fullWidth
+            required
             margin="dense"
             value={newLabValue.element_name}
+            error={newLabValue.element_name === ""}
             onChange={(e) =>
               setLabValue({
                 ...newLabValue,
                 element_name: e.target.value,
               })
             }
+            InputLabelProps={{ required: false }}
+            sx={{ backgroundColor: "white" }}
           />
           <TextField
             label="Element Value"
             fullWidth
+            required
             multiline
             margin="dense"
-            marginTop={2}
+            error={newLabValue.element_value === ""}
             value={newLabValue.element_value}
             onChange={(e) =>
               setLabValue({
@@ -255,6 +263,8 @@ export function PatientLabValuesComponent({ sectionId }) {
                 element_value: e.target.value,
               })
             }
+            InputLabelProps={{ required: false }}
+            sx={{ backgroundColor: "white", mt: 1 }}
           />
         </DialogContent>
         <DialogActions sx={{ display: "flex", justifyContent: "center" }}>

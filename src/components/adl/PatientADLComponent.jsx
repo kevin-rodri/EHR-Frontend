@@ -41,8 +41,7 @@ import dayjs from "dayjs";
 import utc from "dayjs/plugin/utc";
 import timezone from "dayjs/plugin/timezone";
 import { formatDateTime } from "../../utils/date-time-formatter";
-// This is so that we are properly passing the day and time correctly.
-// We want FE to display the date and time properly but pass it to the BE correctly.
+
 dayjs.extend(utc);
 dayjs.extend(timezone);
 
@@ -53,6 +52,8 @@ export default function PatientADLComponent({ sectionId }) {
   const [openDeleteModal, setOpenDeleteModal] = useState(false);
   const [editingRow, setEditingRow] = useState(null);
   const [deletingRow, setDeletingRow] = useState(null);
+  const [hasError, setHasError] = useState(false);
+
   const [newRecord, setNewRecord] = useState({
     id: "",
     section_patient_id: "",
@@ -85,13 +86,13 @@ export default function PatientADLComponent({ sectionId }) {
       ),
     },
     {
-        accessorKey: "has_foley_care",
-        header: "Has Foley Care",
-        enableSorting: false,
-        Cell: ({ row }) => (
-          <Checkbox checked={row.original.has_foley_care} disabled />
-        ),
-      },
+      accessorKey: "has_foley_care",
+      header: "Has Foley Care",
+      enableSorting: false,
+      Cell: ({ row }) => (
+        <Checkbox checked={row.original.has_foley_care} disabled />
+      ),
+    },
     { accessorKey: "amount_meal_consumed", header: "% of Meal Consumed" },
     {
       accessorKey: "created_date",
@@ -128,12 +129,6 @@ export default function PatientADLComponent({ sectionId }) {
     fetchSectionPatientId();
   }, [sectionId]);
 
-  /*
-  For educational purposes: This is the process behind getting data from our endpoints: 
-  1. We get the section id from the url. 
-  2. We set the section patient based on what we get from the backend
-  3. We call the endpoint we're interested in (i.e. ADL record) and pass in the retrieved section patient id.
-  */
   const fetchSectionPatientId = async () => {
     try {
       const sectionPatient = await getSectionPatientById(sectionId);
@@ -145,7 +140,6 @@ export default function PatientADLComponent({ sectionId }) {
     }
   };
 
-  // Open modal for add/edit/delete
   const handleOpenModal = (row = null, action = "edit") => {
     if (action === "edit") {
       setEditingRow(row);
@@ -156,7 +150,8 @@ export default function PatientADLComponent({ sectionId }) {
           has_bathed: row.original.has_bathed,
           reposition: row.original.reposition,
           elimination_needed: row.original.elimination_needed,
-          is_meal_given: row.original.elimination_needed,
+          is_meal_given: row.original.is_meal_given,
+          has_foley_care: row.original.has_foley_care,
           amount_meal_consumed: row.original.amount_meal_consumed,
           created_date: row.original.created_date,
         });
@@ -168,6 +163,7 @@ export default function PatientADLComponent({ sectionId }) {
           reposition: "",
           elimination_needed: "",
           is_meal_given: false,
+          has_foley_care: false,
           amount_meal_consumed: "",
           created_date: "",
         });
@@ -179,16 +175,26 @@ export default function PatientADLComponent({ sectionId }) {
     }
   };
 
-  // Save new ADL record
   const handleSave = async () => {
+    // Required field check
+    if (
+      newRecord.reposition.trim() === "" ||
+      newRecord.elimination_needed.trim() === "" ||
+      newRecord.amount_meal_consumed.trim() === ""
+    ) {
+      setHasError(true);
+      return;
+    }
+    setHasError(false);
+
     try {
       const formattedData = {
         has_oral_care: 0,
         has_bathed: newRecord.has_bathed ? 1 : 0,
-        reposition: newRecord.reposition || "",
-        elimination_needed: newRecord.elimination_needed || "",
+        reposition: newRecord.reposition,
+        elimination_needed: newRecord.elimination_needed,
         is_meal_given: newRecord.is_meal_given ? 1 : 0,
-        has_foley_care: newRecord.has_foley_care ? 1: 0,
+        has_foley_care: newRecord.has_foley_care ? 1 : 0,
         amount_meal_consumed: parseFloat(
           newRecord.amount_meal_consumed
         ).toFixed(2),
@@ -203,10 +209,7 @@ export default function PatientADLComponent({ sectionId }) {
         setAdlRecords((prevData) =>
           prevData.map((item) =>
             item.id === editingRow.original.id
-              ? {
-                  ...item,
-                  ...newRecord,
-                }
+              ? { ...item, ...newRecord }
               : item
           )
         );
@@ -218,16 +221,11 @@ export default function PatientADLComponent({ sectionId }) {
         if (response && response.id) {
           const data = {
             id: response.id,
-            has_oral_care: 0,
+            ...formattedData,
+            created_date: formattedTime,
             has_bathed: newRecord.has_bathed,
-            reposition: newRecord.reposition || "",
-            elimination_needed: newRecord.elimination_needed || "",
-            is_meal_given: newRecord.is_meal_given ? 1 : 0,
-            has_foley_care: newRecord.has_foley_care ? 1: 0,
-            amount_meal_consumed: parseFloat(
-              newRecord.amount_meal_consumed
-            ).toFixed(2),
-            created_date: formattedTime
+            is_meal_given: newRecord.is_meal_given,
+            has_foley_care: newRecord.has_foley_care,
           };
           setAdlRecords((prevData) => [...prevData, data]);
         }
@@ -241,9 +239,7 @@ export default function PatientADLComponent({ sectionId }) {
 
   const handleDelete = async () => {
     await deleteADLRecord(sectionPatientId, deletingRow.original.id);
-    setAdlRecords(
-      adlRecords.filter((item) => item.id !== deletingRow.original.id)
-    );
+    setAdlRecords(adlRecords.filter((item) => item.id !== deletingRow.original.id));
     setOpenDeleteModal(false);
   };
 
@@ -281,34 +277,30 @@ export default function PatientADLComponent({ sectionId }) {
               <Checkbox
                 checked={newRecord.has_bathed}
                 onChange={(e) =>
-                  setNewRecord({
-                    ...newRecord,
-                    has_bathed: e.target.checked,
-                  })
+                  setNewRecord({ ...newRecord, has_bathed: e.target.checked })
                 }
               />
             </Tooltip>
             <Typography>Bathed</Typography>
           </Box>
+
           <Select
             displayEmpty
             value={newRecord.reposition}
             fullWidth
+            required
+            error={hasError && newRecord.reposition.trim() === ""}
+            helperText={
+              hasError && newRecord.reposition.trim() === ""
+                ? "Required Value"
+                : ""
+            }
             sx={{ mt: 1 }}
             onChange={(e) =>
-              setNewRecord({
-                ...newRecord,
-                reposition: e.target.value,
-              })
+              setNewRecord({ ...newRecord, reposition: e.target.value })
             }
             renderValue={(selected) =>
-              selected ? (
-                selected
-              ) : (
-                <span style={{ color: "#757575" }}>
-                  Select ADL Reposition Type
-                </span>
-              )
+              selected || <span style={{ color: "#757575" }}>Select ADL Reposition Type</span>
             }
           >
             <MenuItem value="Turn-left">Turn Left</MenuItem>
@@ -316,78 +308,76 @@ export default function PatientADLComponent({ sectionId }) {
             <MenuItem value="Back">Back</MenuItem>
             <MenuItem value="Self-turn">Self-turn</MenuItem>
           </Select>
+
           <Select
             displayEmpty
             value={newRecord.elimination_needed}
             fullWidth
+            required
+            error={hasError && newRecord.elimination_needed.trim() === ""}
+            helperText={
+              hasError && newRecord.elimination_needed.trim() === ""
+                ? "Required Value"
+                : ""
+            }
             sx={{ mt: 1 }}
             onChange={(e) =>
-              setNewRecord({
-                ...newRecord,
-                elimination_needed: e.target.value,
-              })
+              setNewRecord({ ...newRecord, elimination_needed: e.target.value })
             }
             renderValue={(selected) =>
-              selected ? (
-                selected
-              ) : (
-                <span style={{ color: "#757575" }}>
-                  Select ADL Elimination Need Type
-                </span>
-              )
+              selected || <span style={{ color: "#757575" }}>Select ADL Elimination Need Type</span>
             }
           >
             <MenuItem value="Urinal">Urinal</MenuItem>
             <MenuItem value="Bedpan">Bedpan</MenuItem>
             <MenuItem value="Commode">Commode</MenuItem>
           </Select>
+
           <Box display="flex" alignItems="center">
             <Tooltip title="Is Meal Given">
               <Checkbox
                 checked={newRecord.is_meal_given}
                 onChange={(e) =>
-                  setNewRecord({
-                    ...newRecord,
-                    is_meal_given: e.target.checked,
-                  })
+                  setNewRecord({ ...newRecord, is_meal_given: e.target.checked })
                 }
               />
             </Tooltip>
             <Typography>Meal Given</Typography>
           </Box>
+
           <Box display="flex" alignItems="center">
             <Tooltip title="Has Foley Care">
               <Checkbox
                 checked={newRecord.has_foley_care}
                 onChange={(e) =>
-                  setNewRecord({
-                    ...newRecord,
-                    has_foley_care: e.target.checked,
-                  })
+                  setNewRecord({ ...newRecord, has_foley_care: e.target.checked })
                 }
               />
             </Tooltip>
             <Typography>Foley Care</Typography>
           </Box>
+
           <TextField
             label="% of Meal Consumed"
             type="number"
+            fullWidth
+            required
+            InputLabelProps={{ required: false }}
+            error={hasError && newRecord.amount_meal_consumed.trim() === ""}
+            helperText={
+              hasError && newRecord.amount_meal_consumed.trim() === ""
+                ? "Required Value"
+                : ""
+            }
+            margin="dense"
             value={newRecord.amount_meal_consumed}
             onChange={(e) =>
-              setNewRecord({
-                ...newRecord,
-                amount_meal_consumed: e.target.value,
-              })
+              setNewRecord({ ...newRecord, amount_meal_consumed: e.target.value })
             }
-            fullWidth
-            margin="dense"
           />
+
           <DialogActions sx={{ display: "flex", justifyContent: "center" }}>
-            <Button
-              onClick={() => setOpenModal(false)}
-              color="error"
-              variant="contained"
-            >
+            <Button onClick={() => setOpenModal(false)} color="error" variant="contained">
               Cancel
             </Button>
             <Button onClick={handleSave} color="primary" variant="contained">
@@ -397,18 +387,12 @@ export default function PatientADLComponent({ sectionId }) {
         </DialogContent>
       </Dialog>
 
-      {/* Delete Confirmation Modal */}
       <Dialog open={openDeleteModal} onClose={() => setOpenDeleteModal(false)}>
         <DialogTitle align="center">
-          Are you sure you want to delete this item? This action cannot be
-          undone.
+          Are you sure you want to delete this item? This action cannot be undone.
         </DialogTitle>
         <DialogActions sx={{ display: "flex", justifyContent: "center" }}>
-          <Button
-            onClick={() => setOpenDeleteModal(false)}
-            color="error"
-            variant="contained"
-          >
+          <Button onClick={() => setOpenDeleteModal(false)} color="error" variant="contained">
             Cancel
           </Button>
           <Button onClick={handleDelete} color="primary" variant="contained">

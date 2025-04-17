@@ -4,15 +4,9 @@ import {
   Box,
   Typography,
   Button,
-  Dialog,
-  DialogTitle,
-  DialogContent,
-  DialogActions,
   TextField,
   Checkbox,
   FormControlLabel,
-  IconButton,
-  Tooltip,
   Grid,
 } from "@mui/material";
 import dayjs from "dayjs";
@@ -76,7 +70,7 @@ export default function GenitourinaryInfoComponent({ sectionId }) {
     try {
       setLoading(true);
       let response;
-  
+
       const payload = {
         section_patient_id: sectionPatientId,
         urinary_assessment: formData.urinary_assessment || "N/A",
@@ -97,7 +91,7 @@ export default function GenitourinaryInfoComponent({ sectionId }) {
           formData.has_dialysis_access_dressing_cdi,
         foley_catheter: formData.foley_catheter || "N/A",
       };
-  
+
       if (formData && formData.id) {
         response = await updateGenitourinaryInfo(
           sectionPatientId,
@@ -107,7 +101,7 @@ export default function GenitourinaryInfoComponent({ sectionId }) {
       } else {
         response = await addGenitourinaryInfo(sectionPatientId, payload);
       }
-  
+
       setFormData(response);
     } catch (error) {
       console.error("Error submitting Genitourinary info:", error);
@@ -115,7 +109,6 @@ export default function GenitourinaryInfoComponent({ sectionId }) {
       setLoading(false);
     }
   };
-  
 
   return (
     <Box sx={{ backgroundColor: "white", p: 4, borderRadius: 3, boxShadow: 3 }}>
@@ -128,6 +121,9 @@ export default function GenitourinaryInfoComponent({ sectionId }) {
           <TextField
             label="Urinary Assessment"
             fullWidth
+            required
+            InputLabelProps={{ required: false }}
+            error={formData.urinary_assessment === ""}
             value={formData.urinary_assessment}
             onChange={(e) =>
               setFormData({ ...formData, urinary_assessment: e.target.value })
@@ -139,6 +135,9 @@ export default function GenitourinaryInfoComponent({ sectionId }) {
           <TextField
             label="Diversion Notes"
             fullWidth
+            required
+            InputLabelProps={{ required: false }}
+            error={formData.urinary_diversion_notes === ""}
             value={formData.urinary_diversion_notes}
             onChange={(e) =>
               setFormData({
@@ -153,6 +152,9 @@ export default function GenitourinaryInfoComponent({ sectionId }) {
           <TextField
             label="Urinary Route"
             fullWidth
+            required
+            InputLabelProps={{ required: false }}
+            error={formData.urinary_route === ""}
             value={formData.urinary_route}
             onChange={(e) =>
               setFormData({ ...formData, urinary_route: e.target.value })
@@ -164,6 +166,9 @@ export default function GenitourinaryInfoComponent({ sectionId }) {
           <TextField
             label="Urine Color"
             fullWidth
+            required
+            InputLabelProps={{ required: false }}
+            error={formData.urine_color === ""}
             value={formData.urine_color}
             onChange={(e) =>
               setFormData({ ...formData, urine_color: e.target.value })
@@ -175,6 +180,9 @@ export default function GenitourinaryInfoComponent({ sectionId }) {
           <TextField
             label="Urine Characteristics"
             fullWidth
+            required
+            InputLabelProps={{ required: false }}
+            error={formData.urine_characteristics === ""}
             value={formData.urine_characteristics}
             onChange={(e) =>
               setFormData({
@@ -189,6 +197,9 @@ export default function GenitourinaryInfoComponent({ sectionId }) {
           <TextField
             label="Urine Odor"
             fullWidth
+            required
+            InputLabelProps={{ required: false }}
+            error={formData.urine_odor === ""}
             value={formData.urine_odor}
             onChange={(e) =>
               setFormData({ ...formData, urine_odor: e.target.value })
@@ -239,6 +250,9 @@ export default function GenitourinaryInfoComponent({ sectionId }) {
           <TextField
             label="Dialysis Access Type"
             fullWidth
+            required
+            InputLabelProps={{ required: false }}
+            error={formData.dialysis_access_type === ""}
             value={formData.dialysis_access_type}
             onChange={(e) =>
               setFormData({
@@ -270,6 +284,9 @@ export default function GenitourinaryInfoComponent({ sectionId }) {
           <TextField
             label="Foley Catheter"
             fullWidth
+            required
+            InputLabelProps={{ required: false }}
+            error={formData.foley_catheter === ""}
             value={formData.foley_catheter}
             onChange={(e) =>
               setFormData({ ...formData, foley_catheter: e.target.value })

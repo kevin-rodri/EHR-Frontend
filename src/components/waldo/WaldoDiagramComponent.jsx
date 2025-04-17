@@ -51,6 +51,7 @@ export default function WaldoDiagramComponent({ sectionId }) {
     drain_notetrauma_wound_note: "",
     drain_note: "",
   });
+  const [formSubmitted, setFormSubmitted] = useState(false);
 
   // let's get the waldo info first (if any)
   useEffect(() => {
@@ -146,6 +147,8 @@ export default function WaldoDiagramComponent({ sectionId }) {
   ]);
 
   const handleOpenModal = (row = null, action = "edit") => {
+    setFormSubmitted(false);
+
     if (action === "edit") {
       setEditingRow(row);
       if (row) {
@@ -437,56 +440,94 @@ export default function WaldoDiagramComponent({ sectionId }) {
             fullWidth
             multiline
             margin="dense"
+            required
             value={newWaldoInfo.surgical_wound_note}
             rows={4}
+            error={
+                formSubmitted && newWaldoInfo.surgical_wound_note.trim() === ""
+              }
+              helperText={
+                formSubmitted && newWaldoInfo.surgical_wound_note.trim() === ""
+                  ? "Required Field"
+                  : ""
+              }
             onChange={(e) =>
               setNewWaldoInfo({
                 ...newWaldoInfo,
                 surgical_wound_note: e.target.value,
               })
             }
+            InputLabelProps={{ required: false }}
           />
           <TextField
             label="Pressure Sore Note"
             fullWidth
             multiline
             margin="dense"
+            required
             value={newWaldoInfo.pressure_sore_note}
-            rows={4}
+              error={
+                formSubmitted && newWaldoInfo.pressure_sore_note.trim() === ""
+              }
+              helperText={
+                formSubmitted && newWaldoInfo.pressure_sore_note.trim() === ""
+                  ? "Required Field"
+                  : ""
+              }
             onChange={(e) =>
               setNewWaldoInfo({
                 ...newWaldoInfo,
                 pressure_sore_note: e.target.value,
               })
             }
+            InputLabelProps={{ required: false }}
           />
           <TextField
             label="Trauma Wound Note"
             fullWidth
             multiline
             margin="dense"
+            required
             value={newWaldoInfo.trauma_wound_note}
             rows={4}
+            error={
+                formSubmitted && newWaldoInfo.trauma_wound_note.trim() === ""
+              }
+              helperText={
+                formSubmitted && newWaldoInfo.trauma_wound_note.trim() === ""
+                  ? "Required Field"
+                  : ""
+              }
             onChange={(e) =>
               setNewWaldoInfo({
                 ...newWaldoInfo,
                 trauma_wound_note: e.target.value,
               })
             }
+            InputLabelProps={{ required: false }}
           />
           <TextField
             label="Drain Note"
             fullWidth
             multiline
             margin="dense"
+            required
             value={newWaldoInfo.drain_note}
             rows={4}
+            value={newWaldoInfo.drain_note}
+              error={formSubmitted && newWaldoInfo.drain_note.trim() === ""}
+              helperText={
+                formSubmitted && newWaldoInfo.drain_note.trim() === ""
+                  ? "Required Field"
+                  : ""
+              }
             onChange={(e) =>
               setNewWaldoInfo({
                 ...newWaldoInfo,
                 drain_note: e.target.value,
               })
             }
+            InputLabelProps={{ required: false }}
           />
         </DialogContent>
         <DialogActions sx={{ display: "flex", justifyContent: "center" }}>
@@ -497,7 +538,31 @@ export default function WaldoDiagramComponent({ sectionId }) {
           >
             Cancel
           </Button>
-          <Button onClick={handleSave} color="primary" variant="contained">
+          <Button
+            onClick={() => {
+              setFormSubmitted(true);
+
+              const {
+                surgical_wound_note,
+                pressure_sore_note,
+                trauma_wound_note,
+                drain_note,
+              } = newWaldoInfo;
+
+              if (
+                surgical_wound_note.trim() === "" ||
+                pressure_sore_note.trim() === "" ||
+                trauma_wound_note.trim() === "" ||
+                drain_note.trim() === ""
+              ) {
+                return;
+              }
+
+              handleSave();
+            }}
+            color="primary"
+            variant="contained"
+          >
             {editingRow ? "Save" : "Submit"}
           </Button>
         </DialogActions>

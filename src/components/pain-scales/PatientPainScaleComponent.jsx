@@ -45,11 +45,11 @@ export default function PatientPainScaleComponent({ sectionId }) {
   const [sectionPatientId, setSectionPatientId] = useState(null);
   const [display, setDisplay] = useState(false);
   const [flaccScores, setFlaccScores] = useState({
-    faces: 0,
-    legs: 0,
-    activity: 0,
-    cry: 0,
-    consolability: 0,
+    faces: "",
+    legs: "",
+    activity: "",
+    cry: "",
+    consolability: "",
   });
 
   // Soley for the patient scale result
@@ -61,6 +61,7 @@ export default function PatientPainScaleComponent({ sectionId }) {
     pain_scale_text: "",
     modified_date: "",
   });
+  const [formSubmitted, setFormSubmitted] = useState(false);
 
   const columns = useMemo(() => [
     { accessorKey: "scale_name", header: "Pain Scale Name", size: 150 },
@@ -97,7 +98,9 @@ export default function PatientPainScaleComponent({ sectionId }) {
   ]);
 
   // Open modal for add/edit/delete
-  const handleOpenModal = (row = null, action = "edit") => {
+  const handleOpenModal = async (row = null, action = "edit") => {
+  setFormSubmitted(false);
+
     if (action === "edit") {
       setEditingRow(row);
       if (row) {
@@ -374,6 +377,10 @@ export default function PatientPainScaleComponent({ sectionId }) {
                     margin="dense"
                     inputProps={{ min: 0, max: 2 }}
                     value={flaccScores[key]}
+                    error={formSubmitted && flaccScores[key] === ""}
+                      helperText={
+                        formSubmitted && flaccScores[key] === "" ? "Required Field" : ""
+                      }
                     onChange={(e) => {
                       const value = parseInt(e.target.value);
                       if (value >= 0 && value <= 2) {
@@ -392,6 +399,12 @@ export default function PatientPainScaleComponent({ sectionId }) {
               margin="dense"
               inputProps={{ min: 1, max: 10 }}
               value={newScaleRecord.pain_scale_value}
+              error={formSubmitted && newScaleRecord.pain_scale_value === ""}
+                helperText={
+                  formSubmitted && newScaleRecord.pain_scale_value === ""
+                    ? "Required Field"
+                    : ""
+                }
               onChange={(e) =>
                 setNewScaleRecord({
                   ...newScaleRecord,
@@ -404,10 +417,17 @@ export default function PatientPainScaleComponent({ sectionId }) {
           <TextField
             label="Pain Scale Text"
             fullWidth
+            required
             margin="dense"
             multiline
             rows={4}
             value={newScaleRecord.pain_scale_text}
+            error={formSubmitted && newScaleRecord.pain_scale_text === ""}
+              helperText={
+                formSubmitted && newScaleRecord.pain_scale_text === ""
+                  ? "Required Field"
+                  : ""
+              }
             onChange={(e) =>
               setNewScaleRecord({
                 ...newScaleRecord,
@@ -428,7 +448,20 @@ export default function PatientPainScaleComponent({ sectionId }) {
           >
             Cancel
           </Button>
-          <Button onClick={handleSave} color="primary" variant="contained">
+          <Button
+            onClick={() => {
+              setFormSubmitted(true);
+              const isValid =
+                newScaleRecord.pain_scale_id &&
+                newScaleRecord.pain_scale_value !== "" &&
+                newScaleRecord.pain_scale_text !== "" &&
+                (!isFLACC() || Object.values(flaccScores).every((v) => v !== ""));
+              if (!isValid) return;
+              handleSave();
+            }}
+            color="primary"
+            variant="contained"
+          >
             {editingRow ? "Save" : "Submit"}
           </Button>
         </DialogActions>

@@ -1,6 +1,6 @@
-/* Name: Charlize Aponte 
-   Date: 3/28/25 
-   Remarks:  Neurological Info System Component to be displayed throughout the PATIENT ASSIGNMENT PAGE 
+/* Name: Charlize Aponte
+   Date: 3/28/25
+   Remarks:  Neurological Info System Component to be displayed throughout the PATIENT ASSIGNMENT PAGE
 */
 import React, { useState, useEffect } from "react";
 import {

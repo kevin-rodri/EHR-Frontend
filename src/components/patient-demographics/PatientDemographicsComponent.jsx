@@ -69,6 +69,8 @@ const PatientDemographicsComponent = () => {
   const [patientId, setPatientId] = useState(null);
   const [isNew, setIsNew] = useState(!sectionId);
   const [role, setRole] = useState("STUDENT");
+  const [formSubmitted, setFormSubmitted] = useState(false);
+
 
   useEffect(() => {
     const storedRole = localStorage.getItem("ROLE");
@@ -114,31 +116,46 @@ const PatientDemographicsComponent = () => {
 
   const isStudent = role === "STUDENT";
 
-  const textFieldProps = (key) => ({
-    label: key
-      .replace(/_/g, " ")
-      .replace(/\b\w/g, (char) => char.toUpperCase()),
-    name: key,
-    value: formData[key],
-    fullWidth: true,
-    InputLabelProps: {
-      sx: { fontSize: "1.2rem", fontWeight: 600, color: "#333" },
-    },
-    InputProps: isStudent
-      ? {
-          readOnly: true,
-          tabIndex: -1,
-          sx: {
-            color: "black",
-            backgroundColor: "#f3f3f3",
-            borderRadius: "4px",
-          },
-        }
-      : {},
-    onChange: !isStudent
-      ? (e) => setFormData({ ...formData, [key]: e.target.value })
-      : undefined,
-  });
+  const textFieldProps = (key) => {
+    const value = formData[key];
+    const isString = typeof value === "string";
+
+    const showError =
+      formSubmitted && isString && value.trim() === "";
+
+    return {
+      label: key
+        .replace(/_/g, " ")
+        .replace(/\b\w/g, (char) => char.toUpperCase()),
+      name: key,
+      value: isString ? value : "", // ✅ avoids undefined/null issues
+      fullWidth: true,
+      error: showError,
+      helperText: showError ? "Required Field" : "",
+      InputLabelProps: {
+        sx: { fontSize: "1.2rem", fontWeight: 600, color: "#333" },
+        required: false,
+      },
+      InputProps: isStudent
+        ? {
+            readOnly: true,
+            tabIndex: -1,
+            sx: {
+              color: "black",
+              backgroundColor: "#f3f3f3",
+              borderRadius: "4px",
+            },
+          }
+        : {},
+      onChange: !isStudent
+        ? (e) =>
+            setFormData({
+              ...formData,
+              [key]: e.target.value,
+            })
+        : undefined,
+    };
+  };
 
   return (
     <Box>
@@ -350,11 +367,32 @@ const PatientDemographicsComponent = () => {
             <StyledButton
               variant="contained"
               onClick={async () => {
+                setFormSubmitted(true); // ✅ triggers field-level errors
+
+                const requiredKeys = [
+                  "full_name",
+                  "date_of_birth",
+                  "religion",
+                  "weight",
+                  "height",
+                  "allergies",
+                  "precautions",
+                  "code_status",
+                  "emergency_contact_full_name",
+                  "emergency_contact_phone_number",
+                ];
+
+                const isValid = requiredKeys.every(
+                  (key) =>
+                    typeof formData[key] === "string" &&
+                    formData[key].trim() !== ""
+                );
+
+                if (!isValid) return; // ✅ don't submit if invalid — no alert needed
+
                 try {
                   await updatePatient(patientId, formData);
-                  window.alert(
-                    "Patient information has been successfully updated!"
-                  );
+                  window.alert("Patient information has been successfully updated!");
                 } catch (error) {
                   console.error("Error updating patient:", error);
                   window.alert("Error updating patient. Please try again.");

@@ -49,6 +49,7 @@ function PatientNotesTableComponent({ sectionId }) {
     description: "",
     modified_date: "",
   });
+  const [formSubmitted, setFormSubmitted] = useState(false);
 
   const columns = useMemo(() => [
     { accessorKey: "title", header: "Title"},
@@ -101,6 +102,8 @@ function PatientNotesTableComponent({ sectionId }) {
 
   // Open modal for add/edit/delete
   const handleOpenModal = (row = null, action = "edit") => {
+    setFormSubmitted(false);
+
     if (action === "edit") {
       setEditingRow(row);
       if (row) {
@@ -215,13 +218,21 @@ function PatientNotesTableComponent({ sectionId }) {
             label="Note Title"
             fullWidth
             margin="dense"
+            required
             value={newPatientNoteRecord.title}
+            error={formSubmitted && newPatientNoteRecord.title.trim() === ""}
+              helperText={
+                formSubmitted && newPatientNoteRecord.title.trim() === ""
+                  ? "Required Field"
+                  : ""
+              }
             onChange={(e) =>
               setNewPatientNoteRecord({
                 ...newPatientNoteRecord,
                 title: e.target.value,
               })
             }
+            InputLabelProps={{ required: false }}
           />
 
           <TextField
@@ -231,12 +242,20 @@ function PatientNotesTableComponent({ sectionId }) {
             margin="dense"
             value={newPatientNoteRecord.description}
             rows={4}
+            required
+            error={formSubmitted && newPatientNoteRecord.description.trim() === ""}
+              helperText={
+                formSubmitted && newPatientNoteRecord.description.trim() === ""
+                  ? "Required Field"
+                  : ""
+              }
             onChange={(e) =>
               setNewPatientNoteRecord({
                 ...newPatientNoteRecord,
                 description: e.target.value,
               })
             }
+            InputLabelProps={{ required: false }}
           />
         </DialogContent>
         <DialogActions sx={{ display: "flex", justifyContent: "center" }}>
@@ -247,7 +266,20 @@ function PatientNotesTableComponent({ sectionId }) {
           >
             Cancel
           </Button>
-          <Button onClick={handleSave} color="primary" variant="contained">
+          <Button
+            onClick={async () => {
+              setFormSubmitted(true);
+
+              const { title, description } = newPatientNoteRecord;
+              if (title.trim() === "" || description.trim() === "") {
+                return;
+              }
+
+              await handleSave();
+            }}
+            color="primary"
+            variant="contained"
+          >
             {editingRow ? "Save" : "Submit"}
           </Button>
         </DialogActions>

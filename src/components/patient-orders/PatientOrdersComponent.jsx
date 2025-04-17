@@ -50,6 +50,7 @@ export function PatientOrderComponent({ sectionId }) {
     description: "",
     modified_date: "",
   });
+  const [formSubmitted, setFormSubmitted] = useState(false);
 
   const columns = useMemo(() => [
     { accessorKey: "order_title", header: "Title" },
@@ -111,6 +112,8 @@ export function PatientOrderComponent({ sectionId }) {
   }, [sectionId]);
 
   const handleOpenModal = (row = null, action = "edit") => {
+  setFormSubmitted(false);
+
     if (action === "edit") {
       setEditingRow(row);
       if (row) {
@@ -225,28 +228,44 @@ export function PatientOrderComponent({ sectionId }) {
             label="Order Title"
             fullWidth
             margin="dense"
+            required
             value={newPatientOrderRecord.order_title}
+            error={formSubmitted && newPatientOrderRecord.order_title.trim() === ""}
+              helperText={
+                formSubmitted && newPatientOrderRecord.order_title.trim() === ""
+                  ? "Required Field"
+                  : ""
+              }
             onChange={(e) =>
               setPatientOrderRecord({
                 ...newPatientOrderRecord,
                 order_title: e.target.value,
               })
             }
+            InputLabelProps={{ required: false }}
           />
 
           <TextField
             label="Description"
             fullWidth
             multiline
+            required
             margin="dense"
             value={newPatientOrderRecord.description}
             rows={4}
+            error={formSubmitted && newPatientOrderRecord.description.trim() === ""}
+              helperText={
+                formSubmitted && newPatientOrderRecord.description.trim() === ""
+                  ? "Required Field"
+                  : ""
+              }
             onChange={(e) =>
               setPatientOrderRecord({
                 ...newPatientOrderRecord,
                 description: e.target.value,
               })
             }
+            InputLabelProps={{ required: false }}
           />
         </DialogContent>
         <DialogActions sx={{ display: "flex", justifyContent: "center" }}>
@@ -257,7 +276,23 @@ export function PatientOrderComponent({ sectionId }) {
           >
             Cancel
           </Button>
-          <Button onClick={handleSave} color="primary" variant="contained">
+          <Button
+            onClick={() => {
+              setFormSubmitted(true);
+
+              const { order_title, description } = newPatientOrderRecord;
+              if (
+                order_title.trim() === "" ||
+                description.trim() === ""
+              ) {
+                return;
+              }
+
+              handleSave();
+            }}
+            color="primary"
+            variant="contained"
+          >
             {editingRow ? "Save" : "Submit"}
           </Button>
         </DialogActions>

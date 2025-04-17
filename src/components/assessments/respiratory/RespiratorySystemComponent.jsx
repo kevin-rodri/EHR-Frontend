@@ -8,6 +8,7 @@ import {
   Grid,
   Paper,
   Typography,
+  Box,
 } from "@mui/material";
 import { getSectionPatientById } from "../../../services/sectionPatientService";
 import {
@@ -47,6 +48,27 @@ const RespiratorySystemComponent = ({ sectionId }) => {
   const [respiratoryInfo, setRespiratoryInfo] = useState(null);
   const [sectionPatientId, setSectionPatientId] = useState("");
 
+  const requiredFields = [
+    "breathing_pattern",
+    "breathing_effort",
+    "anterior_right_upper_lobe",
+    "posterior_right_upper_lobe",
+    "anterior_lower_upper_lobe",
+    "posterior_lower_upper_lobe",
+    "anterior_right_middle_lobe",
+    "posterior_right_middle_lobe",
+    "anterior_right_lower_lobe",
+    "posterior_right_lower_lobe",
+    "anterior_left_lower_lobe",
+    "posterior_left_lower_lobe",
+    "oxygen_support_device",
+    "oxygen_flow_rate",
+    "sputum_amount",
+    "sputum_color",
+    "chest_tube_location",
+    "chest_tube_suction",
+  ];
+
   useEffect(() => {
     const fetchData = async () => {
       try {
@@ -77,36 +99,28 @@ const RespiratorySystemComponent = ({ sectionId }) => {
     });
   };
 
-  const handleSubmit = async (e) => {
-    e.preventDefault();
-    const payload = { ...formData };
-    delete payload.id;
-    delete payload.section_patient_id;
-    delete payload.created_by;
-    delete payload.created_date;
-    delete payload.modified_by;
-    delete payload.modified_date;
+  const handleSubmit = async () => {
+    const updatedFormData = { ...formData };
 
-    const parsedSputum = parseFloat(payload.sputum_amount);
-    payload.sputum_amount = isNaN(parsedSputum) ? 0.0 : parsedSputum;
-    payload.breathing_pattern = payload.breathing_pattern || "Normal";
-    payload.oxygen_support_device = payload.oxygen_support_device || "None";
-    payload.oxygen_flow_rate = payload.oxygen_flow_rate || "0";
-    payload.sputum_color = payload.sputum_color || "None";
+    requiredFields.forEach((field) => {
+      if (!updatedFormData[field] || updatedFormData[field].trim() === "") {
+        updatedFormData[field] =
+          field === "sputum_amount" || field === "oxygen_flow_rate" ? "0" : "N/A";
+      }
+    });
 
-    payload.has_oxygen_support = !!payload.has_oxygen_support;
-    payload.has_continuous_oxygen_pulse = !!payload.has_continuous_oxygen_pulse;
-    payload.has_incentive_spirometer_use =
-      !!payload.has_incentive_spirometer_use;
+    setFormData(updatedFormData);
 
-    console.log("Updating respiratory info with payload:", payload);
+    const payload = {
+      ...updatedFormData,
+      has_oxygen_support: !!updatedFormData.has_oxygen_support,
+      has_continuous_oxygen_pulse: !!updatedFormData.has_continuous_oxygen_pulse,
+      has_incentive_spirometer_use: !!updatedFormData.has_incentive_spirometer_use,
+    };
+
     try {
       if (respiratoryInfo && respiratoryInfo.id) {
-        await updateRespiratoryInfo(
-          sectionPatientId,
-          respiratoryInfo.id,
-          payload
-        );
+        await updateRespiratoryInfo(sectionPatientId, respiratoryInfo.id, payload);
       } else {
         await addRespiratoryInfo(sectionPatientId, payload);
       }
@@ -115,152 +129,57 @@ const RespiratorySystemComponent = ({ sectionId }) => {
     }
   };
 
-  const handleDelete = async () => {
-    if (respiratoryInfo && respiratoryInfo.id) {
-      try {
-        await deleteRespiratoryInfo(sectionPatientId, respiratoryInfo.id);
-        setRespiratoryInfo(null);
-        setFormData(initialState);
-      } catch (error) {
-        console.error("Error deleting respiratory info:", error);
-      }
-    }
-  };
+  const renderField = (label, name, type = "text") => (
+    <TextField
+      label={label}
+      name={name}
+      value={formData[name]}
+      onChange={handleChange}
+      fullWidth
+      required
+      type={type}
+      InputLabelProps={{ required: false }}
+      error={formData[name] === ""}
+      margin="dense"
+      sx={{ backgroundColor: "white" }}
+    />
+  );
 
   return (
     <Paper elevation={3} style={{ padding: 20 }}>
       <Typography variant="h5" align="center" gutterBottom>
         Respiratory Assessment
       </Typography>
-      <form onSubmit={handleSubmit}>
+
+      <Box>
         <Grid container spacing={2}>
-          {/* Top row: Breathing Pattern & Breathing Effort */}
           <Grid item xs={12} sm={6}>
-            <TextField
-              label="Breathing Pattern"
-              name="breathing_pattern"
-              value={formData.breathing_pattern}
-              onChange={handleChange}
-              fullWidth
-              required
-            />
+            {renderField("Breathing Pattern", "breathing_pattern")}
           </Grid>
           <Grid item xs={12} sm={6}>
-            <TextField
-              label="Breathing Effort"
-              name="breathing_effort"
-              value={formData.breathing_effort}
-              onChange={handleChange}
-              fullWidth
-              required
-            />
-          </Grid>
-
-          {/* Middle row: Left fields, Center Image, Right fields */}
-          <Grid item xs={12} sm={4}>
-            {/* Left lung fields */}
-            <TextField
-              label="Anterior Left Upper Lobe"
-              name="anterior_lower_upper_lobe"
-              margin="dense"
-              value={formData.anterior_lower_upper_lobe}
-              onChange={handleChange}
-              fullWidth
-            />
-            <TextField
-              label="Posterior Left Upper Lobe"
-              name="posterior_lower_upper_lobe"
-              margin="dense"
-              value={formData.posterior_lower_upper_lobe}
-              onChange={handleChange}
-              fullWidth
-            />
-            <TextField
-              label="Anterior Left Lower Lobe"
-              name="anterior_left_lower_lobe"
-              margin="dense"
-              value={formData.anterior_left_lower_lobe}
-              onChange={handleChange}
-              fullWidth
-            />
-            <TextField
-              label="Posterior Left Lower Lobe"
-              name="posterior_left_lower_lobe"
-              margin="dense"
-              value={formData.posterior_left_lower_lobe}
-              onChange={handleChange}
-              fullWidth
-            />
-            <TextField
-              label="Anterior Right Upper Lobe"
-              name="anterior_right_upper_lobe"
-              margin="dense"
-              value={formData.anterior_right_upper_lobe}
-              onChange={handleChange}
-              fullWidth
-            />
-          </Grid>
-
-          <Grid
-            item
-            xs={12}
-            sm={4}
-            container
-            justifyContent="center"
-            alignItems="center"
-          >
-            {/* Center: Lungs image */}
-            <img
-              src={lungsImage}
-              alt="Lungs Diagram"
-              style={{ width: "200px" }}
-            />
+            {renderField("Breathing Effort", "breathing_effort")}
           </Grid>
 
           <Grid item xs={12} sm={4}>
-            <TextField
-              label="Posterior Right Upper Lobe"
-              name="posterior_right_upper_lobe"
-              margin="dense"
-              value={formData.posterior_right_upper_lobe}
-              onChange={handleChange}
-              fullWidth
-            />
-            <TextField
-              label="Anterior Right Middle Lobe"
-              name="anterior_right_middle_lobe"
-              margin="dense"
-              value={formData.anterior_right_middle_lobe}
-              onChange={handleChange}
-              fullWidth
-            />
-            <TextField
-              label="Posterior Right Middle Lobe"
-              name="posterior_right_middle_lobe"
-              margin="dense"
-              value={formData.posterior_right_middle_lobe}
-              onChange={handleChange}
-              fullWidth
-            />
-            <TextField
-              label="Anterior Right Lower Lobe"
-              name="anterior_right_lower_lobe"
-              margin="dense"
-              value={formData.anterior_right_lower_lobe}
-              onChange={handleChange}
-              fullWidth
-            />
-            <TextField
-              label="Posterior Right Lower Lobe"
-              name="posterior_right_lower_lobe"
-              margin="dense"
-              value={formData.posterior_right_lower_lobe}
-              onChange={handleChange}
-              fullWidth
-            />
+            {renderField("Anterior Left Upper Lobe", "anterior_lower_upper_lobe")}
+            {renderField("Posterior Left Upper Lobe", "posterior_lower_upper_lobe")}
+            {renderField("Anterior Left Lower Lobe", "anterior_left_lower_lobe")}
+            {renderField("Posterior Left Lower Lobe", "posterior_left_lower_lobe")}
+            {renderField("Anterior Right Upper Lobe", "anterior_right_upper_lobe")}
           </Grid>
 
-          {/* Bottom row: Oxygen, Sputum and Other Fields */}
+          <Grid item xs={12} sm={4} container justifyContent="center" alignItems="center">
+            <img src={lungsImage} alt="Lungs Diagram" style={{ width: "350px" }} />
+          </Grid>
+
+          <Grid item xs={12} sm={4}>
+            {renderField("Posterior Right Upper Lobe", "posterior_right_upper_lobe")}
+            {renderField("Anterior Right Middle Lobe", "anterior_right_middle_lobe")}
+            {renderField("Posterior Right Middle Lobe", "posterior_right_middle_lobe")}
+            {renderField("Anterior Right Lower Lobe", "anterior_right_lower_lobe")}
+            {renderField("Posterior Right Lower Lobe", "posterior_right_lower_lobe")}
+          </Grid>
+
           <Grid item xs={12} sm={6}>
             <FormControlLabel
               control={
@@ -285,42 +204,18 @@ const RespiratorySystemComponent = ({ sectionId }) => {
               label="Oxygen Support"
             />
           </Grid>
+
           <Grid item xs={12} sm={6}>
-            <TextField
-              label="Oxygen Support Device"
-              name="oxygen_support_device"
-              value={formData.oxygen_support_device}
-              onChange={handleChange}
-              fullWidth
-            />
+            {renderField("Oxygen Support Device", "oxygen_support_device")}
           </Grid>
           <Grid item xs={12} sm={6}>
-            <TextField
-              label="Oxygen Flow Rate"
-              name="oxygen_flow_rate"
-              value={formData.oxygen_flow_rate}
-              onChange={handleChange}
-              fullWidth
-            />
+            {renderField("Oxygen Flow Rate", "oxygen_flow_rate")}
           </Grid>
           <Grid item xs={12} sm={6}>
-            <TextField
-              label="Sputum Amount"
-              name="sputum_amount"
-              value={formData.sputum_amount}
-              onChange={handleChange}
-              fullWidth
-              type="number"
-            />
+            {renderField("Sputum Amount", "sputum_amount", "number")}
           </Grid>
           <Grid item xs={12} sm={6}>
-            <TextField
-              label="Sputum Color"
-              name="sputum_color"
-              value={formData.sputum_color}
-              onChange={handleChange}
-              fullWidth
-            />
+            {renderField("Sputum Color", "sputum_color")}
           </Grid>
           <Grid item xs={12}>
             <FormControlLabel
@@ -335,31 +230,19 @@ const RespiratorySystemComponent = ({ sectionId }) => {
             />
           </Grid>
           <Grid item xs={12} sm={6}>
-            <TextField
-              label="Chest Tube Location"
-              name="chest_tube_location"
-              value={formData.chest_tube_location}
-              onChange={handleChange}
-              fullWidth
-            />
+            {renderField("Chest Tube Location", "chest_tube_location")}
           </Grid>
           <Grid item xs={12} sm={6}>
-            <TextField
-              label="Chest Tube Suction"
-              name="chest_tube_suction"
-              value={formData.chest_tube_suction}
-              onChange={handleChange}
-              fullWidth
-            />
+            {renderField("Chest Tube Suction", "chest_tube_suction")}
           </Grid>
-          {/* Action Buttons */}
+
           <Grid item xs={12}>
-            <Button variant="contained" color="primary" type="submit" fullWidth>
+            <Button variant="contained" color="primary" fullWidth onClick={handleSubmit}>
               {respiratoryInfo && respiratoryInfo.id ? "Update" : "Save"}
             </Button>
           </Grid>
         </Grid>
-      </form>
+      </Box>
     </Paper>
   );
 };
