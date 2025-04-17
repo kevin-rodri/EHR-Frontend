@@ -15,7 +15,7 @@ import ListItemButton from "@mui/material/ListItemButton";
 import ListItemIcon from "@mui/material/ListItemIcon";
 import ListItemText from "@mui/material/ListItemText";
 import { useMediaQuery } from "@mui/material";
-import { getSectionId } from "../../services/authService";
+import { getSectionId, getUserRole } from "../../services/authService";
 import { useEffect, useState } from "react";
 import NAVIGATION from "../../utils/navigation";
 import { Link } from "react-router-dom";
@@ -28,7 +28,6 @@ import { logout } from "../../services/authService";
 import { useLocation } from "react-router-dom";
 import { Outlet } from "react-router-dom";
 import logo from "../../assets/ehr_logo.png";
-
 
 const drawerWidth = 240;
 
@@ -92,12 +91,15 @@ export default function Layout({ children }) {
   const [open, setOpen] = React.useState(true);
   const isMobile = useMediaQuery(theme.breakpoints.down("md"));
   const [navigationItems, setNavigationItems] = useState([]);
+  const [userRole, setUserRole] = useState(null);
 
   useEffect(() => {
     const storedSectionId = getSectionId();
+    const role = getUserRole();
+    setUserRole(role);
     if (storedSectionId != null) {
       setSectionId(storedSectionId);
-      setNavigationItems(NAVIGATION(storedSectionId));
+      setNavigationItems(NAVIGATION(storedSectionId, role));
     }
     setOpen(!isMobile);
   }, [isMobile]);

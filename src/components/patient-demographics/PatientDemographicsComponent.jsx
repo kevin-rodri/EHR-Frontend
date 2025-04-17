@@ -5,7 +5,11 @@ Remarks: PatientDemographicsPage that will display the patient's information
 */
 import React, { useEffect, useState } from "react";
 import { useParams } from "react-router-dom";
-import { getPatientById, updatePatient } from "../../services/patientService";
+import {
+  getPatientById,
+  updatePatient,
+  addPatient,
+} from "../../services/patientService";
 import { MenuItem, Select, FormControl, InputLabel, Box } from "@mui/material";
 import { getSectionPatientById } from "../../services/sectionPatientService";
 import {
@@ -139,6 +143,17 @@ const PatientDemographicsComponent = () => {
       ? (e) => setFormData({ ...formData, [key]: e.target.value })
       : undefined,
   });
+
+  const onDuplicate = async () => {
+    try {
+      const { id, ...newPatientData } = formData;
+      await addPatient(newPatientData);
+      window.alert("Patient duplicated successfully!");
+    } catch (error) {
+      console.error("Error duplicating patient:", error);
+      window.alert("Error duplicating patient. Please try again.");
+    }
+  };
 
   return (
     <Box>
@@ -347,22 +362,32 @@ const PatientDemographicsComponent = () => {
 
           <Divider />
           {!isStudent && (
-            <StyledButton
-              variant="contained"
-              onClick={async () => {
-                try {
-                  await updatePatient(patientId, formData);
-                  window.alert(
-                    "Patient information has been successfully updated!"
-                  );
-                } catch (error) {
-                  console.error("Error updating patient:", error);
-                  window.alert("Error updating patient. Please try again.");
-                }
-              }}
-            >
-              {isNew ? "Add Patient" : "Save"}
-            </StyledButton>
+            <>
+              <StyledButton
+                variant="contained"
+                onClick={async () => {
+                  try {
+                    await updatePatient(patientId, formData);
+                    window.alert(
+                      "Patient information has been successfully updated!"
+                    );
+                  } catch (error) {
+                    console.error("Error updating patient:", error);
+                    window.alert("Error updating patient. Please try again.");
+                  }
+                }}
+              >
+                {isNew ? "Add Patient" : "Save"}
+              </StyledButton>
+
+              <StyledButton
+                variant="contained"
+                sx={{ marginLeft: 2 }}
+                onClick={onDuplicate}
+              >
+                Duplicate
+              </StyledButton>
+            </>
           )}
         </CardContent>
       </StyledCard>

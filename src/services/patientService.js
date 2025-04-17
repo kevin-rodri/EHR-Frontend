@@ -23,6 +23,15 @@ export async function getAllPatients() {
   }
 }
 
+export async function addPatient(patientData) {
+  try {
+    const response = await axiosTokenInstance().post(`/patients`, patientData);
+    return response.data;
+  } catch (error) {
+    throw error;
+  }
+}
+
 export async function updatePatient(id, patientData) {
   try {
     const response = await axiosTokenInstance().put(
