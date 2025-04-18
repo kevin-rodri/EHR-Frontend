@@ -25,6 +25,7 @@ import {
 import EditIcon from "@mui/icons-material/Edit";
 import DeleteIcon from "@mui/icons-material/Delete";
 import AddIcon from "@mui/icons-material/Add";
+import MedicationLiquidIcon from "@mui/icons-material/MedicationLiquid";
 import {
   getPatientScheduledMedication,
   addPatientMedication,
@@ -75,7 +76,7 @@ export default function PatientScheduledTableComponent({ sectionId }) {
     medication_id: false,
     dose: false,
     route: false,
-    dose_frequency: false
+    dose_frequency: false,
   });
 
   const handleBlur = (field) => {
@@ -93,8 +94,8 @@ export default function PatientScheduledTableComponent({ sectionId }) {
     newScheduledRecord.route !== "" &&
     newScheduledRecord.dose_frequency.trim() !== "";
 
-  const columns = useMemo(
-    () => [
+  const columns = useMemo(() => {
+    return [
       { accessorKey: "drugName", header: "Drug Name", size: 150 },
       {
         accessorKey: "scheduled_time",
@@ -111,36 +112,40 @@ export default function PatientScheduledTableComponent({ sectionId }) {
         size: 150,
         enableSorting: false,
       },
-      ...(display
-        ? [
-            {
-              accessorKey: "actions",
-              header: "Actions",
-              maxSize: 75,
-              enableSorting: false,
-              Cell: ({ row }) => (
-                <Box>
-                  <Tooltip title="Edit">
-                    <IconButton onClick={() => handleOpenModal(row, "edit")}>
-                      <EditIcon />
-                    </IconButton>
-                  </Tooltip>
-                  <Tooltip title="Delete">
-                    <IconButton
-                      color="error"
-                      onClick={() => handleOpenModal(row, "delete")}
-                    >
-                      <DeleteIcon />
-                    </IconButton>
-                  </Tooltip>
-                </Box>
-              ),
-            },
-          ]
-        : []),
-    ],
-    [display]
-  );
+      {
+        accessorKey: "actions",
+        header: "Actions",
+        maxSize: 100,
+        enableSorting: false,
+        Cell: ({ row }) => (
+          <Box>
+            <Tooltip title="Administer">
+              <IconButton color="primary" disabled>
+                <MedicationLiquidIcon />
+              </IconButton>
+            </Tooltip>
+            {display && (
+              <>
+                <Tooltip title="Edit">
+                  <IconButton onClick={() => handleOpenModal(row, "edit")}>
+                    <EditIcon />
+                  </IconButton>
+                </Tooltip>
+                <Tooltip title="Delete">
+                  <IconButton
+                    color="error"
+                    onClick={() => handleOpenModal(row, "delete")}
+                  >
+                    <DeleteIcon />
+                  </IconButton>
+                </Tooltip>
+              </>
+            )}
+          </Box>
+        ),
+      },
+    ];
+  }, [display]);
 
   const fetchScheduledMedications = async () => {
     try {
@@ -447,7 +452,10 @@ export default function PatientScheduledTableComponent({ sectionId }) {
             sx={{ marginTop: 1 }}
             required
             onBlur={() => handleBlur("dose_frequency")}
-            error={touchedFields.dose_frequency && newScheduledRecord.dose_frequency.trim() === ""}
+            error={
+              touchedFields.dose_frequency &&
+              newScheduledRecord.dose_frequency.trim() === ""
+            }
           />
         </DialogContent>
 

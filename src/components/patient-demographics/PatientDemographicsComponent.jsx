@@ -146,8 +146,9 @@ const PatientDemographicsComponent = () => {
 
   const onDuplicate = async () => {
     try {
-      const { id, ...newPatientData } = formData;
-      await addPatient(newPatientData);
+      const { id, barcode_value, ...rest } = formData;
+      const newPatientData = { ...rest, barcode_value: '0' };
+      await addPatient(newPatientData);      
       window.alert("Patient duplicated successfully!");
     } catch (error) {
       console.error("Error duplicating patient:", error);
