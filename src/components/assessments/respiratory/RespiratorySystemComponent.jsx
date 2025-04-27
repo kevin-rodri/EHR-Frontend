@@ -17,6 +17,7 @@ import {
   deleteRespiratoryInfo,
 } from "../../../services/respiratoryInfoService";
 import lungsImage from "../../../assets/lungs.png";
+import { useSnackbar } from "../../utils/Snackbar";
 
 const RespiratorySystemComponent = ({ sectionId }) => {
   const initialState = {
@@ -46,6 +47,7 @@ const RespiratorySystemComponent = ({ sectionId }) => {
   const [formData, setFormData] = useState(initialState);
   const [respiratoryInfo, setRespiratoryInfo] = useState(null);
   const [sectionPatientId, setSectionPatientId] = useState("");
+    const { showSnackbar, SnackbarComponent } = useSnackbar();
 
   useEffect(() => {
     const fetchData = async () => {
@@ -107,11 +109,14 @@ const RespiratorySystemComponent = ({ sectionId }) => {
           respiratoryInfo.id,
           payload
         );
+        showSnackbar("Respiratory information updated successfully!", "success");
       } else {
         await addRespiratoryInfo(sectionPatientId, payload);
+        showSnackbar("Respiratory information updated successfully!", "success");
       }
     } catch (error) {
       console.error("Error saving respiratory info:", error);
+      showSnackbar("Error saving respiratory information", "error");
     }
   };
 
@@ -121,8 +126,10 @@ const RespiratorySystemComponent = ({ sectionId }) => {
         await deleteRespiratoryInfo(sectionPatientId, respiratoryInfo.id);
         setRespiratoryInfo(null);
         setFormData(initialState);
+        showSnackbar("Respiratory information updated successfully!", "success");
       } catch (error) {
         console.error("Error deleting respiratory info:", error);
+        showSnackbar("Error deleting respiratory information", "error");
       }
     }
   };
@@ -360,6 +367,7 @@ const RespiratorySystemComponent = ({ sectionId }) => {
           </Grid>
         </Grid>
       </form>
+      {SnackbarComponent}
     </Paper>
   );
 };
