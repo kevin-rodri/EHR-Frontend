@@ -74,7 +74,7 @@ export function PatientOrderComponent({ sectionId }) {
     { accessorKey: "description", header: "Description" },
     {
       accessorKey: "modified_date",
-      header: "Timestamp",
+      header: "Date and Time",
       size: 150,
       Cell: ({ cell }) => formatDateTime(cell.getValue()),
     },

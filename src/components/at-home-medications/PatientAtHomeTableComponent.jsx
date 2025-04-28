@@ -94,7 +94,7 @@ export default function PatientAtHomeTableComponent({ sectionId }) {
       { accessorKey: "drugName", header: "Drug Name", size: 150 },
       {
         accessorKey: "scheduled_time",
-        header: "Date and Time Given",
+        header: "Date and Time",
         size: 150,
         Cell: ({ cell }) => formatDateTime(cell.getValue()),
       },

@@ -77,7 +77,7 @@ export function PatientLabValuesComponent({ sectionId }) {
       { accessorKey: "element_value", header: "Element Value" },
       {
         accessorKey: "modified_date",
-        header: "Timestamp",
+        header: "Date and Time",
         size: 150,
         Cell: ({ cell }) => formatDateTime(cell.getValue()),
       },

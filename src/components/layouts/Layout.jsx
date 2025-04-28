@@ -185,11 +185,12 @@ export default function Layout({ children }) {
         open={open}
       >
         <DrawerHeader>
+          {/* TO-DO: This should be replaced with the new logo */}
           <Typography
+            variant="h6"
             sx={{
               fontFamily: "Roboto",
               fontWeight: "bold",
-              fontSize: 15,
               textAlign: "start",
               flexGrow: 1,
             }}
