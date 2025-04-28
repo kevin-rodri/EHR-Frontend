@@ -26,6 +26,7 @@ import {
   addNeurologicalInfoToPatient,
   updateNeurologicalInfoForPatient,
 } from "../../../services/NeurologicalInfoService";
+import { useSnackbar } from "../../utils/Snackbar";
 
 const NeurologicalSystemComponent = ({ sectionId }) => {
   const [neurologicalData, setNeurologicalData] = useState({
@@ -51,6 +52,7 @@ const NeurologicalSystemComponent = ({ sectionId }) => {
   });
 
   const [sectionPatientId, setSectionPatientId] = useState(null);
+   const { showSnackbar, SnackbarComponent } = useSnackbar();
 
   useEffect(() => {
     const fetchData = async () => {
@@ -113,9 +115,11 @@ const NeurologicalSystemComponent = ({ sectionId }) => {
 
       if (response) {
         setNeurologicalData(response);
+        showSnackbar("Neurological information saved successfully!", "success");
       }
     } catch (error) {
       console.error("Error submitting neurological data:", error);
+      showSnackbar("Failed to save Neurological information.", "error");
     }
   };
 
@@ -507,6 +511,7 @@ const NeurologicalSystemComponent = ({ sectionId }) => {
       >
         Submit
       </Button>
+      {SnackbarComponent}
     </Box>
 
     // <Box sx={{display: "flex", flexDirection: "column", alignItems: "center", padding: 1}}>

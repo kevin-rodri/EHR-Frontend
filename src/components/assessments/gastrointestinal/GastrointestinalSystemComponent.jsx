@@ -25,6 +25,7 @@ import {
   addGastrointestinalInfoToPatient,
   updateGastrointestinalInfoForPatient,
 } from "../../../services/gastrointestinalInfoService";
+import { useSnackbar } from "../../utils/Snackbar";
 
 dayjs.extend(utc);
 
@@ -45,6 +46,7 @@ const GastrointestinalSystemComponent = ({ sectionId }) => {
 
   const [patientId, setPatientId] = useState(null);
   const [time, setTime] = useState(null);
+ const { showSnackbar, SnackbarComponent } = useSnackbar();
 
   const [touchedFields, setTouchedFields] = useState({
     right_upper_quadrant: false,
@@ -193,9 +195,11 @@ const GastrointestinalSystemComponent = ({ sectionId }) => {
                 .map((item) => item.trim())
             : [],
         });
+        showSnackbar("Gastrointestinal information saved successfully!", "success");
       }
     } catch (error) {
       console.error("Error saving gastrointestinal data:", error);
+      showSnackbar("Failed to save gastrointestinal information.", "error");
     }
   };
 
@@ -368,7 +372,8 @@ const GastrointestinalSystemComponent = ({ sectionId }) => {
       >
         Submit
       </Button>
-    </Box>
+      {SnackbarComponent}
+      </Box>
   );
 };
 

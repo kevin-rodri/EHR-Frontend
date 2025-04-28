@@ -34,6 +34,8 @@ import {
 } from "../../services/patientHistoryService";
 import { getUserRole } from "../../services/authService";
 import DeleteConfirmationModal from "../utils/DeleteModalComponent";
+import { useSnackbar } from "../utils/Snackbar";
+
 
 export default function PatientHistoryComponent({ sectionId }) {
   const [openModal, setOpenModal] = useState(false);
@@ -42,6 +44,8 @@ export default function PatientHistoryComponent({ sectionId }) {
   const [deletingRow, setDeletingRow] = useState(null);
   const [histories, setHistories] = useState([]);
   const [patientId, setPatientId] = useState("");
+  const { showSnackbar, SnackbarComponent } = useSnackbar();
+  
   const [display, setDisplay] = useState(false);
   const [newHistoryRecord, setNewHistoryRecord] = useState({
     id: "",
@@ -136,41 +140,55 @@ export default function PatientHistoryComponent({ sectionId }) {
 
   // Save user data (create/update)
   const handleSave = async () => {
-    if (editingRow) {
-      setHistories((prevData) =>
-        prevData.map((item) =>
-          item.id === editingRow.original.id
-            ? { ...item, ...newHistoryRecord }
-            : item
-        )
-      );
-      await updatePatientHistory(patientId, editingRow.original.id, {
-        type: newHistoryRecord.type,
-        title: newHistoryRecord.title,
-        description: newHistoryRecord.description,
-      });
-    } else {
-      await addPatientHistory(patientId, {
-        type: newHistoryRecord.type,
-        title: newHistoryRecord.title,
-        description: newHistoryRecord.description,
-      });
-      setHistories((prevData) => [
-        ...prevData,
-        { ...newHistoryRecord, id: Date.now().toString() },
-      ]);
+    try {
+      if (editingRow) {
+        setHistories((prevData) =>
+          prevData.map((item) =>
+            item.id === editingRow.original.id
+              ? { ...item, ...newHistoryRecord }
+              : item
+          )
+        );
+        await updatePatientHistory(patientId, editingRow.original.id, {
+          type: newHistoryRecord.type,
+          title: newHistoryRecord.title,
+          description: newHistoryRecord.description,
+        });
+        showSnackbar("Patient history updated successfully!", "success");
+      } else {
+        await addPatientHistory(patientId, {
+          type: newHistoryRecord.type,
+          title: newHistoryRecord.title,
+          description: newHistoryRecord.description,
+        });
+        setHistories((prevData) => [
+          ...prevData,
+          { ...newHistoryRecord, id: Date.now().toString() },
+        ]);
+        showSnackbar("Patient history added successfully!", "success");
+      }
+      setOpenModal(false);
+    } catch (error) {
+      console.error(error);
+      showSnackbar("Error saving information.", "error");
     }
-    setOpenModal(false);
   };
 
   // Delete user
   const handleDelete = async () => {
-    await deletePatientHistory(patientId, deletingRow.original.id);
-    setHistories(
-      histories.filter((item) => item.id !== deletingRow.original.id)
-    );
-    setOpenDeleteModal(false);
+    try {
+      await deletePatientHistory(patientId, deletingRow.original.id);
+      setHistories(
+        histories.filter((item) => item.id !== deletingRow.original.id)
+      );
+      setOpenDeleteModal(false);
+      showSnackbar("Patient history deleted successfully!", "success"); 
+    } catch (error) {
+      console.error(error);
+      showSnackbar("Error deleting patient history.", "error"); 
+    }
   };
+  
 
   const fetchPatientHistory = async () => {
     try {
@@ -307,6 +325,7 @@ export default function PatientHistoryComponent({ sectionId }) {
         onClose={() => setOpenDeleteModal(false)}
         onConfirm={handleDelete}
       />
+       {SnackbarComponent}
     </Box>
   );
 }

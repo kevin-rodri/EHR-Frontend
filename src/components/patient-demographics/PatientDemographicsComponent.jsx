@@ -24,6 +24,8 @@ import {
   Divider,
 } from "@mui/material";
 import { styled } from "@mui/system";
+import { useSnackbar } from "../utils/Snackbar";
+
 
 const StyledCard = styled(Card)({
   maxWidth: "70%",
@@ -73,6 +75,8 @@ const PatientDemographicsComponent = () => {
   const [patientId, setPatientId] = useState(null);
   const [isNew, setIsNew] = useState(!sectionId);
   const [role, setRole] = useState("STUDENT");
+  const { showSnackbar, SnackbarComponent } = useSnackbar();
+
 
   useEffect(() => {
     const storedRole = localStorage.getItem("ROLE");
@@ -148,13 +152,13 @@ const PatientDemographicsComponent = () => {
     try {
       const { id, barcode_value, ...rest } = formData;
       const newPatientData = { ...rest, barcode_value: '0' };
-      await addPatient(newPatientData);      
-      window.alert("Patient duplicated successfully!");
+      await addPatient(newPatientData);
+      showSnackbar("Patient duplicated successfully!", "success");
     } catch (error) {
       console.error("Error duplicating patient:", error);
-      window.alert("Error duplicating patient. Please try again.");
+      showSnackbar("Error duplicating patient. Please try again.", "error");
     }
-  };
+  };  
 
   return (
     <Box>
@@ -369,12 +373,10 @@ const PatientDemographicsComponent = () => {
                 onClick={async () => {
                   try {
                     await updatePatient(patientId, formData);
-                    window.alert(
-                      "Patient information has been successfully updated!"
-                    );
+                    showSnackbar("Patient added successfully!", "success");
                   } catch (error) {
                     console.error("Error updating patient:", error);
-                    window.alert("Error updating patient. Please try again.");
+                    showSnackbar("Error saving patient. Please try again.", "error");
                   }
                 }}
               >
@@ -391,8 +393,10 @@ const PatientDemographicsComponent = () => {
             </>
           )}
         </CardContent>
-      </StyledCard>
-    </Box>
+        </StyledCard>
+{SnackbarComponent}
+</Box>
+
   );
 };
 

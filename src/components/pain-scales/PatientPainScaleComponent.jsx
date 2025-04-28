@@ -33,6 +33,7 @@ import {
 import { formatDateTime } from "../../utils/date-time-formatter";
 import dayjs from "dayjs";
 import utc from "dayjs/plugin/utc";
+import { useSnackbar } from "../utils/Snackbar";
 
 export default function PatientPainScaleComponent({ sectionId }) {
   const [openModal, setOpenModal] = useState(false);
@@ -44,6 +45,7 @@ export default function PatientPainScaleComponent({ sectionId }) {
   const [selectedScale, setSelectedScale] = useState(null);
   const [sectionPatientId, setSectionPatientId] = useState(null);
   const [display, setDisplay] = useState(false);
+  const { showSnackbar, SnackbarComponent } = useSnackbar();
   const [flaccScores, setFlaccScores] = useState({
     faces: 0,
     legs: 0,
@@ -197,6 +199,7 @@ export default function PatientPainScaleComponent({ sectionId }) {
           modified_date: formattedTime,
         }
       );
+      showSnackbar('Pain scale result updated successfully!', 'success');
     } else {
       await addPatientPainScaleResult(sectionPatientId, {
         pain_scale_id: newScaleRecord.pain_scale_id,
@@ -217,6 +220,7 @@ export default function PatientPainScaleComponent({ sectionId }) {
             scale?.scale_name === "FLACC" ? { ...flaccScores } : undefined,
         },
       ]);
+      showSnackbar('Pain scale result saved successfully!', 'success');
     }
     setSelectedScale(null);
 
@@ -233,6 +237,7 @@ export default function PatientPainScaleComponent({ sectionId }) {
       scaleResult.filter((item) => item.id !== deletingRow.original.id)
     );
     setOpenDeleteModal(false);
+    showSnackbar('Pain scale result deleted successfully!', 'success');
   };
 
   // This just a helper for getting the right scale image
@@ -467,6 +472,7 @@ export default function PatientPainScaleComponent({ sectionId }) {
         onClose={() => setOpenDeleteModal(false)}
         onConfirm={handleDelete}
       />
+       {SnackbarComponent}
     </Box>
   );
 }
