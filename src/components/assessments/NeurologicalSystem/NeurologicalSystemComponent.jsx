@@ -18,6 +18,8 @@ import {
   Grid,
   IconButton,
   Button,
+  Select,
+  MenuItem
 } from "@mui/material";
 import EditIcon from "@mui/icons-material/Edit";
 import { getSectionPatientById } from "../../../services/sectionPatientService";
@@ -138,55 +140,83 @@ const NeurologicalSystemComponent = ({ sectionId }) => {
       <Grid container spacing={4} justifyContent="center">
         <Grid item xs={12} sm={5}>
           <Typography variant="h6" align="center" color="white">
-            Left
+            Left Pupil
           </Typography>
           <Paper sx={{ p: 2 }}>
-            <TextField
-              fullWidth
-              label="Left Pupil Reaction"
-              size="small"
-              value={neurologicalData.left_pupil_reaction}
-              onChange={(e) =>
-                handleChange("left_pupil_reaction", e.target.value)
-              }
-              sx={{ backgroundColor: "white", mb: 1 }}
-            />
-            <TextField
-              fullWidth
-              label="Left Pupil Size"
-              size="small"
-              type="number"
-              value={neurologicalData.left_pupil_size}
-              onChange={(e) => handleChange("left_pupil_size", e.target.value)}
-              sx={{ backgroundColor: "white" }}
-            />
+          <Select
+            fullWidth
+            required
+            label="Left Pupil Reaction"
+            size="small"
+            type="number"
+            value={neurologicalData.left_pupil_reaction}
+            onChange={(e) => handleChange("left_pupil_reaction", e.target.value)}
+            sx={{ backgroundColor: "white", mb: 1 }}>
+              <MenuItem value={"Brisk"}>Brisk</MenuItem>
+            <MenuItem value={"Fixed"}>Fixed</MenuItem>
+            <MenuItem value={"Dilated"}>Dilated</MenuItem>
+            <MenuItem value={"Sluggish"}>Sluggish</MenuItem>
+            </Select>
+            <Select
+            fullWidth
+            required
+            label="Left Pupil Size"
+            size="small"
+            value={neurologicalData.left_pupil_size}
+            onChange={(e) => handleChange("left_pupil_size", e.target.value)}
+            sx={{ backgroundColor: "white" }}>
+              <MenuItem value={1}>1</MenuItem>
+            <MenuItem value={2}>2</MenuItem>
+            <MenuItem value={3}>3</MenuItem>
+            <MenuItem value={4}>4</MenuItem>
+            <MenuItem value={5}>5</MenuItem>
+            <MenuItem value={6}>6</MenuItem>
+            <MenuItem value={7}>7</MenuItem>
+            <MenuItem value={8}>8</MenuItem>
+            <MenuItem value={9}>9</MenuItem>
+            <MenuItem value={10}>10</MenuItem>
+            </Select>
           </Paper>
         </Grid>
 
         <Grid item xs={12} sm={5}>
           <Typography variant="h6" align="center" color="white">
-            Right
+            Right Pupil
           </Typography>
           <Paper sx={{ p: 2 }}>
-            <TextField
-              fullWidth
-              label="Right Pupil Reaction"
-              size="small"
-              value={neurologicalData.right_pupil_reaction}
-              onChange={(e) =>
-                handleChange("right_pupil_reaction", e.target.value)
-              }
-              sx={{ backgroundColor: "white", mb: 1 }}
-            />
-            <TextField
-              fullWidth
-              label="Right Pupil Size"
-              size="small"
-              type="number"
-              value={neurologicalData.right_pupil_size}
-              onChange={(e) => handleChange("right_pupil_size", e.target.value)}
-              sx={{ backgroundColor: "white" }}
-            />
+          <Select
+            fullWidth
+            required
+            label="Right Pupil Reaction"
+            size="small"
+            type="number"
+            value={neurologicalData.right_pupil_reaction}
+            onChange={(e) => handleChange("right_pupil_reaction", e.target.value)}
+            sx={{ backgroundColor: "white", mb: 1 }}>
+              <MenuItem value={"Brisk"}>Brisk</MenuItem>
+            <MenuItem value={"Fixed"}>Fixed</MenuItem>
+            <MenuItem value={"Dilated"}>Dilated</MenuItem>
+            <MenuItem value={"Sluggish"}>Sluggish</MenuItem>
+            </Select>
+            <Select
+            fullWidth
+            required
+            label="Right Pupil Size"
+            size="small"
+            value={neurologicalData.right_pupil_size}
+            onChange={(e) => handleChange("right_pupil_size", e.target.value)}
+            sx={{ backgroundColor: "white" }}>
+              <MenuItem value={1}>1</MenuItem>
+            <MenuItem value={2}>2</MenuItem>
+            <MenuItem value={3}>3</MenuItem>
+            <MenuItem value={4}>4</MenuItem>
+            <MenuItem value={5}>5</MenuItem>
+            <MenuItem value={6}>6</MenuItem>
+            <MenuItem value={7}>7</MenuItem>
+            <MenuItem value={8}>8</MenuItem>
+            <MenuItem value={9}>9</MenuItem>
+            <MenuItem value={10}>10</MenuItem>
+            </Select>
           </Paper>
         </Grid>
 
@@ -246,17 +276,20 @@ const NeurologicalSystemComponent = ({ sectionId }) => {
             Alertness
           </Typography>
           <Paper sx={{ p: 1 }}>
-            <TextField
-              fullWidth
-              label="Alertness Description"
-              multiline
-              rows={2}
-              value={neurologicalData.alertness_description}
-              onChange={(e) =>
-                handleChange("alertness_description", e.target.value)
-              }
-              sx={{ backgroundColor: "white" }}
-            />
+          <Select
+            fullWidth
+            required
+            label="Alertness Description"
+            value={neurologicalData.alertness_description}
+            onChange={(e) =>
+              handleChange("alertness_description", e.target.value)
+            }
+            sx={{ backgroundColor: "white" }}>
+              <MenuItem value={"Alert"}>Alert</MenuItem>
+            <MenuItem value={"Lethargic"}>Lethargic</MenuItem>
+            <MenuItem value={"Obtunded"}>Obtunded</MenuItem>
+            <MenuItem value={"Comatose"}>Comatose</MenuItem>
+            </Select>
           </Paper>
         </Grid>
 
@@ -281,39 +314,45 @@ const NeurologicalSystemComponent = ({ sectionId }) => {
                 <TableRow>
                   <TableCell>Grip</TableCell>
                   <TableCell>
-                    <TextField
-                      fullWidth
-                      size="small"
-                      value={
-                        neurologicalData.strength_left_upper_extremity_grip
-                      }
-                      onChange={(e) =>
-                        handleChange(
-                          "strength_left_upper_extremity_grip",
-                          e.target.value
-                        )
-                      }
-                      sx={{ backgroundColor: "white" }}
-                    />
+                  <Select
+            fullWidth
+            size="small"
+            value={
+              neurologicalData.strength_left_upper_extremity_grip
+            }
+            onChange={(e) =>
+              handleChange(
+                "strength_left_upper_extremity_grip",
+                e.target.value
+              )
+            }
+            sx={{ backgroundColor: "white" }}>
+              <MenuItem value={"Weak"}>Weak</MenuItem>
+            <MenuItem value={"Absent"}>Absent</MenuItem>
+            </Select>
                   </TableCell>
                 </TableRow>
                 <TableRow>
                   <TableCell>Sensation</TableCell>
                   <TableCell>
-                    <TextField
-                      fullWidth
-                      size="small"
-                      value={
-                        neurologicalData.strength_left_upper_extremity_sensation
-                      }
-                      onChange={(e) =>
-                        handleChange(
-                          "strength_left_upper_extremity_sensation",
-                          e.target.value
-                        )
-                      }
-                      sx={{ backgroundColor: "white" }}
-                    />
+                  <Select
+            fullWidth
+            required
+            size="small"
+            value={
+              neurologicalData.strength_left_upper_extremity_sensation
+            }
+            onChange={(e) =>
+              handleChange(
+                "strength_left_upper_extremity_sensation",
+                e.target.value
+              )
+            }
+            sx={{ backgroundColor: "white" }}>
+              <MenuItem value={"Diminished"}>Diminished</MenuItem>
+              <MenuItem value={"Tingling"}>Diminished</MenuItem>
+            <MenuItem value={"Absent"}>Absent</MenuItem>
+            </Select>
                   </TableCell>
                 </TableRow>
               </TableBody>
@@ -336,39 +375,46 @@ const NeurologicalSystemComponent = ({ sectionId }) => {
                 <TableRow>
                   <TableCell>Grip</TableCell>
                   <TableCell>
-                    <TextField
-                      fullWidth
-                      size="small"
-                      value={
-                        neurologicalData.strength_right_upper_extremity_grip
-                      }
-                      onChange={(e) =>
-                        handleChange(
-                          "strength_right_upper_extremity_grip",
-                          e.target.value
-                        )
-                      }
-                      sx={{ backgroundColor: "white" }}
-                    />
+                  <Select
+            fullWidth
+            required
+            size="small"
+            value={
+              neurologicalData.strength_right_upper_extremity_grip
+            }
+            onChange={(e) =>
+              handleChange(
+                "strength_right_upper_extremity_grip",
+                e.target.value
+              )
+            }
+            sx={{ backgroundColor: "white" }}>
+              <MenuItem value={"Weak"}>Weak</MenuItem>
+            <MenuItem value={"Absent"}>Absent</MenuItem>
+            </Select>
                   </TableCell>
                 </TableRow>
                 <TableRow>
                   <TableCell>Sensation</TableCell>
                   <TableCell>
-                    <TextField
-                      fullWidth
-                      size="small"
-                      value={
-                        neurologicalData.strength_right_upper_extremity_sensation
-                      }
-                      onChange={(e) =>
-                        handleChange(
-                          "strength_right_upper_extremity_sensation",
-                          e.target.value
-                        )
-                      }
-                      sx={{ backgroundColor: "white" }}
-                    />
+                  <Select
+            fullWidth
+            required
+            size="small"
+            value={
+              neurologicalData.strength_right_upper_extremity_sensation
+            }
+            onChange={(e) =>
+              handleChange(
+                "strength_right_upper_extremity_sensation",
+                e.target.value
+              )
+            }
+            sx={{ backgroundColor: "white" }}>
+              <MenuItem value={"Diminished"}>Diminished</MenuItem>
+              <MenuItem value={"Tingling"}>Diminished</MenuItem>
+            <MenuItem value={"Absent"}>Absent</MenuItem>
+            </Select>
                   </TableCell>
                 </TableRow>
               </TableBody>
@@ -391,35 +437,46 @@ const NeurologicalSystemComponent = ({ sectionId }) => {
                 <TableRow>
                   <TableCell>Strength</TableCell>
                   <TableCell>
-                    <TextField
-                      fullWidth
-                      size="small"
-                      value={neurologicalData.left_lower_extremity_strength}
-                      onChange={(e) =>
-                        handleChange(
-                          "left_lower_extremity_strength",
-                          e.target.value
-                        )
-                      }
-                      sx={{ backgroundColor: "white" }}
-                    />
+                  <Select
+            fullWidth
+            required
+            size="small"
+            value={
+              neurologicalData.left_lower_extremity_strength
+            }
+            onChange={(e) =>
+              handleChange(
+                "left_lower_extremity_strength",
+                e.target.value
+              )
+            }
+            sx={{ backgroundColor: "white" }}>
+              <MenuItem value={"Weak"}>Weak</MenuItem>
+            <MenuItem value={"Absent"}>Absent</MenuItem>
+            </Select>
                   </TableCell>
                 </TableRow>
                 <TableRow>
                   <TableCell>Sensation</TableCell>
                   <TableCell>
-                    <TextField
-                      fullWidth
-                      size="small"
-                      value={neurologicalData.left_lower_extremity_sensation}
-                      onChange={(e) =>
-                        handleChange(
-                          "left_lower_extremity_sensation",
-                          e.target.value
-                        )
-                      }
-                      sx={{ backgroundColor: "white" }}
-                    />
+                  <Select
+            fullWidth
+            required
+            size="small"
+            value={
+              neurologicalData.left_lower_extremity_sensation
+            }
+            onChange={(e) =>
+              handleChange(
+                "left_lower_extremity_sensation",
+                e.target.value
+              )
+            }
+            sx={{ backgroundColor: "white" }}>
+              <MenuItem value={"Diminished"}>Diminished</MenuItem>
+              <MenuItem value={"Tingling"}>Diminished</MenuItem>
+            <MenuItem value={"Absent"}>Absent</MenuItem>
+            </Select>
                   </TableCell>
                 </TableRow>
               </TableBody>
@@ -442,35 +499,46 @@ const NeurologicalSystemComponent = ({ sectionId }) => {
                 <TableRow>
                   <TableCell>Strength</TableCell>
                   <TableCell>
-                    <TextField
-                      fullWidth
-                      size="small"
-                      value={neurologicalData.right_lower_extremity_strength}
-                      onChange={(e) =>
-                        handleChange(
-                          "right_lower_extremity_strength",
-                          e.target.value
-                        )
-                      }
-                      sx={{ backgroundColor: "white" }}
-                    />
+                  <Select
+            fullWidth
+            required
+            size="small"
+            value={
+              neurologicalData.right_lower_extremity_strength
+            }
+            onChange={(e) =>
+              handleChange(
+                "right_lower_extremity_strength",
+                e.target.value
+              )
+            }
+            sx={{ backgroundColor: "white" }}>
+              <MenuItem value={"Weak"}>Weak</MenuItem>
+            <MenuItem value={"Absent"}>Absent</MenuItem>
+            </Select>
                   </TableCell>
                 </TableRow>
                 <TableRow>
                   <TableCell>Sensation</TableCell>
                   <TableCell>
-                    <TextField
-                      fullWidth
-                      size="small"
-                      value={neurologicalData.right_lower_extremity_sensation}
-                      onChange={(e) =>
-                        handleChange(
-                          "right_lower_extremity_sensation",
-                          e.target.value
-                        )
-                      }
-                      sx={{ backgroundColor: "white" }}
-                    />
+                  <Select
+            fullWidth
+            required
+            size="small"
+            value={
+              neurologicalData.right_lower_extremity_sensation
+            }
+            onChange={(e) =>
+              handleChange(
+                "right_lower_extremity_sensation",
+                e.target.value
+              )
+            }
+            sx={{ backgroundColor: "white" }}>
+              <MenuItem value={"Diminished"}>Diminished</MenuItem>
+              <MenuItem value={"Tingling"}>Diminished</MenuItem>
+            <MenuItem value={"Absent"}>Absent</MenuItem>
+            </Select>
                   </TableCell>
                 </TableRow>
               </TableBody>

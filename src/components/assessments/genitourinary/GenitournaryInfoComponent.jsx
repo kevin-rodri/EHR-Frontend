@@ -14,6 +14,8 @@ import {
   IconButton,
   Tooltip,
   Grid,
+  Select,
+  MenuItem
 } from "@mui/material";
 import dayjs from "dayjs";
 import utc from "dayjs/plugin/utc";
@@ -125,14 +127,22 @@ export default function GenitourinaryInfoComponent({ sectionId }) {
 
       <Grid container spacing={2}>
         <Grid item xs={12} sm={6}>
-          <TextField
-            label="Urinary Assessment"
-            fullWidth
-            value={formData.urinary_assessment}
-            onChange={(e) =>
-              setFormData({ ...formData, urinary_assessment: e.target.value })
-            }
-          />
+          <Select
+           label="Urinary Assessment"
+           fullWidth
+           required
+           value={formData.urinary_assessment}
+           onChange={(e) =>
+             setFormData({ ...formData, urinary_assessment: e.target.value })
+           }>
+            <MenuItem value={"Continent"}>Continent</MenuItem>
+            <MenuItem value={"Incontinent"}>Incontinent</MenuItem>
+            <MenuItem value={"Retention"}>Retention</MenuItem>
+            <MenuItem value={"Frequent"}>Frequent</MenuItem>
+            <MenuItem value={"Painful"}>Painful</MenuItem>
+            <MenuItem value={"Hematuria"}>Hematuria</MenuItem>
+            <MenuItem value={"Anuric"}>Anuric</MenuItem>
+          </Select>
         </Grid>
 
         <Grid item xs={12} sm={6}>
@@ -150,50 +160,75 @@ export default function GenitourinaryInfoComponent({ sectionId }) {
         </Grid>
 
         <Grid item xs={12} sm={6}>
-          <TextField
-            label="Urinary Route"
-            fullWidth
-            value={formData.urinary_route}
-            onChange={(e) =>
-              setFormData({ ...formData, urinary_route: e.target.value })
-            }
-          />
+        <Select
+           label="Urinary Route"
+           fullWidth
+           required
+           value={formData.urinary_route}
+           onChange={(e) =>
+             setFormData({ ...formData, urinary_route: e.target.value })
+           }>
+            <MenuItem value={"Urinal"}>Urinal</MenuItem>
+            <MenuItem value={"Foley-Catheter"}>Foley Catheter</MenuItem>
+            <MenuItem value={"Urinary-Diversion"}>Urinary Diversion</MenuItem>
+            <MenuItem value={"Straight-Catheter"}>Straight Catheter</MenuItem>
+          </Select>
         </Grid>
 
         <Grid item xs={12} sm={6}>
-          <TextField
-            label="Urine Color"
-            fullWidth
-            value={formData.urine_color}
-            onChange={(e) =>
-              setFormData({ ...formData, urine_color: e.target.value })
-            }
-          />
+        <Select
+           label="Urine Color"
+           fullWidth
+           required
+           value={formData.urine_color}
+           onChange={(e) =>
+             setFormData({ ...formData, urine_color: e.target.value })
+           }>
+            <MenuItem value={"Yellow"}>Yellow</MenuItem>
+            <MenuItem value={"Orange"}>Orange</MenuItem>
+            <MenuItem value={"Green"}>Green</MenuItem>
+            <MenuItem value={"Brown"}>Brown</MenuItem>
+            <MenuItem value={"Red-Bloody"}>Red/Bloody</MenuItem>
+            <MenuItem value={"Frank-Blood"}>Frank Blood</MenuItem>
+            <MenuItem value={"Amber"}>Amber</MenuItem>
+            <MenuItem value={"Dark-Yellow"}>Dark Yellow</MenuItem>
+          </Select>
         </Grid>
 
         <Grid item xs={12} sm={6}>
-          <TextField
-            label="Urine Characteristics"
-            fullWidth
-            value={formData.urine_characteristics}
-            onChange={(e) =>
-              setFormData({
-                ...formData,
-                urine_characteristics: e.target.value,
-              })
-            }
-          />
+        <Select
+           label="Urine Characteristics"
+           fullWidth
+           required
+           value={formData.urine_characteristics}
+           onChange={(e) =>
+             setFormData({
+               ...formData,
+               urine_characteristics: e.target.value,
+             })
+           }>
+            <MenuItem value={"Cloudy"}>Cloudy</MenuItem>
+            <MenuItem value={"Cloudy-With-Sediment"}>Cloudy-With-Sediment</MenuItem>
+            <MenuItem value={"Sediment"}>Sediment</MenuItem>
+            <MenuItem value={"Clots"}>Clots</MenuItem>
+            <MenuItem value={"Milky"}>Milky</MenuItem>
+            <MenuItem value={"Bloody"}>Bloody</MenuItem>
+          </Select>
         </Grid>
 
         <Grid item xs={12} sm={6}>
-          <TextField
-            label="Urine Odor"
-            fullWidth
-            value={formData.urine_odor}
-            onChange={(e) =>
-              setFormData({ ...formData, urine_odor: e.target.value })
-            }
-          />
+        <Select
+           label="Urine Odor"
+           fullWidth
+           required
+           value={formData.urine_odor}
+           onChange={(e) =>
+             setFormData({ ...formData, urine_odor: e.target.value })
+           }>
+            <MenuItem value={"Foul"}>Foul</MenuItem>
+            <MenuItem value={"Sweet"}>Sweet</MenuItem>
+            <MenuItem value={"Ammonia"}>Ammonia</MenuItem>
+          </Select>
         </Grid>
 
         <Grid item xs={12} sm={6}>
@@ -236,17 +271,20 @@ export default function GenitourinaryInfoComponent({ sectionId }) {
         </Grid>
 
         <Grid item xs={12} sm={6}>
-          <TextField
-            label="Dialysis Access Type"
-            fullWidth
-            value={formData.dialysis_access_type}
-            onChange={(e) =>
-              setFormData({
-                ...formData,
-                dialysis_access_type: e.target.value,
-              })
-            }
-          />
+        <Select
+           label="Dialysis Access Type"
+           fullWidth
+           required
+           value={formData.dialysis_access_type}
+           onChange={(e) =>
+             setFormData({
+               ...formData,
+               dialysis_access_type: e.target.value,
+             })
+           }>
+            <MenuItem value={"Peritoneal"}>Peritoneal</MenuItem>
+            <MenuItem value={"Hemodialysis"}>Hemodialysis</MenuItem>
+          </Select>
         </Grid>
 
         <Grid item xs={12} sm={6}>
