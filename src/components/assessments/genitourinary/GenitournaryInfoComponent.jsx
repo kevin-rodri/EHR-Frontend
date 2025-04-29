@@ -15,7 +15,7 @@ import {
   Tooltip,
   Grid,
   Select,
-  MenuItem
+  MenuItem,
 } from "@mui/material";
 import dayjs from "dayjs";
 import utc from "dayjs/plugin/utc";
@@ -54,6 +54,33 @@ export default function GenitourinaryInfoComponent({ sectionId }) {
     foley_removed: dayjs().utc().toISOString(),
   });
 
+  const [touchedFields, setTouchedFields] = useState({
+    urinary_assessment: false,
+    urinary_diversion_notes: false,
+    urinary_route: false,
+    urine_color: false,
+    urine_characteristics: false,
+    urine_odor: false,
+    dialysis_access_type: false,
+    foley_catheter: false,
+  });
+
+  const handleBlur = (field) => {
+    setTouchedFields((prev) => ({ ...prev, [field]: true }));
+  };
+
+  const isFormValid = () => {
+    return (
+      formData.urinary_assessment &&
+      formData.urinary_route &&
+      formData.urine_color &&
+      formData.urine_characteristics &&
+      formData.urine_odor &&
+      formData.dialysis_access_type &&
+      formData.foley_catheter
+    );
+  };
+
   useEffect(() => {
     const fetchData = async () => {
       try {
@@ -80,7 +107,7 @@ export default function GenitourinaryInfoComponent({ sectionId }) {
     try {
       setLoading(true);
       let response;
-  
+
       const payload = {
         section_patient_id: sectionPatientId,
         urinary_assessment: formData.urinary_assessment || "N/A",
@@ -101,7 +128,7 @@ export default function GenitourinaryInfoComponent({ sectionId }) {
           formData.has_dialysis_access_dressing_cdi,
         foley_catheter: formData.foley_catheter || "N/A",
       };
-  
+
       if (formData && formData.id) {
         response = await updateGenitourinaryInfo(
           sectionPatientId,
@@ -111,7 +138,7 @@ export default function GenitourinaryInfoComponent({ sectionId }) {
       } else {
         response = await addGenitourinaryInfo(sectionPatientId, payload);
       }
-  
+
       setFormData(response);
       showSnackbar("Genitourinary information saved successfully!", "success");
     } catch (error) {
@@ -121,7 +148,6 @@ export default function GenitourinaryInfoComponent({ sectionId }) {
       setLoading(false);
     }
   };
-  
 
   return (
     <Box sx={{ backgroundColor: "white", p: 4, borderRadius: 3, boxShadow: 3 }}>
@@ -132,13 +158,25 @@ export default function GenitourinaryInfoComponent({ sectionId }) {
       <Grid container spacing={2}>
         <Grid item xs={12} sm={6}>
           <Select
-           label="Urinary Assessment"
-           fullWidth
-           required
-           value={formData.urinary_assessment}
-           onChange={(e) =>
-             setFormData({ ...formData, urinary_assessment: e.target.value })
-           }>
+            displayEmpty
+            label="Urinary Assessment"
+            fullWidth
+            required
+            value={formData.urinary_assessment}
+            onChange={(e) => {
+              setFormData({ ...formData, urinary_assessment: e.target.value });
+              handleBlur("urinary_assessment");
+            }}
+            renderValue={(selected) =>
+              selected ? (
+                selected
+              ) : (
+                <span style={{ color: "#757575" }}>
+                  Select Urinary Assessment
+                </span>
+              )
+            }
+          >
             <MenuItem value={"Continent"}>Continent</MenuItem>
             <MenuItem value={"Incontinent"}>Incontinent</MenuItem>
             <MenuItem value={"Retention"}>Retention</MenuItem>
@@ -154,24 +192,35 @@ export default function GenitourinaryInfoComponent({ sectionId }) {
             label="Diversion Notes"
             fullWidth
             value={formData.urinary_diversion_notes}
-            onChange={(e) =>
+            onChange={(e) => {
               setFormData({
                 ...formData,
                 urinary_diversion_notes: e.target.value,
-              })
-            }
+              });
+              handleBlur("urinary_diversion_notes");
+            }}
           />
         </Grid>
 
         <Grid item xs={12} sm={6}>
-        <Select
-           label="Urinary Route"
-           fullWidth
-           required
-           value={formData.urinary_route}
-           onChange={(e) =>
-             setFormData({ ...formData, urinary_route: e.target.value })
-           }>
+          <Select
+            displayEmpty
+            label="Urinary Route"
+            fullWidth
+            required
+            value={formData.urinary_route}
+            onChange={(e) => {
+              setFormData({ ...formData, urinary_route: e.target.value });
+              handleBlur("urinary_route");
+            }}
+            renderValue={(selected) =>
+              selected ? (
+                selected
+              ) : (
+                <span style={{ color: "#757575" }}>Select Urinary Route</span>
+              )
+            }
+          >
             <MenuItem value={"Urinal"}>Urinal</MenuItem>
             <MenuItem value={"Foley-Catheter"}>Foley Catheter</MenuItem>
             <MenuItem value={"Urinary-Diversion"}>Urinary Diversion</MenuItem>
@@ -180,14 +229,24 @@ export default function GenitourinaryInfoComponent({ sectionId }) {
         </Grid>
 
         <Grid item xs={12} sm={6}>
-        <Select
-           label="Urine Color"
-           fullWidth
-           required
-           value={formData.urine_color}
-           onChange={(e) =>
-             setFormData({ ...formData, urine_color: e.target.value })
-           }>
+          <Select
+            displayEmpty
+            label="Urine Color"
+            fullWidth
+            required
+            value={formData.urine_color}
+            onChange={(e) => {
+              setFormData({ ...formData, urine_color: e.target.value });
+              handleBlur("urine_color");
+            }}
+            renderValue={(selected) =>
+              selected ? (
+                selected
+              ) : (
+                <span style={{ color: "#757575" }}>Select Urine Color</span>
+              )
+            }
+          >
             <MenuItem value={"Yellow"}>Yellow</MenuItem>
             <MenuItem value={"Orange"}>Orange</MenuItem>
             <MenuItem value={"Green"}>Green</MenuItem>
@@ -200,19 +259,33 @@ export default function GenitourinaryInfoComponent({ sectionId }) {
         </Grid>
 
         <Grid item xs={12} sm={6}>
-        <Select
-           label="Urine Characteristics"
-           fullWidth
-           required
-           value={formData.urine_characteristics}
-           onChange={(e) =>
-             setFormData({
-               ...formData,
-               urine_characteristics: e.target.value,
-             })
-           }>
+          <Select
+            displayEmpty
+            label="Urine Characteristics"
+            fullWidth
+            required
+            value={formData.urine_characteristics}
+            onChange={(e) => {
+              setFormData({
+                ...formData,
+                urine_characteristics: e.target.value,
+              });
+              handleBlur("urine_characteristics");
+            }}
+            renderValue={(selected) =>
+              selected ? (
+                selected
+              ) : (
+                <span style={{ color: "#757575" }}>
+                  Select Urine Characteristics
+                </span>
+              )
+            }
+          >
             <MenuItem value={"Cloudy"}>Cloudy</MenuItem>
-            <MenuItem value={"Cloudy-With-Sediment"}>Cloudy-With-Sediment</MenuItem>
+            <MenuItem value={"Cloudy-With-Sediment"}>
+              Cloudy-With-Sediment
+            </MenuItem>
             <MenuItem value={"Sediment"}>Sediment</MenuItem>
             <MenuItem value={"Clots"}>Clots</MenuItem>
             <MenuItem value={"Milky"}>Milky</MenuItem>
@@ -221,14 +294,27 @@ export default function GenitourinaryInfoComponent({ sectionId }) {
         </Grid>
 
         <Grid item xs={12} sm={6}>
-        <Select
-           label="Urine Odor"
-           fullWidth
-           required
-           value={formData.urine_odor}
-           onChange={(e) =>
-             setFormData({ ...formData, urine_odor: e.target.value })
-           }>
+          <Select
+            displayEmpty
+            label="Urine Odor"
+            fullWidth
+            required
+            value={formData.urine_odor}
+            onChange={(e) => {
+              setFormData({ ...formData, urine_odor: e.target.value })
+              handleBlur("urine_odor")
+            }
+            }
+            renderValue={(selected) =>
+              selected ? (
+                selected
+              ) : (
+                <span style={{ color: "#757575" }}>
+                  Select Urine Oder
+                </span>
+              )
+            }
+          >
             <MenuItem value={"Foul"}>Foul</MenuItem>
             <MenuItem value={"Sweet"}>Sweet</MenuItem>
             <MenuItem value={"Ammonia"}>Ammonia</MenuItem>
@@ -275,17 +361,30 @@ export default function GenitourinaryInfoComponent({ sectionId }) {
         </Grid>
 
         <Grid item xs={12} sm={6}>
-        <Select
-           label="Dialysis Access Type"
-           fullWidth
-           required
-           value={formData.dialysis_access_type}
-           onChange={(e) =>
-             setFormData({
-               ...formData,
-               dialysis_access_type: e.target.value,
-             })
-           }>
+          <Select
+          displayEmpty
+            label="Dialysis Access Type"
+            fullWidth
+            required
+            value={formData.dialysis_access_type}
+            onChange={(e) => {
+              setFormData({
+                ...formData,
+                dialysis_access_type: e.target.value,
+              })
+              handleBlur("dialysis_access_type")
+            }
+            }
+            renderValue={(selected) =>
+              selected ? (
+                selected
+              ) : (
+                <span style={{ color: "#757575" }}>
+                  Select Dialysis Access Type
+                </span>
+              )
+            }
+          >
             <MenuItem value={"Peritoneal"}>Peritoneal</MenuItem>
             <MenuItem value={"Hemodialysis"}>Hemodialysis</MenuItem>
           </Select>
@@ -348,7 +447,7 @@ export default function GenitourinaryInfoComponent({ sectionId }) {
         fullWidth
         sx={{ mt: 4 }}
         onClick={handleSubmit}
-        disabled={loading}
+        disabled={loading || !isFormValid()}
       >
         {formData.id ? "Update" : "Submit"}
       </Button>
