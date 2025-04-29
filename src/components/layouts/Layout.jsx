@@ -184,19 +184,22 @@ export default function Layout({ children }) {
         anchor="left"
         open={open}
       >
-        <DrawerHeader>
-          {/* TO-DO: This should be replaced with the new logo */}
-          <Typography
-            variant="h6"
-            sx={{
-              fontFamily: "Roboto",
-              fontWeight: "bold",
-              textAlign: "start",
-              flexGrow: 1,
+        <DrawerHeader
+          sx={{
+            flexDirection: "column",
+            justifyContent: "center",
+            alignItems: "center",
+            paddingTop: 2,
+            paddingBottom: 2,
+          }}
+        >
+          <img
+            src={logo}
+            alt="Quinnipiac EHR Logo"
+            style={{
+              width: "8rem",
             }}
-          >
-            EHR Application Menu
-          </Typography>
+          />
 
           {isMobile && (
             <IconButton onClick={handleDrawerClose}>
