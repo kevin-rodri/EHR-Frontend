@@ -117,7 +117,7 @@ export default function PatientADLComponent({ sectionId }) {
     { accessorKey: "amount_meal_consumed", header: "% of Meal Consumed" },
     {
       accessorKey: "created_date",
-      header: "Timestamp",
+      header: "Date and Time",
       enableSorting: false,
       Cell: ({ cell }) => formatDateTime(cell.getValue()),
     },

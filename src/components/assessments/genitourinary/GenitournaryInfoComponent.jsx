@@ -29,6 +29,7 @@ import { getSectionPatientById } from "../../../services/sectionPatientService";
 import { LocalizationProvider } from "@mui/x-date-pickers/LocalizationProvider";
 import { MobileDateTimePicker } from "@mui/x-date-pickers/MobileDateTimePicker";
 import { AdapterDayjs } from "@mui/x-date-pickers/AdapterDayjs";
+import { useSnackbar } from "../../utils/Snackbar";
 
 dayjs.extend(utc);
 dayjs.extend(timezone);
@@ -36,6 +37,7 @@ dayjs.extend(timezone);
 export default function GenitourinaryInfoComponent({ sectionId }) {
   const [sectionPatientId, setSectionPatientId] = useState("");
   const [loading, setLoading] = useState(false);
+  const { showSnackbar, SnackbarComponent } = useSnackbar();
   const [formData, setFormData] = useState({
     id: "",
     urinary_assessment: "",
@@ -111,8 +113,10 @@ export default function GenitourinaryInfoComponent({ sectionId }) {
       }
   
       setFormData(response);
+      showSnackbar("Genitourinary information saved successfully!", "success");
     } catch (error) {
       console.error("Error submitting Genitourinary info:", error);
+      showSnackbar("Error saving information.", "error");
     } finally {
       setLoading(false);
     }
@@ -348,6 +352,7 @@ export default function GenitourinaryInfoComponent({ sectionId }) {
       >
         {formData.id ? "Update" : "Submit"}
       </Button>
+      {SnackbarComponent}
     </Box>
   );
 }

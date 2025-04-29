@@ -5,22 +5,59 @@ Remarks: Section TABLE Component to be displayed throughout the PATIENT ASSIGNME
 */
 import React, { useEffect, useState } from "react";
 import { useTheme } from "@mui/material/styles";
-import { Box, useMediaQuery } from "@mui/material";
+import { Box, useMediaQuery, Snackbar, Alert } from "@mui/material";
 import SectionRowComponent from "./SectionRowComponent";
 import { getAllSections } from "../../services/sectionService";
 import { getUserRole, getAllFacultyUsers } from "../../services/authService";
 import { getAllPatients } from "../../services/patientService";
-import { getSectionPatientById } from "../../services/sectionPatientService";
+import { getSectionPatientById, updateSectionPatient, addPatientToSection } from "../../services/sectionPatientService";
 import UnauthorizedComponent from "../auth/UnauthorizedComponent";
 
 export default function SectionTableComponent() {
   const theme = useTheme();
   const isMobile = useMediaQuery(theme.breakpoints.down("md"));
   const [sections, setSections] = useState([]);
-  const [userRole, setUserRole] = useState("");
-  const [authorized, setAuthorized] = useState(true);
   const [patients, setPatients] = useState([]);
   const [facultyUsers, setFacultyUsers] = useState([]);
+  const [userRole, setUserRole] = useState("");
+  const [authorized, setAuthorized] = useState(true);
+  
+  const [snackbarOpen, setSnackbarOpen] = useState(false);
+  const [snackbarMessage, setSnackbarMessage] = useState("");
+  const [snackbarSeverity, setSnackbarSeverity] = useState("success");
+
+  const showSnackbar = (message, severity = "success") => {
+    setSnackbarMessage(message);
+    setSnackbarSeverity(severity);
+    setSnackbarOpen(true);
+  };
+
+  const handleAssignPatient = async (sectionId, assignedPatient, selectedPatient, sectionPatientRecordId) => {
+    try {
+      if (!selectedPatient) {
+        showSnackbar("Please select a patient first!", "info");
+        return;
+      }
+  
+      if (assignedPatient && assignedPatient !== selectedPatient) {
+        if (!sectionPatientRecordId) {
+          showSnackbar("Failed to find section patient record.", "error");
+          return;
+        }
+
+        await updateSectionPatient(sectionPatientRecordId, { patient_id: selectedPatient });
+        showSnackbar("Patient assignment updated successfully!", "success");
+      } else if (!assignedPatient) {
+        await addPatientToSection(sectionId, { patient_id: selectedPatient });
+        showSnackbar("Patient assigned successfully!", "success");
+      } else {
+        showSnackbar("This patient is already assigned to this section.", "info");
+      }
+    } catch (error) {
+      showSnackbar("Failed to assign patient.", "error");
+    }
+  };
+  
 
   useEffect(() => {
     async function fetchData() {
@@ -29,47 +66,51 @@ export default function SectionTableComponent() {
         const role = await getUserRole();
         const allPatients = await getAllPatients();
         const faculty = await getAllFacultyUsers();
-
+  
         if (role === "ADMIN" || role === "INSTRUCTOR") {
           setUserRole(role);
           setAuthorized(true);
           setFacultyUsers(faculty);
-
-          // Fetch assigned patients for each section
+  
           const sectionsWithDetails = await Promise.all(
             sectionsData.map(async (section) => {
               try {
                 const sectionPatient = await getSectionPatientById(section.id);
-
-                // Match instructor_id with user.id to get the instructor's full name
+  
+                // SAFELY look for the instructor
                 const instructor = faculty.find((user) => user.id === section.instructor_id);
-                const instructorName = instructor?.full_name ?? "Unknown Instructor";                
-
+                
                 return {
                   ...section,
-                  assignedPatient: sectionPatient
-                    ? sectionPatient.patient_id
-                    : null,
-                  instructorName,
+                  assignedPatient: sectionPatient ? sectionPatient.patient_id : null,
+                  sectionPatientRecordId: sectionPatient ? sectionPatient.id : null,
+                  instructorName: instructor?.full_name || "Unknown Instructor",
                 };
+                
               } catch (err) {
-                console.error(err);
+                console.error("Error getting section details:", err);
+                return {
+                  ...section,
+                  assignedPatient: null,
+                  instructorName: "Unknown Instructor",
+                };
               }
             })
           );
-
-          setSections(sectionsWithDetails);
+  
+          setSections(sectionsWithDetails.filter(Boolean)); // filter out any undefined sections
           setPatients(allPatients);
         } else {
           setAuthorized(false);
         }
       } catch (error) {
-        console.error(error);
+        console.error("Error loading data:", error);
         return null;
       }
     }
     fetchData();
   }, [isMobile]);
+  
 
   if (!authorized) {
     return (
@@ -84,7 +125,6 @@ export default function SectionTableComponent() {
       </Box>
     );
   }
-  
 
   return (
     <Box
@@ -100,10 +140,26 @@ export default function SectionTableComponent() {
           <SectionRowComponent
             section={section}
             patients={patients}
-            instructorName={section.instructorName}
+            instructorName={section.instructorName} 
+            onAssignPatient={handleAssignPatient}
           />
         </Box>
       ))}
+
+      <Snackbar
+        open={snackbarOpen}
+        autoHideDuration={6000}
+        onClose={() => setSnackbarOpen(false)}
+        anchorOrigin={{ vertical: "bottom", horizontal: "center" }}
+      >
+        <Alert
+          onClose={() => setSnackbarOpen(false)}
+          severity={snackbarSeverity}
+          sx={{ width: "100%" }}
+        >
+          {snackbarMessage}
+        </Alert>
+      </Snackbar>
     </Box>
   );
 }

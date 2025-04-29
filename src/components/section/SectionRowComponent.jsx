@@ -1,68 +1,19 @@
 /*
 Name: Charlize Aponte
 Date: 2/1/25
-Remarks: Section Row Component to be displayed throughout the section table
+Remarks: Section Row Component (Presentational) for each section row inside the Section Table
 */
+
 import React, { useState } from "react";
-import {
-  Box,
-  Select,
-  MenuItem,
-  Button,
-  Snackbar,
-  Alert,
-  Typography,
-} from "@mui/material";
-import {
-  updateSectionPatient,
-  addPatientToSection,
-} from "../../services/sectionPatientService";
+import { Box, Select, MenuItem, Button, Typography } from "@mui/material";
 
 export default function SectionRowComponent({
   section,
   patients,
   instructorName,
+  onAssignPatient, 
 }) {
-  const [selectedPatient, setSelectedPatient] = useState(
-    section.assignedPatient
-  );
-  const [snackbarOpen, setSnackbarOpen] = useState(false);
-  const [snackbarMessage, setSnackbarMessage] = useState("");
-  const [snackbarSeverity, setSnackbarSeverity] = useState("success");
-
-  const showSnackbar = (message, severity = "success") => {
-    setSnackbarMessage(message);
-    setSnackbarSeverity(severity);
-    setSnackbarOpen(true);
-  };
-
-  const handleAssignPatient = async () => {
-    try {
-      if (!selectedPatient) {
-        showSnackbar("Please select a patient first!", "info");
-        return;
-      }
-
-      if (
-        section.assignedPatient &&
-        section.assignedPatient !== selectedPatient
-      ) {
-        await updateSectionPatient(section.id, { patient_id: selectedPatient });
-        showSnackbar("Patient assignment updated successfully!", "success");
-      } else if (!section.assignedPatient) {
-        await addPatientToSection(section.id, { patient_id: selectedPatient });
-        showSnackbar("Patient assigned successfully!", "success");
-      } else {
-        showSnackbar(
-          "This patient is already assigned to this section.",
-          "info"
-        );
-      }
-    } catch (error) {
-      console.error("Error assigning patient:", error);
-      showSnackbar("Failed to assign patient.", "error");
-    }
-  };
+  const [selectedPatient, setSelectedPatient] = useState(section.assignedPatient);
 
   return (
     <Box
@@ -115,7 +66,7 @@ export default function SectionRowComponent({
         </Select>
 
         <Button
-          onClick={handleAssignPatient}
+       onClick={() => onAssignPatient(section.id, section.assignedPatient, selectedPatient, section.sectionPatientRecordId)}
           sx={{
             width: { xs: "100%", sm: "350px" },
             height: "40px",
@@ -130,21 +81,6 @@ export default function SectionRowComponent({
           Assign Patient
         </Button>
       </Box>
-
-      <Snackbar
-        open={snackbarOpen}
-        autoHideDuration={6000}
-        onClose={() => setSnackbarOpen(false)}
-        anchorOrigin={{ vertical: "bottom", horizontal: "center" }}
-      >
-        <Alert
-          onClose={() => setSnackbarOpen(false)}
-          severity={snackbarSeverity}
-          sx={{ width: "100%" }}
-        >
-          {snackbarMessage}
-        </Alert>
-      </Snackbar>
     </Box>
   );
 }

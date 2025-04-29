@@ -22,9 +22,14 @@ import RespiratorySystemPage from "./pages/respiratory/RespiratorySystemPage";
 import AtHomeMedicationPage from "./pages/at-home-medication/AtHomeMedicationPage";
 import IntakeAndOutputPage from "./pages/intake-output/IntakeAndOutputPage";
 import NotFoundPage from "./pages/not-found/NotFoundPage";
+import theme from "./utils/font-theme";
+import { ThemeProvider } from "@mui/material/styles";
+import CssBaseline from "@mui/material/CssBaseline";
+
 
 function App() {
   return (
+    <ThemeProvider theme={theme}>
     <BrowserRouter>
       <Routes>
         {/* Routes without Layout */}
@@ -108,6 +113,7 @@ function App() {
               <Route path="*" element={<NotFoundPage />} />
           </Routes>
     </BrowserRouter>
+    </ThemeProvider>
   );
 }
 

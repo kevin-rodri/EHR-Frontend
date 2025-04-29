@@ -34,6 +34,7 @@ import utc from "dayjs/plugin/utc";
 import timezone from "dayjs/plugin/timezone";
 import DeleteConfirmationModal from "../utils/DeleteModalComponent";
 import { getUserRole } from "../../services/authService";
+import { useSnackbar } from "../utils/Snackbar";
 
 dayjs.extend(utc);
 dayjs.extend(timezone);
@@ -46,6 +47,7 @@ export function PatientLabValuesComponent({ sectionId }) {
   const [deletingRow, setDeletingRow] = useState(null);
   const [patientId, setPatientId] = useState(null);
   const [labs, setLabs] = useState([]);
+  const { showSnackbar, SnackbarComponent } = useSnackbar();
   const [newLabValue, setLabValue] = useState({
     id: "",
     section_patient_id: "",
@@ -61,10 +63,9 @@ export function PatientLabValuesComponent({ sectionId }) {
   });
 
   const isFormValid =
-    touchedFields.element_name &&
-    touchedFields.element_value &&
-    newLabValue.element_name.trim() !== "" &&
-    newLabValue.element_value.trim() !== "";
+  String(newLabValue.element_name).trim() !== "" &&
+  String(newLabValue.element_value).trim() !== "";
+
 
   const handleBlur = (field) => {
     setTouchedFields((prev) => ({ ...prev, [field]: true }));
@@ -76,7 +77,7 @@ export function PatientLabValuesComponent({ sectionId }) {
       { accessorKey: "element_value", header: "Element Value" },
       {
         accessorKey: "modified_date",
-        header: "Timestamp",
+        header: "Date and Time",
         size: 150,
         Cell: ({ cell }) => formatDateTime(cell.getValue()),
       },
@@ -184,6 +185,7 @@ export function PatientLabValuesComponent({ sectionId }) {
               : item
           )
         );
+        showSnackbar('Lab Value updated successfully.', 'success');
       } else {
         const response = await addPatientLabValues(patientId, {
           element_name: newLabValue.element_name,
@@ -204,8 +206,10 @@ export function PatientLabValuesComponent({ sectionId }) {
         }
       }
       setOpenModal(false);
+      showSnackbar('Lab Value saved Successfully.', 'success');
     } catch (error) {
       console.error(error);
+      showSnackbar("Error incorrect information.", "error");
     }
   };
 
@@ -213,6 +217,7 @@ export function PatientLabValuesComponent({ sectionId }) {
     await deletePatientLabValue(patientId, deletingRow.original.id);
     setLabs(labs.filter((item) => item.id !== deletingRow.original.id));
     setOpenDeleteModal(false);
+    showSnackbar('Lab Value deleted successfully.', 'success');
   };
 
   const table = useMaterialReactTable({
@@ -310,6 +315,7 @@ export function PatientLabValuesComponent({ sectionId }) {
         onClose={() => setOpenDeleteModal(false)}
         onConfirm={handleDelete}
       />
+      {SnackbarComponent}
     </Box>
   );
 }

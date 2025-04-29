@@ -30,6 +30,7 @@ import utc from "dayjs/plugin/utc";
 import timezone from "dayjs/plugin/timezone";
 import { formatDateTime } from "../../utils/date-time-formatter";
 import DeleteConfirmationModal from "../utils/DeleteModalComponent";
+import { useSnackbar } from "../utils/Snackbar";
 // This is so that we are properly passing the day and time correctly.
 // We want FE to display the date and time properly but pass it to the BE correctly.
 dayjs.extend(utc);
@@ -42,6 +43,7 @@ function PatientNotesTableComponent({ sectionId }) {
   const [deletingRow, setDeletingRow] = useState(null);
   const [notes, setNotes] = useState([]);
   const [sectionPatientId, setSectionPatientId] = useState(null);
+  const { showSnackbar, SnackbarComponent } = useSnackbar();
   const [newPatientNoteRecord, setNewPatientNoteRecord] = useState({
     id: "",
     section_patient_id: "",
@@ -60,9 +62,10 @@ function PatientNotesTableComponent({ sectionId }) {
     };
 
     const isFormValid =
-    (editingRow || (touchedFields.order_title && touchedFields.description)) &&
-    newPatientNoteRecord.order_title.trim() !== "" &&
+    (editingRow || (touchedFields.title && touchedFields.description)) &&
+    newPatientNoteRecord.title.trim() !== "" &&
     newPatientNoteRecord.description.trim() !== "";
+  
   
   
   const columns = useMemo(() => [
@@ -70,7 +73,7 @@ function PatientNotesTableComponent({ sectionId }) {
     { accessorKey: "description", header: "Description" },
     {
       accessorKey: "modified_date",
-      header: "Timestamp",
+      header: "Date and Time",
       size: 150,
       Cell: ({ cell }) => formatDateTime(cell.getValue()),
     },
@@ -165,6 +168,7 @@ function PatientNotesTableComponent({ sectionId }) {
               : item
           )
         );
+        showSnackbar('Patient notes updated successfully.', 'success');
       } else {
         const response = await addNoteForPatient(sectionPatientId, {
           title: newPatientNoteRecord.title,
@@ -184,8 +188,10 @@ function PatientNotesTableComponent({ sectionId }) {
         }
       }
       setOpenModal(false);
+      showSnackbar('Patient note saved successfully.', 'success');
     } catch (error) {
       console.error(error);
+      showSnackbar("Error saving information.", "error");
     }
   };
 
@@ -193,6 +199,7 @@ function PatientNotesTableComponent({ sectionId }) {
     await deleteNoteForPatient(sectionPatientId, deletingRow.original.id);
     setNotes(notes.filter((item) => item.id !== deletingRow.original.id));
     setOpenDeleteModal(false);
+    showSnackbar('Patient note deleted successfully.', 'success');
   };
 
   const table = useMaterialReactTable({
@@ -280,6 +287,7 @@ function PatientNotesTableComponent({ sectionId }) {
         onClose={() => setOpenDeleteModal(false)}
         onConfirm={handleDelete}
       />
+      {SnackbarComponent}
     </Box>
   );
 }

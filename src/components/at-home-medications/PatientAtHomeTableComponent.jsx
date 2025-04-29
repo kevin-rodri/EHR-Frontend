@@ -44,6 +44,7 @@ import dayjs from "dayjs";
 import utc from "dayjs/plugin/utc";
 import { formatDateTime } from "../../utils/date-time-formatter";
 import DeleteConfirmationModal from "../utils/DeleteModalComponent";
+import { useSnackbar } from "../utils/Snackbar";
 dayjs.extend(utc);
 
 export default function PatientAtHomeTableComponent({ sectionId }) {
@@ -56,6 +57,7 @@ export default function PatientAtHomeTableComponent({ sectionId }) {
   const [medications, setMedications] = useState([]);
   const [sectionPatientId, setSectionPatientId] = useState(null);
   const [display, setDisplay] = useState(false);
+  const { showSnackbar, SnackbarComponent } = useSnackbar();
 
   const [newAtHomeRecord, setNewAtHomeRecord] = useState({
     id: "",
@@ -80,24 +82,19 @@ export default function PatientAtHomeTableComponent({ sectionId }) {
     setTouchedFields((prev) => ({ ...prev, [field]: true }));
   };
   const isFormValid =
-    (editingRow ||
-      (touchedFields.medication_id &&
-        touchedFields.scheduled_time &&
-        touchedFields.dose &&
-        touchedFields.route &&
-        touchedFields.dose_frequency)) &&
-    newAtHomeRecord.medication_id !== "" &&
-    newAtHomeRecord.scheduled_time !== "" &&
-    newAtHomeRecord.dose.trim() !== "" &&
-    newAtHomeRecord.route !== "" &&
-    newAtHomeRecord.dose_frequency.trim() !== "";
+  newAtHomeRecord.medication_id !== "" &&
+  newAtHomeRecord.scheduled_time !== "" &&
+  newAtHomeRecord.dose.trim() !== "" &&
+  newAtHomeRecord.route !== "" &&
+  newAtHomeRecord.dose_frequency.trim() !== "";
+
 
   const columns = useMemo(
     () => [
       { accessorKey: "drugName", header: "Drug Name", size: 150 },
       {
         accessorKey: "scheduled_time",
-        header: "Date and Time Given",
+        header: "Date and Time",
         size: 150,
         Cell: ({ cell }) => formatDateTime(cell.getValue()),
       },
@@ -218,7 +215,7 @@ export default function PatientAtHomeTableComponent({ sectionId }) {
       const formattedAtHomeTime = dayjs(newAtHomeRecord.scheduled_time)
         .utc()
         .format("YYYY-MM-DD HH:mm:ss");
-
+  
       const recordToSend = {
         section_patient_id: sectionPatientId,
         medication_id: newAtHomeRecord.medication_id,
@@ -228,17 +225,13 @@ export default function PatientAtHomeTableComponent({ sectionId }) {
         route: newAtHomeRecord.route.trim(),
         dose_frequency: newAtHomeRecord.dose_frequency.trim(),
       };
-
+  
       if (editingRow) {
-        await updatePatientMedication(
-          sectionPatientId,
-          editingRow.original.id,
-          recordToSend
-        );
-
+        await updatePatientMedication(sectionPatientId, editingRow.original.id, recordToSend);
+  
         const medication = await getMedicationById(recordToSend.medication_id);
         const patientInfo = await getPatientById(patient.id);
-
+  
         const updatedRecordWithDetails = {
           ...recordToSend,
           id: editingRow.original.id,
@@ -246,24 +239,21 @@ export default function PatientAtHomeTableComponent({ sectionId }) {
           genericName: medication.generic_name,
           patient_full_name: patientInfo.full_name,
         };
-
+  
         setPatientMeds((prevData) =>
           prevData.map((item) =>
             item.id === editingRow.original.id ? updatedRecordWithDetails : item
           )
         );
+  
+        showSnackbar('Successfully updated the medication.', 'success');
       } else {
-        const response = await addPatientMedication(
-          sectionPatientId,
-          recordToSend
-        );
-
+        const response = await addPatientMedication(sectionPatientId, recordToSend);
+  
         if (response && response.id) {
-          const medication = await getMedicationById(
-            recordToSend.medication_id
-          );
+          const medication = await getMedicationById(recordToSend.medication_id);
           const patientInfo = await getPatientById(patient.id);
-
+  
           const newRecordWithDetails = {
             ...recordToSend,
             id: response.id,
@@ -271,28 +261,38 @@ export default function PatientAtHomeTableComponent({ sectionId }) {
             genericName: medication.generic_name,
             patient_full_name: patientInfo.full_name,
           };
-
+  
           setPatientMeds((prevData) => [...prevData, newRecordWithDetails]);
+  
+          showSnackbar('Successfully added a new medication.', 'success');
         } else {
-          console.error(
-            "Error: API did not return an ID for the created record."
-          );
+          console.error("Error: API did not return an ID for the created record.");
+          showSnackbar('Failed to add medication.', 'error');
           return;
         }
       }
       setOpenModal(false);
     } catch (error) {
       console.error("Error saving at home medication:", error);
+      showSnackbar("Error saving information.", "error");
     }
   };
+  
 
-  const handleDelete = async () => {
+ const handleDelete = async () => {
+  try {
     await deletePatientMedication(sectionPatientId, deletingRow.original.id);
     setPatientMeds(
       patientMeds.filter((item) => item.id !== deletingRow.original.id)
     );
     setOpenDeleteModal(false);
-  };
+    showSnackbar('Successfully deleted the medication.', 'success');
+  } catch (error) {
+    console.error('Error deleting medication:', error);
+    showSnackbar('Failed to delete the medication.', 'error');
+  }
+};
+
 
   const table = useMaterialReactTable({
     columns,
@@ -468,6 +468,7 @@ export default function PatientAtHomeTableComponent({ sectionId }) {
         onClose={() => setOpenDeleteModal(false)}
         onConfirm={handleDelete}
       />
+      {SnackbarComponent}
     </Box>
   );
 }

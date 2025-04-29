@@ -30,6 +30,7 @@ import utc from "dayjs/plugin/utc";
 import timezone from "dayjs/plugin/timezone";
 import DeleteConfirmationModal from "../utils/DeleteModalComponent";
 import { getUserRole } from "../../services/authService";
+import { useSnackbar } from "../utils/Snackbar";
 // This is so that we are properly passing the day and time correctly.
 // We want FE to display the date and time properly but pass it to the BE correctly.
 dayjs.extend(utc);
@@ -43,6 +44,7 @@ export function PatientOrderComponent({ sectionId }) {
   const [deletingRow, setDeletingRow] = useState(null);
   const [patientId, setPatientId] = useState(null);
   const [orders, setOrders] = useState([]);
+  const { showSnackbar, SnackbarComponent } = useSnackbar();
   const [newPatientOrderRecord, setPatientOrderRecord] = useState({
     id: "",
     patient_id: "",
@@ -72,7 +74,7 @@ export function PatientOrderComponent({ sectionId }) {
     { accessorKey: "description", header: "Description" },
     {
       accessorKey: "modified_date",
-      header: "Timestamp",
+      header: "Date and Time",
       size: 150,
       Cell: ({ cell }) => formatDateTime(cell.getValue()),
     },
@@ -157,13 +159,13 @@ export function PatientOrderComponent({ sectionId }) {
       const formattedTime = dayjs()
         .tz("America/New_York")
         .format("YYYY-MM-DD HH:mm:ss");
-
+  
       if (editingRow) {
         await updatePatientOrder(patientId, editingRow.original.id, {
           order_title: newPatientOrderRecord.order_title,
           description: newPatientOrderRecord.description,
         });
-
+  
         setOrders((prevData) =>
           prevData.map((item) =>
             item.id === editingRow.original.id
@@ -175,12 +177,13 @@ export function PatientOrderComponent({ sectionId }) {
               : item
           )
         );
+        showSnackbar("Order updated successfully!", "success"); // <-- snackbar for edit/save
       } else {
         const response = await createPatientOrder(patientId, {
           order_title: newPatientOrderRecord.order_title,
           description: newPatientOrderRecord.description,
         });
-
+  
         if (response && response.id) {
           const newOrder = {
             id: response.id,
@@ -189,21 +192,30 @@ export function PatientOrderComponent({ sectionId }) {
             description: newPatientOrderRecord.description,
             modified_date: formattedTime,
           };
-
+  
           setOrders((prevData) => [...prevData, newOrder]);
+          showSnackbar("Order created successfully!", "success");
         }
       }
       setOpenModal(false);
     } catch (error) {
       console.error(error);
+      showSnackbar("Failed to save order.", "error"); 
     }
   };
-
+  
   const handleDelete = async () => {
-    await deletePatientOrder(patientId, deletingRow.original.id);
-    setOrders(orders.filter((item) => item.id !== deletingRow.original.id));
-    setOpenDeleteModal(false);
+    try {
+      await deletePatientOrder(patientId, deletingRow.original.id);
+      setOrders(orders.filter((item) => item.id !== deletingRow.original.id));
+      setOpenDeleteModal(false);
+      showSnackbar("Order deleted successfully!", "success"); 
+    } catch (error) {
+      console.error(error);
+      showSnackbar("Failed to delete order.", "error"); 
+    }
   };
+  
 
   const table = useMaterialReactTable({
     columns,
@@ -291,6 +303,7 @@ export function PatientOrderComponent({ sectionId }) {
         onClose={() => setOpenDeleteModal(false)}
         onConfirm={handleDelete}
       />
+      {SnackbarComponent}
     </Box>
   );
 }

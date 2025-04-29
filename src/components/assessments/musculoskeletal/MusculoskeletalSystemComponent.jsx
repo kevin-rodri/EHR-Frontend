@@ -14,12 +14,14 @@ import {
   updateMusculoskeletalInfo,
 } from "../../../services/musculoskeletalInfoService";
 import { getSectionPatientById } from "../../../services/sectionPatientService";
+import { useSnackbar } from "../../utils/Snackbar";
 
 export default function MusculoskeletalSystemComponent({ sectionId }) {
   const [info, setInfo] = useState([]);
   const [loading, setLoading] = useState(false);
   const [sectionPatientId, setSectionPatientId] = useState("");
   const [wasAdded, setWasAdded] = useState(false);
+  const { showSnackbar, SnackbarComponent } = useSnackbar();
   const [formData, setFormData] = useState({
     id: "",
     left_upper_extremity: "",
@@ -41,12 +43,13 @@ export default function MusculoskeletalSystemComponent({ sectionId }) {
   });
 
   const isFormValid =
-    formData.left_upper_extremity.trim() !== "" &&
-    formData.left_lower_extremity.trim() !== "" &&
-    formData.lower_upper_quadrant.trim() !== "" &&
-    formData.right_lower_extremity.trim() !== "" &&
-    formData.stool.trim() !== "" &&
-    formData.adl_id.trim() !== "";
+  formData.left_upper_extremity.trim() !== "" &&
+  formData.left_lower_extremity.trim() !== "" &&
+  formData.right_upper_extremity.trim() !== "" &&
+  formData.right_lower_extremity.trim() !== "" &&
+  formData.gait.trim() !== "" &&
+  formData.adl_id.trim() !== "";
+
 
   const handleBlur = (field) => {
     setTouchedFields((prev) => ({ ...prev, [field]: true }));
@@ -99,7 +102,9 @@ export default function MusculoskeletalSystemComponent({ sectionId }) {
       });
       setFormData(response);
       setWasAdded(true);
+      showSnackbar("Musculoskeletal information saved successfully!", "success");
     } catch (err) {
+      showSnackbar("Error saving information.", "error");
       throw err;
     } finally {
       setLoading(false);
@@ -128,7 +133,9 @@ export default function MusculoskeletalSystemComponent({ sectionId }) {
         }
       );
       setFormData(response);
+      showSnackbar("Musculoskeletal information saved successfully!", "success");
     } catch (err) {
+      showSnackbar("Error saving information.", "error");
       throw err;
     } finally {
       setLoading(false);
@@ -355,6 +362,7 @@ export default function MusculoskeletalSystemComponent({ sectionId }) {
           {!wasAdded ? "Submit" : "Save"}
         </Button>
       </Box>
+      {SnackbarComponent}
     </Box>
   );
 }
