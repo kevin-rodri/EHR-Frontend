@@ -26,6 +26,7 @@ import AccordionDetails from "@mui/material/AccordionDetails";
 import ExpandMoreIcon from "@mui/icons-material/ExpandMore";
 import { logout } from "../../services/authService";
 import { useLocation } from "react-router-dom";
+import logo from "../../assets/ehr_logo.png";
 
 const drawerWidth = 240;
 
@@ -179,26 +180,26 @@ export default function Layout({ children }) {
         anchor="left"
         open={open}
       >
-        <DrawerHeader>
-          <Typography
-            sx={{
-              fontFamily: "Roboto",
-              fontWeight: "bold",
-              fontSize: 15,
-              textAlign: "start",
-              flexGrow: 1,
+        <DrawerHeader
+          sx={{
+            flexDirection: "column",
+            justifyContent: "center",
+            alignItems: "center",
+            paddingTop: 2,
+            paddingBottom: 2,
+          }}
+        >
+          <img
+            src={logo}
+            alt="Quinnipiac EHR Logo"
+            style={{
+              width: "8rem",
             }}
-          >
-            EHR Application Menu
-          </Typography>
+          />
 
           {isMobile && (
             <IconButton onClick={handleDrawerClose}>
-              {theme.direction === "ltr" ? (
-                <ChevronLeftIcon />
-              ) : (
-                <ChevronRightIcon />
-              )}
+              {theme.direction === "ltr" ? <ChevronLeftIcon /> : <ChevronRightIcon />}
             </IconButton>
           )}
         </DrawerHeader>

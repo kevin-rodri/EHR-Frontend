@@ -25,6 +25,7 @@ import { useNavigate } from "react-router-dom";
 import { getUserRole, login } from "../../services/authService";
 import { getUserSectionRosterByID } from "../../services/sectionRosterService";
 import { getSectionId } from "../../services/authService";
+import logo from "../../assets/ehr_logo.png";
 
 export default function LoginFormComponent() {
   const {
@@ -81,15 +82,22 @@ export default function LoginFormComponent() {
         alignItems: "flex-start",
       }}
     >
-      <Typography
-        component="h1"
-        variant="h5"
-        fontWeight="bold"
-        align="center"
-        marginBottom={2}
+      <Box
+        sx={{
+          width: "100%",
+          display: "flex",
+          justifyContent: "center",
+          marginBottom: 2,
+        }}
       >
-        Electronic Healthcare Application
-      </Typography>
+        <img
+          src={logo}
+          alt="Quinnipiac Electronic Health Record Logo"
+          style={{
+            width: "12rem",
+          }}
+        />
+      </Box>
       <FormGroup sx={{ gap: 3, marginBottom: 3, width: "100%" }}>
         <FormControl>
           <FormLabel>Email Address</FormLabel>

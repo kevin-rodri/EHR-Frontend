@@ -21,7 +21,7 @@ export default function EHRAuthBannerComponent() {
     >
       <img
         src={logo}
-        alt="Quinnipiac School of Nursing logo"
+        alt="Quinnipiac Electronic Health Record Logo"
         style={{
           width: "15rem",
         }}
