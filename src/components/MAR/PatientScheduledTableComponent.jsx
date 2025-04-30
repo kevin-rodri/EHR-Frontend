@@ -21,6 +21,8 @@ import {
   Button,
   Select,
   MenuItem,
+  Typography,
+  CircularProgress,
 } from "@mui/material";
 import EditIcon from "@mui/icons-material/Edit";
 import DeleteIcon from "@mui/icons-material/Delete";
@@ -46,12 +48,17 @@ import dayjs from "dayjs";
 import utc from "dayjs/plugin/utc";
 import { formatDateTime } from "../../utils/date-time-formatter";
 import DeleteConfirmationModal from "../utils/DeleteModalComponent";
+import { getSectionPatientBarcode } from "../../services/sectionPatientService";
+import { getMedicationBarcode } from "../../services/patientMedicationsService";
+import { useSnackbar } from "../utils/Snackbar";
 // This is so that we are properly passing the day and time correctly.
 // We want FE to display the date and time properly but pass it to the BE correctly.
 dayjs.extend(utc);
 
 export default function PatientScheduledTableComponent({ sectionId }) {
   const [openModal, setOpenModal] = useState(false);
+  const [openBarcodeModal, setBarcodeModal] = useState(false);
+  const [openAdministerModal, setAdminsterModal] = useState(false);
   const [openDeleteModal, setOpenDeleteModal] = useState(false);
   const [editingRow, setEditingRow] = useState(null);
   const [deletingRow, setDeletingRow] = useState(null);
@@ -60,6 +67,93 @@ export default function PatientScheduledTableComponent({ sectionId }) {
   const [medications, setMedications] = useState([]);
   const [sectionPatientId, setSectionPatientId] = useState(null);
   const [display, setDisplay] = useState(false);
+  const [isProcessing, setIsProcessing] = useState(false);
+  const [selectedMedicationForAdminister, setSelectedMedicationForAdminister] =
+    useState(null);
+  const hiddenInputRef = React.useRef(null);
+  const { showSnackbar, SnackbarComponent } = useSnackbar();
+
+  const [barcodeBuffer, setBarcodeBuffer] = useState("");
+  const [scanStage, setScanStage] = useState("patient");
+  const [patientBarcode, setPatientBarcode] = useState("");
+  const [medicationBarcode, setMedicationBarcode] = useState("");
+  const [administeredValues, setAdministeredValues] = useState({
+    dose: "",
+    scheduled_time: dayjs().format("YYYY-MM-DD HH:mm:ss"),
+  });
+
+  const handleHiddenInputKeyDown = (e) => {
+    if (e.key === "Enter") {
+      handleBarcodeSubmit(barcodeBuffer);
+      setBarcodeBuffer("");
+    } else {
+      setBarcodeBuffer((prev) => prev + e.key); // Append key
+    }
+  };
+
+  // For this to make sense, refer to the business logic diagram here: https://quinnipiacuniversity-my.sharepoint.com/personal/gdpierce_quinnipiac_edu/_layouts/15/onedrive.aspx?FolderCTID=0x012000F0D4505AAAFF8B45B8E39BB11063F8AE&id=%2Fpersonal%2Fgdpierce%5Fquinnipiac%5Fedu%2FDocuments%2FEHR%20Capstone%2Fscanned%2Dmedication%2Dbusiness%2Dlogic%2Dflow%2Epng&parent=%2Fpersonal%2Fgdpierce%5Fquinnipiac%5Fedu%2FDocuments%2FEHR%20Capstone
+  const handleBarcodeSubmit = async (scannedBarcode) => {
+    setIsProcessing(true);
+
+    try {
+      if (scanStage === "patient") {
+        const patientData = await getSectionPatientBarcode(
+          sectionPatientId,
+          scannedBarcode
+        );
+
+        if (patientData) {
+          setPatientBarcode(scannedBarcode);
+          setScanStage("medication");
+        } else {
+          setBarcodeModal(false);
+        }
+      } else if (scanStage === "medication") {
+        const medicationData = await getMedicationBarcode(
+          sectionPatientId,
+          scannedBarcode
+        );
+
+        if (medicationData) {
+          setMedicationBarcode(scannedBarcode);
+          setSelectedMedicationForAdminister({
+            dose: medicationData.dose_amount ?? "",
+            scheduled_time:
+              medicationData.scheduled_time ??
+              dayjs().format("YYYY-MM-DD HH:mm:ss"),
+            ...medicationData,
+          });
+
+          finalizeScan();
+        } else {
+          setBarcodeModal(false);
+        }
+      }
+    } catch (error) {
+      console.error("Barcode handling error:", error);
+      setBarcodeModal(false);
+    } finally {
+      setIsProcessing(false);
+      setBarcodeBuffer("");
+    }
+  };
+
+  const finalizeScan = () => {
+    // Here you can trigger your API calls or any logic to save them
+    setBarcodeModal(false);
+    setAdminsterModal(true);
+    setScanStage("patient");
+    setBarcodeBuffer("");
+    setPatientBarcode("");
+    setMedicationBarcode("");
+  };
+  useEffect(() => {
+    if (openBarcodeModal) {
+      setTimeout(() => {
+        hiddenInputRef.current?.focus();
+      }, 100);
+    }
+  }, [openBarcodeModal]);
 
   const [newScheduledRecord, setNewScheduledRecord] = useState({
     id: "",
@@ -86,11 +180,9 @@ export default function PatientScheduledTableComponent({ sectionId }) {
   const isFormValid =
     (editingRow ||
       (touchedFields.medication_id &&
-        touchedFields.dose &&
         touchedFields.route &&
         touchedFields.dose_frequency)) &&
     newScheduledRecord.medication_id !== "" &&
-    newScheduledRecord.dose.trim() !== "" &&
     newScheduledRecord.route !== "" &&
     newScheduledRecord.dose_frequency.trim() !== "";
 
@@ -120,7 +212,7 @@ export default function PatientScheduledTableComponent({ sectionId }) {
         Cell: ({ row }) => (
           <Box>
             <Tooltip title="Administer">
-              <IconButton color="primary" disabled>
+              <IconButton color="primary" onClick={() => setBarcodeModal(true)}>
                 <MedicationLiquidIcon />
               </IconButton>
             </Tooltip>
@@ -222,6 +314,65 @@ export default function PatientScheduledTableComponent({ sectionId }) {
     }
   };
 
+  const handleAdminister = async () => {
+    try {
+      const dosage = selectedMedicationForAdminister?.dose || "";
+      // this will help with getting the value and the unit.
+      const match = dosage.match(/^([\d.]+)\s*(.*)$/);
+
+      // get the amount and the dose previously entered
+      const scheduledDoseAmount = parseFloat(match[1]);
+      const doseUnits = match[2];
+      // user will only enter amount, not the unit
+      const enteredDoseAmount = parseFloat(administeredValues.dose);
+
+      const answer = scheduledDoseAmount - enteredDoseAmount;
+      if (answer < 0) {
+        showSnackbar(
+          ` Dose entered (${enteredDoseAmount}) exceeds scheduled amount (${scheduledDoseAmount}).`,
+          "error"
+        );
+        return;
+      }
+
+      const recordToSubmit = {
+        dose: `${answer} ${doseUnits}`,
+        scheduled_time: administeredValues.scheduled_time,
+      };
+
+      await updatePatientMedication(
+        selectedMedicationForAdminister.section_patient_id,
+        selectedMedicationForAdminister.id,
+        recordToSubmit
+      );
+      setPatientMeds((prevMeds) =>
+        prevMeds.map((med) =>
+          med.id === selectedMedicationForAdminister.id
+            ? {
+                ...med,
+                dose: `${administeredValues.dose} ${doseUnits}`,
+                scheduled_time: administeredValues.scheduled_time,
+              }
+            : med
+        )
+      );
+
+      // Reset UI
+      setAdminsterModal(false);
+      setSelectedMedicationForAdminister(null);
+      setAdministeredValues({
+        dose: "",
+        scheduled_time: dayjs().format("YYYY-MM-DD HH:mm:ss"),
+      });
+    } catch (err) {
+      console.error(err);
+      showSnackbar(
+        "Failed to administer medication. See console for details.",
+        "error"
+      );
+    }
+  };
+
   // Save user data (create/update)
   const handleSave = async () => {
     try {
@@ -229,12 +380,15 @@ export default function PatientScheduledTableComponent({ sectionId }) {
         .utc()
         .format("YYYY-MM-DD HH:mm:ss");
 
+      const medicationDose = await getMedicationById(
+        newScheduledRecord.medication_id
+      );
       const recordToSend = {
         section_patient_id: sectionPatientId,
         medication_id: newScheduledRecord.medication_id,
         medication_type: "SCHEDULED",
         scheduled_time: formattedScheduledTime,
-        dose: newScheduledRecord.dose.trim(),
+        dose: medicationDose.dose_amount,
         route: newScheduledRecord.route.trim(),
         dose_frequency: newScheduledRecord.dose_frequency.trim(),
       };
@@ -327,6 +481,104 @@ export default function PatientScheduledTableComponent({ sectionId }) {
   return (
     <Box>
       <MaterialReactTable table={table} />
+
+      {/* Barcode Modal */}
+      <Dialog open={openBarcodeModal} onClose={() => setBarcodeModal(false)}>
+        <DialogTitle align="center">
+          {scanStage === "patient"
+            ? "Scan Patient Barcode"
+            : "Scan Medication Barcode"}
+        </DialogTitle>
+        <DialogContent>
+          {/* FIX-ME: This Ideally should be a material ui component */}
+          <input
+            ref={hiddenInputRef}
+            style={{
+              position: "absolute",
+              opacity: 0,
+              height: 0,
+              width: 0,
+              border: 0,
+            }}
+            onKeyDown={handleHiddenInputKeyDown}
+            onBlur={() => hiddenInputRef.current?.focus()}
+          />
+          <Typography sx={{ marginTop: 2 }}>
+            {scanStage === "patient"
+              ? "Please scan the patient's barcode..."
+              : "Please scan the medication's barcode..."}
+          </Typography>
+
+          {/* Progress spinner - it looks bad without loading */}
+          {isProcessing && (
+            <Box
+              sx={{ display: "flex", justifyContent: "center", marginTop: 2 }}
+            >
+              <CircularProgress size={100} />
+            </Box>
+          )}
+        </DialogContent>
+      </Dialog>
+
+      <Dialog
+        open={openAdministerModal}
+        onClose={() => setAdminsterModal(false)}
+      >
+        <DialogTitle align="center">Administer Medication</DialogTitle>
+        <DialogContent>
+          <LocalizationProvider dateAdapter={AdapterDayjs}>
+            <MobileDateTimePicker
+              label="Time Given"
+              sx={{ marginTop: 1 }}
+              value={
+                administeredValues
+                  ? dayjs(administeredValues.scheduled_time)
+                  : null
+              }
+              onChange={(newDate) =>
+                setAdministeredValues((prev) => ({
+                  ...prev,
+                  scheduled_time: newDate
+                    ? dayjs(newDate).format("YYYY-MM-DD HH:mm:ss")
+                    : prev.scheduled_time,
+                }))
+              }
+            />
+          </LocalizationProvider>
+
+          <TextField
+            label="Dose Given"
+            value={administeredValues.dose || ""}
+            onChange={(e) =>
+              setAdministeredValues((prev) => ({
+                ...prev,
+                dose: e.target.value,
+              }))
+            }
+            fullWidth
+            margin="dense"
+            required
+            type="number"
+          />
+        </DialogContent>
+
+        <DialogActions sx={{ display: "flex", justifyContent: "center" }}>
+          <Button
+            onClick={() => setAdminsterModal(false)}
+            color="error"
+            variant="contained"
+          >
+            Cancel
+          </Button>
+          <Button
+            onClick={handleAdminister}
+            color="primary"
+            variant="contained"
+          >
+            Submit
+          </Button>
+        </DialogActions>
+      </Dialog>
 
       {/* Modal for Create/Edit */}
       <Dialog open={openModal} onClose={() => setOpenModal(false)}>
@@ -422,41 +674,31 @@ export default function PatientScheduledTableComponent({ sectionId }) {
             <MenuItem value="TUBE-FEEDING">TUBE FEEDING</MenuItem>
             <MenuItem value="IV">IV</MenuItem>
           </Select>
-
-          <TextField
-            label="Dose"
-            value={newScheduledRecord.dose}
-            onChange={(e) =>
-              setNewScheduledRecord({
-                ...newScheduledRecord,
-                dose: e.target.value,
-              })
-            }
-            fullWidth
-            margin="dense"
-            required
-            onBlur={() => handleBlur("dose")}
-            error={touchedFields.dose && newScheduledRecord.dose.trim() === ""}
-          />
-
-          <TextField
-            label="Dose Frequency"
+          <Select
+            displayEmpty
             value={newScheduledRecord.dose_frequency}
-            onChange={(e) =>
+            fullWidth
+            sx={{ mt: 1 }}
+            onChange={(e) => {
               setNewScheduledRecord({
                 ...newScheduledRecord,
                 dose_frequency: e.target.value,
-              })
+              });
+              handleBlur("dose_frequency");
+            }}
+            renderValue={(selected) =>
+              selected ? (
+                selected
+              ) : (
+                <span style={{ color: "#757575" }}>Select Dose Frequency</span>
+              )
             }
-            fullWidth
-            sx={{ marginTop: 1 }}
-            required
-            onBlur={() => handleBlur("dose_frequency")}
-            error={
-              touchedFields.dose_frequency &&
-              newScheduledRecord.dose_frequency.trim() === ""
-            }
-          />
+          >
+            <MenuItem value="QDAY">Once per day</MenuItem>
+            <MenuItem value="BID">Twice per day</MenuItem>
+            <MenuItem value="TID">Three times per day</MenuItem>
+            <MenuItem value="QID">Four times per day</MenuItem>
+          </Select>
         </DialogContent>
 
         <DialogActions sx={{ display: "flex", justifyContent: "center" }}>
@@ -484,6 +726,7 @@ export default function PatientScheduledTableComponent({ sectionId }) {
         onClose={() => setOpenDeleteModal(false)}
         onConfirm={handleDelete}
       />
+      {SnackbarComponent}
     </Box>
   );
 }

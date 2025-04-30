@@ -72,6 +72,7 @@ export default function LoginFormComponent() {
     setSnackbarOpen(false);
   };
 
+  // TO-DO: Figure out why the login card jumps when clicking the sign in button
   return (
     <Card
       variant="outlined"

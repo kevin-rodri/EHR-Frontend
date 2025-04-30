@@ -50,6 +50,18 @@ export async function addPatientMedication(section_patient_id, medication) {
   }
 }
 
+export async function getMedicationBarcode(section_patient_id, medication) {
+  try {
+    const response = await axiosTokenInstance().post(
+      `patient-medication/${section_patient_id}/scan`,
+      { barcode_value: Number(medication) }
+    );
+    return response.data;
+  } catch (error) {
+    console.error(error);
+  }
+}
+
 export async function updatePatientMedication(
   section_patient_id,
   id,

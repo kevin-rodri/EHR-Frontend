@@ -16,6 +16,18 @@ export async function getSectionPatientById(sectionId) {
   }
 }
 
+export async function getSectionPatientBarcode(id, barcode) {
+  try {
+    const response = await axiosTokenInstance().post(
+      `section-patient/${id}/scan`,
+      { barcode_value: Number(barcode) }
+    );
+    return response.data;
+  } catch (error) {
+    console.error(error);
+  }
+}
+
 export async function updateSectionPatient(id, data) {
   try {
     const response = await axiosTokenInstance().put(
