@@ -364,6 +364,10 @@ export default function PatientScheduledTableComponent({ sectionId }) {
         dose: "",
         scheduled_time: dayjs().format("YYYY-MM-DD HH:mm:ss"),
       });
+      showSnackbar(
+        `Patient scheduled medication saved successfully.`,
+        "success"
+      );
     } catch (err) {
       console.error(err);
       showSnackbar(
@@ -416,6 +420,10 @@ export default function PatientScheduledTableComponent({ sectionId }) {
             item.id === editingRow.original.id ? updatedRecordWithDetails : item
           )
         );
+        showSnackbar(
+          `Patient scheduled medication saved successfully.`,
+          "success"
+        );
       } else {
         const response = await addPatientMedication(
           sectionPatientId,
@@ -437,6 +445,10 @@ export default function PatientScheduledTableComponent({ sectionId }) {
           };
 
           setPatientMeds((prevData) => [...prevData, newRecordWithDetails]);
+          showSnackbar(
+            `Patient scheduled medication updated successfully.`,
+            "success"
+          );
         } else {
           console.error(
             "Error: API did not return an ID for the created record."
@@ -446,6 +458,10 @@ export default function PatientScheduledTableComponent({ sectionId }) {
       }
       setOpenModal(false);
     } catch (error) {
+      showSnackbar(
+        ` Error saving scheduled medication`,
+        "error"
+      );
       console.error("Error saving scheduled medication:", error);
     }
   };
@@ -455,6 +471,10 @@ export default function PatientScheduledTableComponent({ sectionId }) {
     await deletePatientMedication(sectionPatientId, deletingRow.original.id);
     setPatientMeds(
       patientMeds.filter((item) => item.id !== deletingRow.original.id)
+    );
+    showSnackbar(
+      `Patient scheduled medication deleted successfully.`,
+      "success"
     );
     setOpenDeleteModal(false);
   };

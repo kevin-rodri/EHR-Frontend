@@ -364,6 +364,10 @@ export default function PatientPRNTableComponent({ sectionId }) {
             item.id === editingRow.original.id ? updatedRecordWithDetails : item
           )
         );
+        showSnackbar(
+          `Patient PRN medication updated successfully.`,
+          "success"
+        );
       } else {
         const response = await addPatientMedication(
           sectionPatientId,
@@ -385,6 +389,10 @@ export default function PatientPRNTableComponent({ sectionId }) {
           };
 
           setPatientMeds((prevData) => [...prevData, newRecordWithDetails]);
+          showSnackbar(
+            `Patient PRN medication saved successfully.`,
+            "success"
+          );
         } else {
           console.error(
             "Error: API did not return an ID for the created record."
@@ -440,7 +448,10 @@ export default function PatientPRNTableComponent({ sectionId }) {
             : med
         )
       );
-
+      showSnackbar(
+        `Patient PRN medication updated successfully.`,
+        "success"
+      );
       // Reset UI
       setAdminsterModal(false);
       setSelectedMedicationForAdminister(null);
@@ -450,10 +461,7 @@ export default function PatientPRNTableComponent({ sectionId }) {
       });
     } catch (err) {
       console.error(err);
-      showSnackbar(
-        "Failed to administer medication. See console for details.",
-        "error"
-      );
+      showSnackbar("Failed to administer medication.", "error");
     }
   };
 
@@ -462,6 +470,10 @@ export default function PatientPRNTableComponent({ sectionId }) {
     await deletePatientMedication(sectionPatientId, deletingRow.original.id);
     setPatientMeds(
       patientMeds.filter((item) => item.id !== deletingRow.original.id)
+    );
+    showSnackbar(
+      `Patient PRN medication deleted successfully.`,
+      "success"
     );
     setOpenDeleteModal(false);
   };
@@ -743,6 +755,7 @@ export default function PatientPRNTableComponent({ sectionId }) {
         onClose={() => setOpenDeleteModal(false)}
         onConfirm={handleDelete}
       />
+      {SnackbarComponent}
     </Box>
   );
 }

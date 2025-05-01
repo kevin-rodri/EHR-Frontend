@@ -75,49 +75,58 @@ const NeurologicalSystemComponent = ({ sectionId }) => {
   const handleBlur = (field) => {
     setTouchedFields((prev) => ({ ...prev, [field]: true }));
   };
-  
+
   const isFormValid = () => {
     return (
-      neurologicalData.left_pupil_reaction && touchedFields.left_pupil_reaction &&
-      neurologicalData.left_pupil_size && touchedFields.left_pupil_size &&
-      neurologicalData.right_pupil_reaction && touchedFields.right_pupil_reaction &&
-      neurologicalData.right_pupil_size && touchedFields.right_pupil_size &&
-      neurologicalData.strength_left_upper_extremity_grip && touchedFields.strength_left_upper_extremity_grip &&
-      neurologicalData.strength_left_upper_extremity_sensation && touchedFields.strength_left_upper_extremity_sensation &&
-      neurologicalData.strength_right_upper_extremity_grip && touchedFields.strength_right_upper_extremity_grip &&
-      neurologicalData.strength_right_upper_extremity_sensation && touchedFields.strength_right_upper_extremity_sensation &&
-      neurologicalData.left_lower_extremity_strength && touchedFields.left_lower_extremity_strength &&
-      neurologicalData.left_lower_extremity_sensation && touchedFields.left_lower_extremity_sensation &&
-      neurologicalData.right_lower_extremity_strength && touchedFields.right_lower_extremity_strength &&
-      neurologicalData.right_lower_extremity_sensation && touchedFields.right_lower_extremity_sensation
+      neurologicalData.left_pupil_reaction &&
+      touchedFields.left_pupil_reaction &&
+      neurologicalData.left_pupil_size &&
+      touchedFields.left_pupil_size &&
+      neurologicalData.right_pupil_reaction &&
+      touchedFields.right_pupil_reaction &&
+      neurologicalData.right_pupil_size &&
+      touchedFields.right_pupil_size &&
+      neurologicalData.strength_left_upper_extremity_grip &&
+      touchedFields.strength_left_upper_extremity_grip &&
+      neurologicalData.strength_left_upper_extremity_sensation &&
+      touchedFields.strength_left_upper_extremity_sensation &&
+      neurologicalData.strength_right_upper_extremity_grip &&
+      touchedFields.strength_right_upper_extremity_grip &&
+      neurologicalData.strength_right_upper_extremity_sensation &&
+      touchedFields.strength_right_upper_extremity_sensation &&
+      neurologicalData.left_lower_extremity_strength &&
+      touchedFields.left_lower_extremity_strength &&
+      neurologicalData.left_lower_extremity_sensation &&
+      touchedFields.left_lower_extremity_sensation &&
+      neurologicalData.right_lower_extremity_strength &&
+      touchedFields.right_lower_extremity_strength &&
+      neurologicalData.right_lower_extremity_sensation &&
+      touchedFields.right_lower_extremity_sensation
     );
   };
-  
 
   useEffect(() => {
     const fetchData = async () => {
       try {
         if (sectionId === null) return;
-  
+
         const sectionPatient = await getSectionPatientById(sectionId);
         const id = sectionPatient.id;
         setSectionPatientId(id);
-  
+
         const data = await getNeurologicalInfoFromPatient(id);
-  
+
         setNeurologicalData((prev) => ({
           ...prev,
           ...data,
           section_patient_id: id,
         }));
-
       } catch (error) {
         console.error("Error fetching neurological data:", error);
       }
     };
     fetchData();
   }, [sectionId]);
-  
 
   const handleChange = (field, value) => {
     setNeurologicalData((prev) => ({ ...prev, [field]: value }));
@@ -138,10 +147,13 @@ const NeurologicalSystemComponent = ({ sectionId }) => {
         ...dataToSend
       } = neurologicalData;
 
-      if (!dataToSend.neurological_note || dataToSend.neurological_note.trim() === "") {
+      if (
+        !dataToSend.neurological_note ||
+        dataToSend.neurological_note.trim() === ""
+      ) {
         dataToSend.neurological_note = "N/A";
       }
-  
+
       if (!neurologicalData.id) {
         // Create
         const { id, ...dataWithoutId } = dataToSend;
@@ -161,7 +173,11 @@ const NeurologicalSystemComponent = ({ sectionId }) => {
       }
 
       if (response) {
-        setNeurologicalData(response);
+        setNeurologicalData((prev) => ({
+          ...prev,
+          ...response,
+        }));
+        
         showSnackbar("Neurological information saved successfully!", "success");
       }
     } catch (error) {
@@ -204,7 +220,6 @@ const NeurologicalSystemComponent = ({ sectionId }) => {
                 handleChange("left_pupil_reaction", e.target.value);
                 handleBlur("left_pupil_reaction");
               }}
-                   
               sx={{ backgroundColor: "white", mb: 1 }}
               renderValue={(selected) =>
                 selected ? (
@@ -229,7 +244,7 @@ const NeurologicalSystemComponent = ({ sectionId }) => {
               size="small"
               value={neurologicalData.left_pupil_size}
               onChange={(e) => {
-                handleChange("left_pupil_size", e.target.value)
+                handleChange("left_pupil_size", e.target.value);
                 handleBlur("left_pupil_size");
               }}
               sx={{ backgroundColor: "white" }}
@@ -270,8 +285,8 @@ const NeurologicalSystemComponent = ({ sectionId }) => {
               size="small"
               type="number"
               value={neurologicalData.right_pupil_reaction}
-              onChange={(e) =>{
-                handleChange("right_pupil_reaction", e.target.value)
+              onChange={(e) => {
+                handleChange("right_pupil_reaction", e.target.value);
                 handleBlur("right_pupil_reaction");
               }}
               sx={{ backgroundColor: "white", mb: 1 }}
@@ -298,7 +313,7 @@ const NeurologicalSystemComponent = ({ sectionId }) => {
               size="small"
               value={neurologicalData.right_pupil_size}
               onChange={(e) => {
-                handleChange("right_pupil_size", e.target.value)
+                handleChange("right_pupil_size", e.target.value);
                 handleBlur("right_pupil_size");
               }}
               sx={{ backgroundColor: "white" }}
@@ -388,11 +403,10 @@ const NeurologicalSystemComponent = ({ sectionId }) => {
               required
               label="Alertness Description"
               value={neurologicalData.alertness_description}
-              onChange={(e) =>{
-                handleChange("alertness_description", e.target.value)
-                handleBlur("alertness_description")
-              }
-              }
+              onChange={(e) => {
+                handleChange("alertness_description", e.target.value);
+                handleBlur("alertness_description");
+              }}
               sx={{ backgroundColor: "white" }}
               renderValue={(selected) =>
                 selected ? (
@@ -440,14 +454,13 @@ const NeurologicalSystemComponent = ({ sectionId }) => {
                       value={
                         neurologicalData.strength_left_upper_extremity_grip
                       }
-                      onChange={(e) =>{
+                      onChange={(e) => {
                         handleChange(
                           "strength_left_upper_extremity_grip",
                           e.target.value
-                        )
-                        handleBlur("strength_left_upper_extremity_grip")
-                      }
-                      }
+                        );
+                        handleBlur("strength_left_upper_extremity_grip");
+                      }}
                       sx={{ backgroundColor: "white" }}
                     >
                       <MenuItem value={"Weak"}>Weak</MenuItem>
@@ -470,14 +483,13 @@ const NeurologicalSystemComponent = ({ sectionId }) => {
                         handleChange(
                           "strength_left_upper_extremity_sensation",
                           e.target.value
-                        )
-                        handleBlur("strength_left_upper_extremity_sensation")
-                      }
-                      }
+                        );
+                        handleBlur("strength_left_upper_extremity_sensation");
+                      }}
                       sx={{ backgroundColor: "white" }}
                     >
                       <MenuItem value={"Diminished"}>Diminished</MenuItem>
-                      <MenuItem value={"Tingling"}>Diminished</MenuItem>
+                      <MenuItem value={"Tingling"}>Tingling</MenuItem>
                       <MenuItem value={"Absent"}>Absent</MenuItem>
                     </Select>
                   </TableCell>
@@ -514,10 +526,9 @@ const NeurologicalSystemComponent = ({ sectionId }) => {
                         handleChange(
                           "strength_right_upper_extremity_grip",
                           e.target.value
-                        )
-                        handleBlur("strength_right_upper_extremity_grip")
-                      }
-                      }
+                        );
+                        handleBlur("strength_right_upper_extremity_grip");
+                      }}
                       sx={{ backgroundColor: "white" }}
                     >
                       <MenuItem value={"Weak"}>Weak</MenuItem>
@@ -539,14 +550,13 @@ const NeurologicalSystemComponent = ({ sectionId }) => {
                         handleChange(
                           "strength_right_upper_extremity_sensation",
                           e.target.value
-                        )
-                        handleBlur("strength_right_upper_extremity_sensation")
-                      }
-                      }
+                        );
+                        handleBlur("strength_right_upper_extremity_sensation");
+                      }}
                       sx={{ backgroundColor: "white" }}
                     >
                       <MenuItem value={"Diminished"}>Diminished</MenuItem>
-                      <MenuItem value={"Tingling"}>Diminished</MenuItem>
+                      <MenuItem value={"Tingling"}>Tingling</MenuItem>
                       <MenuItem value={"Absent"}>Absent</MenuItem>
                     </Select>
                   </TableCell>
@@ -580,10 +590,9 @@ const NeurologicalSystemComponent = ({ sectionId }) => {
                         handleChange(
                           "left_lower_extremity_strength",
                           e.target.value
-                        )
-                        handleBlur("left_lower_extremity_strength")
-                      }
-                      }
+                        );
+                        handleBlur("left_lower_extremity_strength");
+                      }}
                       sx={{ backgroundColor: "white" }}
                     >
                       <MenuItem value={"Weak"}>Weak</MenuItem>
@@ -603,14 +612,13 @@ const NeurologicalSystemComponent = ({ sectionId }) => {
                         handleChange(
                           "left_lower_extremity_sensation",
                           e.target.value
-                        )
-                        handleBlur("left_lower_extremity_sensation")
-                      }
-                      }
+                        );
+                        handleBlur("left_lower_extremity_sensation");
+                      }}
                       sx={{ backgroundColor: "white" }}
                     >
                       <MenuItem value={"Diminished"}>Diminished</MenuItem>
-                      <MenuItem value={"Tingling"}>Diminished</MenuItem>
+                      <MenuItem value={"Tingling"}>Tingling</MenuItem>
                       <MenuItem value={"Absent"}>Absent</MenuItem>
                     </Select>
                   </TableCell>
@@ -644,10 +652,9 @@ const NeurologicalSystemComponent = ({ sectionId }) => {
                         handleChange(
                           "right_lower_extremity_strength",
                           e.target.value
-                        )
-                        handleBlur("right_lower_extremity_strength")
-                      }
-                      }
+                        );
+                        handleBlur("right_lower_extremity_strength");
+                      }}
                       sx={{ backgroundColor: "white" }}
                     >
                       <MenuItem value={"Weak"}>Weak</MenuItem>
@@ -667,14 +674,13 @@ const NeurologicalSystemComponent = ({ sectionId }) => {
                         handleChange(
                           "right_lower_extremity_sensation",
                           e.target.value
-                        )
-                        handleBlur("right_lower_extremity_sensation")
-                      }
-                      }
+                        );
+                        handleBlur("right_lower_extremity_sensation");
+                      }}
                       sx={{ backgroundColor: "white" }}
                     >
                       <MenuItem value={"Diminished"}>Diminished</MenuItem>
-                      <MenuItem value={"Tingling"}>Diminished</MenuItem>
+                      <MenuItem value={"Tingling"}>Tingling</MenuItem>
                       <MenuItem value={"Absent"}>Absent</MenuItem>
                     </Select>
                   </TableCell>
